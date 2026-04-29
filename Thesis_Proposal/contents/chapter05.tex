@@ -1,15 +1,49 @@
 % !TeX root = ../main.tex
 
-\chapter{論文研究進度表}
+\chapter{論文研究進度表與具體里程碑}
 
-本研究預計於 2025 年 10 月至 2026 年 7 月（即碩士班畢業前）完成，各階段之工作項目與預定時程如表 \ref{table:schedule} 所示。主要研究階段包含：
-\begin{enumerate}
-    \item \textbf{硬體與光學架構建立}：完成樂高底板與龍門機構之組裝，並整合 Raspberry Pi Camera 與顯微物鏡。
-    \item \textbf{演算法開發與最佳化}：實作多階段自動對焦、空間張量色彩解混以及圖案化照明傅立葉疊層成像 (piFP) 演算法。
-    \item \textbf{系統整合與效能驗證}：利用標準校正板與螢光微球進行系統之解析度、定位精度與自動對焦效能驗證。
-    \item \textbf{實際應用測試}：導入生物樣本（如植物切片或細胞培養液）進行大面積活體螢光觀測。
-    \item \textbf{論文撰寫與修改}：整理實驗數據，完成碩士論文撰寫並準備口試。
-\end{enumerate}
+本研究預計於 2025 年 10 月正式啟動，並規劃於 2026 年 7 月（即碩士班畢業前）完成所有硬體組裝、演算法開發、生物實驗驗證以及論文定稿。為確保專案能在時限內達成既定之高標準，我們將這 10 個月的開發期劃分為六大核心里程碑（Milestones），各階段之具體工作項目與預定時程如表 \ref{table:schedule} 所示。
+
+\section{核心里程碑詳細規劃}
+
+\subsection{第一階段：文獻回顧與硬體底層架構設計 (2025年10月-11月)}
+\begin{itemize}
+    \item \textbf{理論奠基}：全面梳理包含 OpenFlexure、UC2 等開源硬體的設計圖紙，並深入研讀圖案化照明傅立葉疊層成像 (piFP) 的核心數學論文，確認相位復原演算法的疊代邏輯。
+    \item \textbf{樂高機架設計}：完成 X-Y-Z 三軸龍門式（Gantry-style）樂高機構的 CAD 建模與實體拼裝。確保 NEMA 17 馬達與導螺桿能完美嵌入樂高的 8.0 mm 幾何網格中。
+    \item \textbf{光學元件轉接件列印}：設計並以 3D 列印機印製 Raspberry Pi Camera 與顯微物鏡的有限共軛套筒，確保兩者光軸的絕對同心度。
+\end{itemize}
+
+\subsection{第二階段：光學系統校正與機電整合測試 (2025年11月-12月)}
+\begin{itemize}
+    \item \textbf{馬達驅動調試}：將 Arduino Uno 與 CNC Shield V3 連線，啟動 A4988 晶片的 16 倍微步進（Microstepping）模式，並撰寫 Python 腳本驗證 Z 軸 $0.625 \mu m$ 定位精度的可靠性。
+    \item \textbf{光源同步控制}：完成明視野 (BF) 與螢光 (Fluo) 雙路 LED 的 GPIO 繼電器接線，確保相機快門能與光源切換達到毫秒級別的同步。
+\end{itemize}
+
+\subsection{第三階段：自動對焦與空間張量色彩解混開發 (2025年12月-2026年2月)}
+此階段為軟體工程的核心期：
+\begin{itemize}
+    \item \textbf{狀態機開發}：在 PySide6 多執行緒架構下，實作 \texttt{CameraWorker} 的非同步影像擷取。
+    \item \textbf{防呆對焦演算法}：利用 Python 完成 Variance、Spatial Frequency、Tenengrad 數學指標的編寫，並實作「盲區偵測」與「尋峰回溯（Peak Recovery）」之狀態機迴圈。針對螢光模式，特別開發基於「形態學開運算 + Top 0.1\% 梯度」的抗噪模組。
+    \item \textbf{張量解混矩陣建構}：拍攝大量白場與螢光基準圖，建立並訓練 $1640 \times 1232 \times 3 \times 3$ 的四維空間變異色彩解混張量（Unmixing Tensor）。隨後將愛因斯坦求和（\texttt{np.einsum}）寫入即時串流管線中，並進行效能壓測（Stress Test）以確保高 FPS。
+\end{itemize}
+
+\subsection{第四階段：圖案化照明傅立葉疊層 (piFP) 實作 (2026年1月-3月)}
+\begin{itemize}
+    \item \textbf{擴散片波前調控模組}：在載台下方新增一個微型馬達，用以驅動擴散片產生二維空間的隨機位移，以產生高頻圖案照明。
+    \item \textbf{疊代相位復原演算法}：將擷取到的多張混疊（Aliased）低頻影像匯入電腦。撰寫正反傅立葉轉換（FFT/IFFT）疊代迴圈，同步更新擴散片的傳輸函數與樣本波前，嘗試重建出超越物鏡 NA 限制的超解析度影像。
+\end{itemize}
+
+\subsection{第五階段：系統嚴苛驗證與活體生物樣本測試 (2026年3月-5月)}
+\begin{itemize}
+    \item \textbf{標準化驗證}：使用 NBS 1952 測試板與 15 \textmu m FluoSpheres 標準螢光微球，量化分析平場校正消除暗角的能力，以及張量解混恢復螢光飽和度的精確度。
+    \item \textbf{大面積活體掃描}：導入真實的生物樣本（例如擬南芥葉片切片或培養皿中的 HeLa 細胞）。啟動全自動 Z-Stack 深度掃描與 X-Y 網格拼接協定（Grid Stitching Protocol），驗證系統在數小時連續運作下的穩定性與防漂移能力。
+\end{itemize}
+
+\subsection{第六階段：數據統整與論文定稿 (2026年5月-7月)}
+\begin{itemize}
+    \item \textbf{量化分析與作圖}：將實驗過程中的所有對焦曲線、光譜直方圖匯出並以 Python Matplotlib 繪製成學術圖表。
+    \item \textbf{論文撰寫與口試準備}：完成第一至第五章的所有內文修訂，並於 2026 年 7 月 15 日前完成學位論文口試。
+\end{itemize}
 
 \begin{table}[h!]
     \centering
@@ -19,12 +53,12 @@
     \hline
     \multirow{2}{*}{\diagbox{\textbf{工作項目}}{\textbf{預定時程}}} & \multicolumn{3}{c|}{\textbf{2025}} & \multicolumn{7}{c|}{\textbf{2026}} \\ \cline{2-11}
     & 10 & 11 & 12 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline\hline
-    文獻回顧與硬體組裝設計 & $\blacksquare$ & $\blacksquare$ & & & & & & & & \\ \hline
-    光學系統與機構校正 & & $\blacksquare$ & $\blacksquare$ & & & & & & & \\ \hline
+    文獻回顧與硬體底層架構設計 & $\blacksquare$ & $\blacksquare$ & & & & & & & & \\ \hline
+    光學系統校正與機電整合測試 & & $\blacksquare$ & $\blacksquare$ & & & & & & & \\ \hline
     自動對焦與色彩解混演算法開發 & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & \\ \hline
     圖案化照明傅立葉疊層 (piFP) 實作 & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & \\ \hline
-    系統驗證與初步生物樣本測試 & & & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\ \hline
-    綜合應用評估與數據分析 & & & & & & & & $\blacksquare$ & $\blacksquare$ & \\ \hline
-    論文撰寫、修改與定稿 & & & & & & & & & $\blacksquare$ & $\blacksquare$ \\ \hline
+    系統嚴苛驗證與活體生物樣本測試 & & & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\ \hline
+    數據統整、綜合評估與分析 & & & & & & & & $\blacksquare$ & $\blacksquare$ & \\ \hline
+    論文撰寫、修改與定稿準備口試 & & & & & & & & & $\blacksquare$ & $\blacksquare$ \\ \hline
     \end{tabular}
 \end{table}
