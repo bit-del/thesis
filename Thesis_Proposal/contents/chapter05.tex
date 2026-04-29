@@ -2,32 +2,30 @@
 
 \chapter{論文研究進度表}
 
-\begin{table}[h]
-\centering
-\caption{論文研究進度表}
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|}
-\hline
-\multirow{2}{*}{工作項目} & \multicolumn{10}{c|}{月份} & \multirow{2}{*}{備註} \\
-\cline{2-11}
- & 10 & 11 & 12 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & \\
-\hline
-硬體組裝 & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & & & & \\
-\hline
-顯微鏡資料採集 & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & & & \\
-\hline
-演算法編寫 & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & & & \\
-\hline
-顯微鏡介面設計 & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & & & \\
-\hline
-電路整合 & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & $\blacksquare$ & & & & & \\
-\hline
-實驗數據統計分析 & & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & \\
-\hline
-撰寫論文初稿 & & & & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\
-\hline
-論文口試與論文完稿 & & & & & & & & & $\blacksquare$ & $\blacksquare$ & \\
-\hline
-預定進度累計百分比 & 30\% & 40\% & 45\% & 60\% & 65\% & 70\% & 85\% & 90\% & 95\% & 100\% & \\
-\hline
-\end{tabular}
+本研究預計於 2025 年 10 月至 2026 年 7 月（即碩士班畢業前）完成，各階段之工作項目與預定時程如表 \ref{table:schedule} 所示。主要研究階段包含：
+\begin{enumerate}
+    \item \textbf{硬體與光學架構建立}：完成樂高底板與龍門機構之組裝，並整合 Raspberry Pi Camera 與顯微物鏡。
+    \item \textbf{演算法開發與最佳化}：實作多階段自動對焦、空間張量色彩解混以及散斑傅立葉疊層成像 (piFPM) 演算法。
+    \item \textbf{系統整合與效能驗證}：利用標準校正板與螢光微球進行系統之解析度、定位精度與自動對焦效能驗證。
+    \item \textbf{實際應用測試}：導入生物樣本（如植物切片或細胞培養液）進行大面積活體螢光觀測。
+    \item \textbf{論文撰寫與修改}：整理實驗數據，完成碩士論文撰寫並準備口試。
+\end{enumerate}
+
+\begin{table}[h!]
+    \centering
+    \caption{預定研究進度甘特圖 (2025年10月至2026年7月)}
+    \label{table:schedule}
+    \begin{tabular}{|l|*{10}{c|}} % 10 months from Oct to Jul
+    \hline
+    \multirow{2}{*}{\diagbox{\textbf{工作項目}}{\textbf{預定時程}}} & \multicolumn{3}{c|}{\textbf{2025}} & \multicolumn{7}{c|}{\textbf{2026}} \\ \cline{2-11}
+    & 10 & 11 & 12 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline\hline
+    文獻回顧與硬體組裝設計 & $\blacksquare$ & $\blacksquare$ & & & & & & & & \\ \hline
+    光學系統與機構校正 & & $\blacksquare$ & $\blacksquare$ & & & & & & & \\ \hline
+    自動對焦與色彩解混演算法開發 & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & \\ \hline
+    散斑傅立葉疊層 (piFPM) 實作 & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & \\ \hline
+    系統驗證與初步生物樣本測試 & & & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\ \hline
+    綜合應用評估與數據分析 & & & & & & & & $\blacksquare$ & $\blacksquare$ & \\ \hline
+    論文撰寫、修改與定稿 & & & & & & & & & $\blacksquare$ & $\blacksquare$ \\ \hline
+    \end{enumerate} % Wait, it's end{tabular}
+    \end{tabular}
 \end{table}
