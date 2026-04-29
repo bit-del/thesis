@@ -1,0 +1,59 @@
+% !TeX root = ./main.tex
+
+% --------------------------------------------------
+% 資訊設定（Information Configs）
+% --------------------------------------------------
+
+\ntusetup{
+  university*   = {National Taiwan University},
+  university    = {國立臺灣大學},
+  college       = {生物資源暨農學院},
+  college*      = {College of Bioresources and Agriculture},
+  institute     = {生物機電工程學系},
+  institute*    = {Department of Biomechatronics Engineering}, % 請確認您的科系為Department of xxx或Institute of xxx
+  title         = {開發應用高解析度散班照明傅立葉疊層成像技術之多功能樂高螢光倒立式顯微鏡},
+  title*        = {Development of a Multi-functional LEGO-based Inverted Fluorescence Microscope via High-Resolution Speckle-Illuminated Fourier Ptychography},
+  author        = {陳靖濰},
+  author*       = {Ching-Wei Chen},
+  ID            = {學號},
+  advisor       = {吳筱梅},
+  advisor*      = {Hsiao-Mei Wu},
+  date          = {2025-12-01},         % 若註解掉，則預設為當天
+  oral-date     = {2025-12-01},         % 若註解掉，則預設為當天
+  DOI           = {10.5566/NTU2018XXXXX},
+  keywords      = {倒立螢光顯微鏡, 樂高, 自動對焦, 影像拼接, 螢光傅立葉疊層},
+  keywords*     = {Inverted fluorescence microscope, LEGO, Auto-focusing, Image stitching, Fourier ptychography},
+}
+
+% --------------------------------------------------
+% 加載套件（Include Packages）
+% --------------------------------------------------
+
+\usepackage[authoryear,round]{natbib}   % 參考文獻
+\usepackage{amsmath, amsthm, amssymb}   % 數學環境
+\usepackage{ulem, CJKulem}              % 下劃線、雙下劃線與波浪紋效果
+\usepackage{booktabs}                   % 改善表格設置
+\usepackage{multirow}                   % 合併儲存格
+\usepackage{diagbox}                    % 插入表格反斜線
+\usepackage{array}                      % 調整表格高度
+\usepackage{longtable}                  % 支援跨頁長表格
+\usepackage{paralist}                   % 列表環境
+
+
+\usepackage{lipsum}                     % 英文亂字
+\usepackage{zhlipsum}                   % 中文亂字
+
+% --------------------------------------------------
+% 套件設定（Packages Settings）
+% --------------------------------------------------
+
+\makeatletter
+\newcounter{bibcount}
+\setlength{\bibhang}{3em}
+\let\old@bibitem\bibitem
+\renewcommand{\bibitem}[2][]{%
+  \old@bibitem[#1]{#2}%
+  \stepcounter{bibcount}%
+  \makebox[\bibhang][l]{[\thebibcount]}\ignorespaces
+}
+\makeatother
