@@ -23,9 +23,9 @@
 受限於低成本光學元件的數值孔徑（NA），如何在不更換昂貴物鏡的前提下提升解析度與對比度，是目前運算顯微技術的核心課題。
 
 \subsection{傅立葉疊層成像 (Fourier Ptychography, FP)}
-傅立葉疊層成像技術透過在頻域中合併多張低解析度影像，重建出兼具大視場與高解析度的影像。傳統的 FP 多應用於明場（Brightfield）模式。針對螢光成像的非相干性，\textbf{piFPM (Pattern-Illuminated Fourier Ptychography)} \citep{dong2014high} 被提出。其利用隨機或結構化的照明圖案（Pattern illumination）與樣本發生頻率混疊，將物鏡截止頻率外的高頻細節搬移至通帶內。
+傅立葉疊層成像技術透過在頻域中合併多張低解析度影像，重建出兼具大視場與高解析度的影像。傳統的 FP 多應用於明場（Brightfield）模式。針對螢光成像的非相干性，\textbf{piFP (pattern-illuminated Fourier Ptychography)} \citep{dong2014high} 被提出。其利用圖案化照明（Pattern illumination）與樣本發生頻率混疊，將物鏡截止頻率外的高頻細節搬移至通帶內。
 
-此外，\textbf{He et al. (2020)} \citep{he2020fourier} 進一步提出利用散斑擴散片（Diffuser）放置於近焦平面進行波前調控的方法。相較於傳統的孔徑掃描，散斑調控能有效提升暗場成像的訊噪比（SNR），並對機械位移誤差具備更好的魯棒性。本研究即參考此概念，探討低成本擴散片在樂高系統中的超解析度重建潛力。
+此外，\textbf{He et al. (2020)} \citep{he2020fourier} 進一步提出利用擴散片（Diffuser）放置於近焦平面進行波前調控的方法。相較於傳統的孔徑掃描，圖案化調控能有效提升暗場成像的訊噪比（SNR），並對機械位移誤差具備更好的魯棒性。本研究即參考此概念，探討低成本擴散片在樂高系統中的超解析度重建潛力。
 
 針對寬視場下的相差修正問題，\textbf{Chung et al. (2016)} \citep{chung2016wide} 展示了如何利用嵌入式瞳孔函數復原（EPRY）技術，在重建過程中同時估測光學系統的像差。這對於本研究中可能存在的 3D 列印公差或樂高組裝微小誤差，提供了強大的軟體補償手段。
 
