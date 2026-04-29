@@ -2,40 +2,62 @@
 
 \chapter{研究方法}
 
-\section{系統架構設計}
-本研究提出之多功能樂高螢光倒立式顯微鏡，由三大核心子系統構成：基於樂高積木的光學桌平台、高剛性龍門載台機構，以及智慧化運算成像管線。光學系統採用標準無限遠校正光路（Infinity-corrected optical path），核心元件以客製化之3D列印轉接環固定於樂高積木上，確保光學元件的光軸高度一致且同心。在感測端，採用高效益之Raspberry Pi Camera模組，並透過系統校正補償其光學與光譜限制。
+\section{系統硬體架構與光路設計}
 
-\section{多階段動態自動對焦演算法}
-為應對高通量影像掃描時樣本不平整所導致的離焦問題，本研究設計了一套雙模組（明視野與螢光模式）之多階段動態自動對焦（Multi-stage Dynamic Autofocus）演算法。此演算法核心採用了防呆盲區防護與閉迴圈尋峰回溯（Closed-loop Peak Recovery）機制。
+\subsection{有限共軛光路設計 (Finite-Conjugate Optical Design)}
+本研究之顯微鏡光路參考 OpenFlexure \citep{collins2020robotic} 之設計理念，採用**有限共軛 (Finite-Conjugate)** 光路系統，而非傳統研究級顯微鏡常用之無限遠校正 (Infinity-corrected) 系統。在此架構下，物鏡直接將樣本成像於感測器平面，省略了昂貴且佔空間的管鏡 (Tube lens) 與無限遠空間。此設計不僅大幅縮減了顯微鏡的物理體積，亦降低了光學組裝的複雜度，極其適合整合於樂高積木建構的可重構架構中。
 
-\subsection{明視野模式之三重指標策略}
-在明視野（Brightfield）模式下，由於影像雜訊相對較低且結構豐富，系統採用了三階段切換策略：
+感測端採用 Raspberry Pi Camera Module 2 (IMX219)，其原始鏡頭在移除後，配合特定設計的 3D 列印固定件，可與顯微物鏡形成穩定的光學鏈。雖然有限共軛系統在插入濾光片或分光鏡時會產生額外的球差，但本研究透過精確計算元件位置，將此影響控制在可接受範圍內。
+
+\subsection{基於樂高與龍門架構之機械系統}
+硬體支撐結構由樂高積木 (LEGO Technic系列) 構成之「光學底板」與客製化 3D 列印組件組成。為了解決傳統開源顯微鏡行程受限的問題，本系統開發了剛性龍門式 (Gantry-style) X-Y 掃描載台。
+\begin{itemize}
+    \item \textbf{動力系統}：採用三顆 NEMA 17 步進馬達分別驅動 X、Y、Z 三軸。
+    \item \textbf{控制核心}：使用 Arduino Uno 搭配 CNC Shield V3 作為馬達驅動器，並與 Raspberry Pi 透過 Serial 通訊。
+    \item \textbf{定位精度}：系統設定為 16 倍細分 (Microstepping)。根據 $Z$ 軸導螺桿導程為 2.0mm 且步進角為 1.8$^\circ$ (每圈 200 步) 計算，其理論解析度可達：
+    \begin{equation}
+        Resolution_Z = \frac{2000~\text{\textmu m}}{200 \times 16} = 0.625~\text{\textmu m/step}
+    \end{equation}
+    此精度足以滿足高倍率物鏡下的自動對焦需求。
+\end{itemize}
+
+\subsection{光源與電子控制}
+光源系統包含明視野 (Bright-field) LED 與螢光激發光源。
+\begin{itemize}
+    \item \textbf{明視野}：由 Raspberry Pi GPIO 17 腳位控制，提供透射式照明。
+    \item \textbf{螢光激發}：由 GPIO 27 腳位控制。透過 RPi.GPIO 函式庫實現與相機曝光時間的同步切換，避免不必要的樣本螢光淬滅 (Photobleaching)。
+\end{itemize}
+
+\section{軟體架構與運算成像管線}
+
+\subsection{非同步多執行緒後端}
+本系統之軟體基於 Python 撰寫，採用 PySide6 框架構建非同步多執行緒架構。為確保即時影像串流與硬體控制互不干擾，系統拆分為以下核心模組：
 \begin{enumerate}
-    \item \textbf{粗調（Coarse Tuning）}：採用全域變異數（Global Variance）作為指標，此函數在遠離焦平面時仍能保持平滑的梯度變化，提供良好的大範圍導引方向。
-    \item \textbf{中調（Mid-Tuning）}：切換至空間頻率（Spatial Frequency），結合水平與垂直方向的梯度計算，進一步收斂搜尋範圍。
-    \item \textbf{精調（Fine Tuning）}：採用Brenner或Tenengrad高頻梯度函數，由於這些指標對焦平面附近的細微變化極度敏感，能夠精準鎖定峰值。
+    \item \textbf{Camera Worker}：負責 Picamera2 的即時採集、緩衝管理與影像校正運算。
+    \item \textbf{Motor Controller}：負責 G-code 指令的序列化發送與 Arduino 的回應監聽。
+    \item \textbf{API Handler}：基於 HTTP 協定建立 Web 端控制介面，使使用者能遠端操作顯微鏡。
 \end{enumerate}
 
-\subsection{螢光模式之形態學抗噪指標}
-在螢光模式下，低訊噪比與高背景雜訊（Haze）往往導致傳統對焦指標失效。本研究提出了一套基於形態學的特徵提取策略：首先，對影像進行形態學開運算（Morphological Opening）以去除零星的高頻雜訊並保留主要的發光結構；接著，利用Sobel算子計算梯度大小；最後，僅擷取全圖前 0.1\% 最強之梯度值（Top 0.1\% Peaks）進行均方根計算。此方法能有效抑制背景雜訊的干擾，在極低光環境下仍能產生清晰單調的對焦峰值。
+\subsection{多指標動態自動對焦演算邏輯}
+為應對明場與螢光影像特性的巨大差異，系統實作了「三重指標 (Triple-Metric)」動態搜尋演算法 (如圖 \ref{fig:af_logic}，概念圖)。
+\begin{itemize}
+    \item \textbf{第一階段 (粗調)}：使用全域變異數 (Global Variance)。其對離焦產生的模糊具備極佳的單調性，能引導馬達快速進入焦平面鄰域。
+    \item \textbf{第二階段 (中調)}：切換至空間頻率 (Spatial Frequency)，利用二維梯度分佈縮小搜尋步進。
+    \item \textbf{第三階段 (精調)}：在明場下使用 Brenner 梯度函數；在螢光下則啟動專屬的「形態學 + 前 0.1\% 梯度」算法。該算法先以形態學開運算移除背景霾霧 (Haze)，再提取最高能量的 0.1\% 像素計算梯度，確保在低光下仍能鎖定峰值。
+\end{itemize}
+若搜尋過程中指標連續下降，系統會判定進入「盲區」，自動觸發方向反轉或重設起始點，並具備「尋峰回溯」功能以修正馬達背隙造成的誤差。
 
-\subsection{閉迴圈尋峰回溯與防護機制}
-本系統內建趨勢備份與防護機制。在第一階段搜尋時，若連續偵測到指標下降，系統將判定處於「盲區（Blind zone）」並自動反轉搜尋方向。當演算法判定已跨越最高峰（例如指標跌破最大值的 80\%，或連續下降三次）後，系統將啟動「尋峰回溯」狀態，以更精細的步長反向移動，直到重新鎖定歷史最高值的 98\% 以上，確保對焦的穩定性與重現性。
+\subsection{空間變異張量影像校正管線}
+針對低成本感測器在顯微系統中的缺陷，本研究實作了高度優化的影像校正管線：
+\begin{enumerate}
+    \item \textbf{黑電平補償}：強制扣除感測器底噪 (Offset=64.0)，提升暗部細節對比。
+    \item \textbf{平場校正 (Gain Maps)}：預先拍攝均勻白場，計算 R, G, B 三通道的二維空間增益圖，校正主光線角度 (CRA) 不匹配導致的暗角。
+    \item \textbf{色彩解混 (Color Unmixing)}：針對螢光通道間的光譜串擾，引入預訓練之 $3 \times 3 \times H \times W$ 空間變異張量。利用愛因斯坦求和運算 (\texttt{np.einsum}) 對全圖進行像素級的解混校正：
+    \begin{equation}
+        I_{corrected}(x, y) = T(x, y) \cdot I_{raw}(x, y)
+    \end{equation}
+    其中 $T$ 為空間變異之色彩變換矩陣，能還原樣本真實的螢光光譜顏色。
+\end{enumerate}
 
-\section{影像處理管線與色彩解混校正}
-由於低成本之消費級感測器表面之微透鏡陣列（Microlens array）並非為顯微物鏡之遠心（Telecentric）光路設計，存在嚴重的主光線角度（CRA）不匹配問題，導致畫面周邊產生暗角（Vignetting）與色彩串擾（Color Crosstalk）。為此，本研究開發了一套四階段影像處理管線：
-
-\subsection{黑電平扣除與固定背景修正}
-首先，針對感測器的固有雜訊底噪，執行基礎黑電平扣除（Black Level Subtraction, 預設偏移值為 64.0）。在螢光模式下，進一步扣除預錄之固定背景幀（Fixed Background Frame），消除環境漏光或自發螢光的干擾，並確保扣除後之像素值為非負數。
-
-\subsection{空間增益矩陣平場校正 (Flat-field Correction)}
-為了補償 CRA 造成的周邊亮度衰減，系統透過拍攝均勻明場背景，擷取影像中央 95 百分位之亮度作為目標值，計算出 R、G、B 獨立之二維增益矩陣（Gain Maps）。在校正過程中，將即時影像與該增益矩陣相乘，強制將全視野亮度均一化。
-
-\subsection{空間變異張量色彩解混 (Spatially Varying Color Unmixing)}
-CRA 差異不僅造成亮度衰減，更會導致光譜能量外溢至相鄰顏色的像素中。本研究建立了一套全域之色彩解混張量（Color Unmixing Tensor）。在運算上，我們引入愛因斯坦求和約定（Einstein Summation Convention, \texttt{np.einsum('hwij,hwj->hwi')}），對每一個像素的 RGB 向量進行反矩陣運算，還原其真實的光譜分佈。
-
-\subsection{數位增強與去噪}
-針對螢光微弱信號，系統在解混後實施數位增益（Digital Gain），並配合 3$\times$3 中值濾波（Median Blur）平滑化處理，最終以 16-bit 高動態範圍保存，或降維至 8-bit QImage 供圖形化介面即時預覽。
-
-\section{高解析度圖案化照明傅立葉疊層成像 (piFP)}
-為突破低數值孔徑物鏡的繞射極限，本研究引入圖案化照明傅立葉疊層技術。有別於傳統的孔徑掃描，本系統將一片表面具有隨機散射特性之擴散片（Diffuser）放置於靠近焦平面之處。藉由馬達驅動擴散片進行二維微小位移，產生隨機且不相關的圖案化照明圖案。這些高頻圖案與樣本發生頻率混疊（Frequency Aliasing），將超出物鏡通帶的高頻資訊轉換至可觀測的低頻範圍。演算法端則採用迭代式相位復原技術（Iterative Phase Retrieval），同步更新擴散片傳輸函數與樣本之波前資訊，實現大視場且高解析度的定量相位與螢光成像。
+\section{高解析度圖案化照明傅立葉疊層重建 (piFP)}
+硬體端在靠近樣本處放置一個具備隨機微結構的擴散片。藉由 X-Y 馬達帶動擴散片產生微小位移，使樣本受圖案化照明 (Pattern illumination) 照射。軟體端則實作迭代相位復原演算法，在每一輪迭代中同步更新擴散片傳輸函數與樣本之波前複振幅資訊。此技術透過頻域合成，將傳統受限於物鏡數值孔徑的高頻資訊還原，預期可將有效解析度提升 2 至 3 倍。
