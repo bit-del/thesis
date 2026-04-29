@@ -2,12 +2,24 @@
 
 \begin{abstract}
 
-中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要中文摘要
+商用倒立螢光顯微鏡造價高昂且系統封閉，嚴重限制了跨領域研究的擴充性；而現有的純 3D 列印開源顯微鏡雖降低了成本，卻受限於撓性機構（Flexure hinge）的先天缺陷，面臨移動行程極短、結構剛性不足導致焦平面漂移，以及消費級相機帶來嚴重暗角與色彩串擾等問題。為解決上述痛點，本研究提出並實作了一套兼具低成本與高擴充性之「多功能樂高螢光倒立式顯微鏡」系統。
+
+在硬體端，本系統揚棄傳統撓性機構，改採高剛性的龍門式（Gantry-style）架構，並將 NEMA 17 步進馬達與金屬滑軌完美整合至具備極高射出成型精度（$<10 \mu m$）的樂高科技系列（LEGO Technic）光學底板中。配合 16 倍微步進驅動，系統達成了 $0.625 \mu m$ 的 Z 軸定位精度與數公分的大面積掃描行程。
+
+在軟體與演算法端，本系統基於 Python 與 PySide6 建構了非同步多執行緒的控制後端。針對大行程掃描面臨的失焦問題，我們開發了「多階段動態自動對焦狀態機」，巧妙融合全域變異數、空間頻率與形態學梯度指標，能在極度微弱且充滿雜訊的螢光背景中，於 14 秒內完成近一毫米深度的尋峰與回溯鎖定。針對 Raspberry Pi Camera 邊緣微透鏡主光線角度（CRA）錯位造成的物理瑕疵，本研究獨創「空間變異張量色彩解混（Tensor Color Unmixing）」管線，利用愛因斯坦求和（\texttt{np.einsum}）進行逐像素反矩陣運算，成功還原螢光微球的真實色彩飽和度並抹平暗角。
+
+此外，本系統亦整合了圖案化照明傅立葉疊層成像（piFP）技術之前置波前調控硬體，旨在透過頻率混疊與疊代運算，進一步突破低數值孔徑物鏡的物理繞射極限。本研究所開發之軟硬體開源架構，不僅大幅降低了生醫影像研究的經濟門檻，更證實了消費級電子元件透過嚴謹的數學演算法補償，亦能產出具備高度保真度之定量學術影像。
 
 \end{abstract}
 
 \begin{abstract*}
 
-Abstract
+Commercial inverted fluorescence microscopes are prohibitively expensive and inherently closed-source, significantly impeding cross-disciplinary customization. While existing 3D-printed open-source alternatives reduce costs, they suffer from inherent flaws of flexure mechanisms, including severely limited travel ranges, poor structural stiffness leading to focus drift, and severe optical aberrations (vignetting and color crosstalk) caused by consumer-grade image sensors. To address these bottlenecks, this study proposes and implements a low-cost, highly scalable "Multifunctional LEGO-based Inverted Fluorescence Microscope" system.
+
+On the hardware front, we abandoned traditional flexure designs in favor of a highly rigid, Gantry-style architecture. We integrated NEMA 17 stepper motors and metal linear guides into an optical breadboard constructed from LEGO Technic components, which boast exceptional injection-molding precision ($<10 \mu m$). Coupled with 16x microstepping drives, the system achieves a Z-axis positioning resolution of $0.625 \mu m$ and enables large-area scanning over several centimeters.
+
+On the software and algorithmic front, we built an asynchronous, multi-threaded control backend utilizing Python and PySide6. To tackle the autofocus challenges during large-range scanning, we developed a "Multi-stage Dynamic Autofocus State Machine". By seamlessly transitioning between Global Variance, Spatial Frequency, and Morphological Gradient metrics, the system can robustly perform peak-searching and closed-loop recovery across a near-millimeter depth within 14 seconds, even in extremely faint and noisy fluorescence backgrounds. Furthermore, to mitigate the severe vignetting and color crosstalk caused by the Chief Ray Angle (CRA) mismatch of the Raspberry Pi Camera's edge microlenses, we pioneered a "Spatially Varying Tensor Color Unmixing" pipeline. By leveraging Einstein summation (\texttt{np.einsum}) for pixel-wise inverse matrix operations, we successfully restored the true color saturation of fluorescent microspheres and eliminated vignetting.
+
+Additionally, the system integrates the necessary wavefront modulation hardware for pattern-illuminated Fourier Ptychographic (piFP) imaging, aiming to computationally surpass the physical diffraction limit of low numerical aperture objectives through frequency aliasing and iterative phase retrieval. The open-source hardware and software architecture developed in this study not only drastically lowers the economic barrier for biomedical imaging research but also demonstrates that consumer-grade electronics, when compensated by rigorous mathematical algorithms, can produce high-fidelity, quantitative academic imagery.
 
 \end{abstract*}
