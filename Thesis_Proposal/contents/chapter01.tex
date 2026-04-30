@@ -106,6 +106,13 @@
     \item \textbf{主光線角度（Chief Ray Angle, CRA）不匹配}：感測器表面的微透鏡陣列是針對原始的短焦距鏡頭設計的。當我們移除原始鏡頭，改用顯微物鏡時，光線入射的角度會產生偏差，導致畫面周圍產生嚴重的亮度衰減（暗角，Vignetting）。
     \item \textbf{色彩串擾（Color Crosstalk）}：CRA 錯位更會導致特定波長的光線穿過 Bayer 濾光片時「溢出」到相鄰的像素中，使得螢光訊號失真，顏色變得蒼白不均。
 \end{itemize}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig5_cra_mismatch.png}
+    \caption{Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite{bowman2019flat}）。}
+    \label{fig:cra_mismatch}
+\end{figure}
 為了克服這些硬體缺陷，我們將在後續章節提出一套基於「空間變異張量（Spatially Varying Tensor）」的色彩解混與平場校正演算法，以軟體運算徹底彌補硬體的不足。
 
 \subsection{突破實體繞射極限：圖案化照明傅立葉疊層成像 (piFP)}
