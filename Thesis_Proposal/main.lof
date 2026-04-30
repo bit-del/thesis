@@ -1,0 +1,13 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces 正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}}{2}{figure.caption.9}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）與斯托克斯位移。}}{3}{figure.caption.10}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces 落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}}{4}{figure.caption.11}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces OpenFlexure Delta Stage 的幾何結構與撓性機構示意圖（圖片來源：OpenFlexure 專案官方文件 \cite {openflexure_delta}）。}}{7}{figure.caption.12}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{11}{figure.caption.13}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{20}{figure.caption.14}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

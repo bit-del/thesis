@@ -10,6 +10,13 @@
 
 為了解決這個物理空間的限制，「倒立式顯微鏡（Inverted Microscope）」應運而生。倒立式顯微鏡將光源配置於樣本上方，而將物鏡倒置於樣本平台之下。這樣的幾何配置帶來了兩大優勢：首先，物鏡可以不受限於培養容器的高度，僅需隔著極薄的容器底部（通常為 0.17 mm 厚的蓋玻片或特定厚度的塑膠底）即可近距離對焦於沉澱在底部的細胞；其次，樣本上方擁有開闊的操作空間，方便研究人員使用微操作器（Micromanipulator）進行細胞注射（Microinjection）或外接微流體系統（Microfluidic System）。因此，倒立式顯微鏡成為了現代細胞生物學研究的標準配備。
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig1_microscopes.png}
+    \caption{正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}
+    \label{fig:microscopes}
+\end{figure}
+
 \section{螢光顯微成像技術之基礎原理}
 
 除了觀察樣本的物理形態，現代生物學更著重於分子層級的特異性標定。傳統明視野（Bright-field）顯微鏡僅能依賴樣本對光的吸收、折射或散射來產生對比度，對於內部結構極度透明的活細胞往往束手無策。為了突顯特定蛋白質或胞器，科學家發展出了「螢光顯微鏡（Fluorescence Microscope）」。
@@ -19,6 +26,13 @@
 
 由於在無輻射躍遷過程中損失了部分能量，根據普朗克-愛因斯坦關係式（$E = hc/\lambda$），發射出的光子能量會小於吸收的光子能量，亦即發射光的波長（$\lambda_{em}$）會長於激發光的波長（$\lambda_{ex}$）。這種激發波長與發射波長之間的差值，被稱為**斯托克斯位移（Stokes Shift）**。
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig2_stokes_shift.png}
+    \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）與斯托克斯位移。}
+    \label{fig:stokes_shift}
+\end{figure}
+
 \subsection{螢光顯微鏡的光學濾波架構}
 斯托克斯位移是螢光顯微鏡得以運作的物理基石。為了能在黑暗的背景中僅捕捉到微弱的螢光訊號，螢光顯微鏡必須極力排除強烈的激發光干擾。一套標準的落射式螢光顯微鏡（Epifluorescence Microscope）通常包含三個核心光學元件：
 \begin{enumerate}
@@ -26,6 +40,13 @@
     \item \textbf{雙色分光鏡（Dichroic Mirror）}：放置於光路中呈現 45 度角。其特殊的光學鍍膜設計使其能「反射」較短波長的激發光至物鏡方向，同時「穿透」較長波長的發射光至相機端。
     \item \textbf{發射濾光片（Emission Filter）}：放置於相機前方，作為最後一道防線，徹底阻擋任何殘留或散射的激發光，僅讓純淨的螢光波段進入感測器。
 \end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig3_filter_cube.png}
+    \caption{落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}
+    \label{fig:filter_cube}
+\end{figure}
 
 透過這三道濾波機制的嚴格把關，螢光顯微鏡能達到極高的訊噪比（Signal-to-Noise Ratio, SNR），使科學家能夠在微觀尺度下觀察到極其微弱的分子標記。然而，這種精密的光學元件配置，也使得商用螢光顯微鏡的造價往往高不可攀。
 
