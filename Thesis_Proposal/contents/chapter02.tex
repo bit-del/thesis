@@ -112,6 +112,13 @@ Tenengrad 則是利用著名的 Sobel 算子（分別在 x 與 y 方向求一階
 \end{equation}
 \textbf{物理意義}：這些指標的對焦曲線如同一根尖刺（Needle-like）。在偏離焦平面哪怕只有幾微米時，其數值就會如懸崖般暴跌。因此，它們被用於**「第三階段精調」**，確保系統能以 $0.625 \mu m$ 的精度死鎖焦平面。
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/chap2_fig2_af_curves.png}
+    \caption{明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}
+    \label{fig:af_curves_comparison}
+\end{figure}
+
 \subsection{極端環境下的抗噪策略：形態學對焦指標}
 上述數學模型在明視野（Bright-field）下運作完美，因為明視野影像明亮且信噪比高。但在螢光（Fluorescence）模式下，樣本發出的光極其微弱，且背景充滿了未結合螢光染劑的雜散光（Haze）與相機感測器的熱雜訊（Thermal Noise）。
 這些高頻的白雜訊會嚴重干擾 Tenengrad 等依賴梯度的演算法，導致在失焦的背景中計算出虛假的「高頻雜訊峰值」，讓演算法徹底迷失方向。
@@ -127,6 +134,13 @@ Tenengrad 則是利用著名的 Sobel 算子（分別在 x 與 y 方向求一階
     \item \textbf{膨脹（Dilation）}：隨後將剩餘的真實細胞結構恢復到原本的大小，但那些已經被抹除的雜訊則無法復原。
 \end{itemize}
 透過開運算徹底洗淨雜訊後，再進行 Sobel 梯度計算。為求極致的抗干擾性，我們在程式中甚至加入了一道排序過濾：\textbf{僅提取全圖前 0.1\% 最強烈的像素（Top 0.1\% Peaks）} 來計算最終得分。這確保了系統永遠只對最明亮的螢光結構對焦，徹底免疫背景雜散光的干擾。
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/chap2_fig3_morphology_quantitative_comparison.png}
+    \caption{基於物理模型之大範圍失焦模擬與形態學抗噪處理流程對比圖。}
+    \label{fig:morphology_comparison}
+\end{figure}
 
 \section{感測器物理學與色彩校正 (Color Correction) 理論}
 

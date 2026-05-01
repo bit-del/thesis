@@ -6,6 +6,8 @@
 \contentsline {figure}{\numberline {1.5}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{11}{figure.caption.13}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{20}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自勨^^99對脫焦距離的響應曲線模擬對比。}}{23}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程對比圖。}}{24}{figure.caption.16}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
