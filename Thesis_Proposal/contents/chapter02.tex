@@ -163,6 +163,15 @@ Tenengrad 則是利用著名的 Sobel 算子（分別在 x 與 y 方向求一階
     \label{fig:morphology_comparison}
 \end{figure}
 
+為了進一步驗證形態學處理對自動對焦指標的提升效果，如圖 \ref{fig:morphology_quantitative} 所示，我們針對不同曝光度與雜訊程度的影像進行了定量分析。透過對比處理前與處理後的梯度能量分布，可以看到經過形態學開運算（Opening）後，影像中的隨機雜訊被顯著抑制，使得聚焦特徵（Focus Feature）的對比度大幅提升，這對於在低信噪比環境下的精確對焦至關重要。
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/chap2_fig6_morphology_quantitative.png}
+    \caption{形態學處理前後之聚焦特徵定量對比。圖中顯示了在不同模擬環境下，經過形態學運算後梯度能量的分布變化及其對 Top 0.1\% 能量分數的正面影響。}
+    \label{fig:morphology_quantitative}
+\end{figure}
+
 \section{感測器物理學與色彩校正 (Color Correction) 理論}
 
 將百元等級的 Raspberry Pi Camera 取代數十萬元科學級相機的代價，就是必須面對消費級感測器在光學設計上的嚴重妥協。
