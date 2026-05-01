@@ -5,9 +5,10 @@
 \contentsline {figure}{\numberline {1.4}{\ignorespaces OpenFlexure Delta Stage 的幾何結構與撓性機構示意圖（圖片來源：OpenFlexure 專案官方文件 \cite {openflexure_delta}）。}}{7}{figure.caption.12}%
 \contentsline {figure}{\numberline {1.5}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{11}{figure.caption.13}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{20}{figure.caption.14}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}}{23}{figure.caption.15}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程對比圖。}}{24}{figure.caption.16}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces 光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍（綠色虛線區），造成高頻細節的遺失。}}{19}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{20}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}}{23}{figure.caption.16}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程對比圖。}}{25}{figure.caption.17}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
