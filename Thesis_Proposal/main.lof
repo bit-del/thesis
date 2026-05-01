@@ -9,8 +9,7 @@
 \contentsline {figure}{\numberline {2.2}{\ignorespaces 基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖（圖片參考自 \cite {zheng2013wide}）。系統透過可程式化控制的 LED 陣列提供不同角度的照明，將樣本的高頻資訊偏移至物鏡可接收的孔徑內。}}{20}{figure.caption.15}%
 \contentsline {figure}{\numberline {2.3}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{21}{figure.caption.16}%
 \contentsline {figure}{\numberline {2.4}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}}{24}{figure.caption.17}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程對比圖。}}{25}{figure.caption.18}%
-\contentsline {figure}{\numberline {2.6}{\ignorespaces 形態學處理前後之聚焦特徵定量對比。圖中顯示了在不同模擬環境下，經過形態學運算後梯度能量的分布變化及其對 Top 0.1\% 能量分數的正面影響。}}{26}{figure.caption.19}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程之定性與定量對比圖。圖中展示了在不同模擬環境下，經過形態學運算後影像雜訊的抑制效果，以及其對 Top 0.1\% 能量分數（Score）的顯著正面影響。}}{25}{figure.caption.18}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
