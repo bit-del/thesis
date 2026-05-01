@@ -6,7 +6,7 @@
 \contentsline {figure}{\numberline {1.5}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{11}{figure.caption.13}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces 光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍（綠色虛線區），造成高頻細節的遺失。}}{19}{figure.caption.14}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces 傅立葉疊層成像 (FP) 之頻域合成原理示意圖。(A) 透過傾斜照明將樣本的高頻資訊偏移；(B) 在頻域中，物鏡的有限孔徑（小圓）捕獲了不同位置的頻譜，最終合成出一個巨大的合成孔徑（大圓），達成高解析度。}}{20}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces 基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖（圖片參考自 \cite {zheng2013wide}）。系統透過可程式化控制的 LED 陣列提供不同角度的照明，將樣本的高頻資訊偏移至物鏡可接收的孔徑內。}}{20}{figure.caption.15}%
 \contentsline {figure}{\numberline {2.3}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{21}{figure.caption.16}%
 \contentsline {figure}{\numberline {2.4}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}}{24}{figure.caption.17}%
 \contentsline {figure}{\numberline {2.5}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程對比圖。}}{25}{figure.caption.18}%
