@@ -1,0 +1,499 @@
+Optics Communications 459 (2020) 125057
+Contents lists available at ScienceDirect
+Optics Communications
+journal homepage: www.elsevier.com/locate/optcom
+Fourier ptychography via wavefront modulation with a diffuser
+Xiaoliang Hea,∗, Zhilong Jianga, Yan Konga, Shouyu Wanga, Cheng Liua,b,∗
+aSchool of Science, Jiangnan University, 214122 Wuxi, Jiangsu, China
+bKey Laboratory of High Power Laser and Physics, Shanghai Institute of Optics and Fine Mechanics, Chinese Academy of Sciences, 201800 Shanghai, China
+A R T I C L E I N F O
+Keywords:
+Image reconstruction technology
+Fourier optics
+Iterative phase retrieval
+MicroscopyA B S T R A C T
+Aperture-scanning Fourier ptychography is a configuration of Fourier ptychgraphy by scanning an aperture at
+the back focal plane of the objective lens. It has been a useful tool for measuring the complex scattering field
+exited from a sample. However, in this method the intensity of dark images at the charge coupled device (CCD)
+plane is of same order or even lower than the noise when the high frequency of the Fourier spectrum is filtered
+by the aperture. Therefore, the recorded dark field images suffer from low signal-to-noise ratio (SNR), which
+results in poor reconstruction. In this paper, we report a modified Fourier ptychographic imaging method by
+wavefront modulation. Instead of an aperture, a diffuser is used to modulate the spectrum in the presented
+method. The complex distribution of the sample and the diffuser are reconstructed simultaneously via iterative
+phase retrieval. Numerical simulations and proof-of-concept experiments have been carried out to demonstrate
+the feasibility of the presented method.
+1. Introduction
+Fourier ptychography [1–13] is a newly developed powerful com-
+putational imaging framework based on the principles of synthetic
+aperture imaging [14–16] and iterative phase retrieval [17–21]. Since
+its first proposal, Fourier ptychography has been successfully demon-
+strated in the field of high-resolution imaging [22–24], quantitative
+phase imaging [25,26] and biomedical applications [27,28]. In the
+early implement of Fourier ptychography, a light emitting diode (LED)
+array is used to generate beams of varying angles [1] to illuminate
+the sample to be observed, and a CCD camera is placed at the image
+plane of the imaging system to capture the low resolution images
+which is filtered by the numerical aperture (NA). By assuming that the
+spectrum of the sample shifts in the Fourier space when the sample
+is illuminated by a titled illumination beam, the complex amplitude
+of the spectrum can be reconstructed rapidly and accurately through
+a common Fourier ptychographic algorithm relying on overlapping
+constraints and intensity constraints, hence the high resolution am-
+plitude as well as the quantitative phase image of the sample can
+be obtained by inverse Fourier transform the reconstructed spectrum.
+However, the assumption is established under conditions where the
+sample is sufficiently thin, for thick sample the complex distribution
+of the spectrum changes when the sample is illuminated by a beam
+with different angle, thus the overlapping constraints are not satisfied
+and the common ptychographic algorithms will not be able to recon-
+struct the complex spectral. To address the thick-limitation problem in
+Fourier ptychography, Fourier ptychographic tomography (FPT) [29]
+∗Corresponding authors.
+E-mail addresses: xiaoliang.he@jiangnan.edu.cn (X. He), cheng.liu@hotmail.co.uk (C. Liu).and multiple-slice Fourier ptychography [30] inspired by three dimen-
+sional ptychography [31–33] were proposed for handling thick samples
+at the cost of dramatically increased computational complexity.
+Aperture-scanning Fourier ptychography [34–37] is another method
+to bypass the limitation of sample thickness in Fourier ptychography.
+Instead of illuminating sample with varying angle beam, in the config-
+uration of aperture-scanning Fourier ptychography, the thick sample
+is illuminated by a collimated plane wave. An aperture is placed at
+the confocal plane of the 4f imaging system to modulate the spectrum
+of the thick sample and multiple intensity images including the bright
+field images and dark field images are recorded by a CCD (or CMOS)
+camera when the aperture is shifting in the confocal plane. After
+data acquisition is completed, the recorded images are converted to
+the complex distribution of the spectrum by a conventional Fourier
+ptychographic algorithm [38,39] to recover the wavefront exited from
+the thick sample. Due to its convenient setup and low computational
+complexity, aperture-scanning Fourier ptychography has been used for
+phase imaging [36], topography [40], 3D refocusing, and pixel super-
+resolution [34,41]. However, the intensity of dark image at the CCD
+plane is of same order or even lower than the noise when the aperture
+is scanned to the high frequency position of the spectrum, hence
+the recorded dark field images suffer from low signal-to-noise ratio
+(SNR), resulting in poor reconstruction of aperture-scanning Fourier
+ptychography.
+Recently, a diffuser was employed in imaging methods based on
+phase retrieval. Zhang et al. [21] proposed a phase retrieval method by
+https://doi.org/10.1016/j.optcom.2019.125057
+Received 3 October 2019; Received in revised form 25 November 2019; Accepted 1 December 2019
+Available online 4 December 2019
+0030-4018/ ©2019 Elsevier B.V. All rights reserved.
+X. He, Z. Jiang, Y. Kong et al. Optics Communications 459 (2020) 125057
+coherent modulation imaging, in which a diffuser is inserted between
+the object and detector to modulate the wavefield. The method has
+proven to have the advantages of compact setup, fast data acquisition,
+and high convergence speed. However, in their method, the complex
+transmission function of the diffuser should be known accurately in ad-
+vance. Xie et al. [42] proposed an improved scanning-aperture Fourier
+ptychographic method by placing a known phase modulator in the
+optical setup. The method was demonstrated with better convergence
+and robust to shift errors and noise by computer simulations, however
+the method still needs to scan the spectrum in the confocal plane
+using an aperture, the problem of low SNR of the dark field images
+were not avoided. In addition, it is difficult to accurately obtain the
+complex distribution of the phase modulator in the experiment. Zheng
+et al. [43,44] proposed pattern-illuminated Fourier ptychography and
+near field Fourier ptychography by illuminating a sample with shifted
+diffuser. However, their method cannot be used for thick sample unless
+multiple-slice algorithm [30] is combined.
+In this paper, we propose a robust Fourier ptychographic imaging
+method via wavefront modulation with a diffuser. Instead of using an
+aperture, a diffuser placed near the con-focal plane is fixed on a transla-
+tion stage and shifted laterally to modulate the complex spectrum of the
+sample in the proposed method. In the reconstruction, the amplitude as
+well as the phase of the complex sample and the diffuser are iteratively
+reconstructed simultaneously via a Fourier ptychographic algorithm.
+The manuscript is organized as follows: Section 2 describes the pro-
+posed method in detail; Section 3 shows the simulation results and
+Section 4 shows the experimental results to demonstrate the feasibility
+of the proposed method; and Section 5 concludes.
+2. Method details
+The original schematic setup of conventional aperture-scanning
+Fourier ptychography is illustrated in Fig. 1(a), which is built on the
+basis of a conventional 4f imaging system. In the configuration the
+sample is illuminated by a plane wave and a CCD detector is placed
+at the conjugate plane of the sample plane. An aperture fixed on a
+two-dimensional translation stage is shifted at the confocal plane of the
+4f imaging system to filter different part of the sample spectrum. The
+intensity distribution formed at the plane of the detector is expressed
+as:
+𝐼𝑗(𝑥,𝑦)=|||{𝑂(𝑢,𝑣)𝐴𝑗(𝑢−𝑢𝑗,𝑣−𝑣𝑗)}|||2, (1)
+where ( x,y) and ( u,v) are coordinates in the detector and con-focal
+plane, respectively. is the 2D fourier transform operator. Ois the
+spectrum distribution of the wavefront exiting the sample, Ais the
+aperture function and ( 𝑢𝑗,𝑣𝑗) represents the central position of the
+scanning step j. Different from the conventional method, our proposed
+method eliminate the usage of the aperture, as shown in Fig. 1(b),
+a diffuser is insert to modulate the spectrum. The intensity pattern
+recorded by the detector can be calculated as below:
+𝐼𝑗(𝑥,𝑦)=|||{[𝑂(𝑢,𝑣),𝑧]𝑀(𝜉−𝜉𝑗,𝜂−𝜂𝑗)}|||2, (2)
+where Mis the complex transmission function of the diffuser, zis
+the distance between the diffuser and the con-focal plane. The phase
+modulator can be placed at any position near the confocal plane [41].
+represents the Fresnel propagation, which is defined as:
+{𝑓(𝑥,𝑦),𝑧}=exp[𝑗𝑘𝑧]
+𝑗𝜆𝑧 ∬𝑓(𝑥,𝑦)exp
+×[
+𝑗𝑘(𝑥0−𝑥)2+(𝑦0−𝑦)2
+2𝑧]
+d𝑥d𝑦. (3)
+After finishing the data acquisition, the reconstruction process is
+started with initial guesses of the exiting wavefront function o(x,y)
+and the diffuser function M. The guess of o(x,y) can be randomly
+distributed or obtained by summing all the collected intensity patterns
+while the initial guess of diffuser function can be randomly distributed.
+The kth reconstruction process is proceed as follows:(1) Calculate the wavefront spectrum 𝑂𝑘(u,v) by Fourier transform
+the guessed wavefront function:
+𝑂𝑘(𝑢,𝑣)={𝑜𝑘(𝑥,𝑦)}. (4)
+(2) Propagate 𝑂𝑘(u,v) to the plane of diffuser:
+𝑇𝑘(𝜉,𝜂)=[𝑂𝑘(𝑢,𝑣),𝑧]. (5)
+(3) Calculate the wavefront 𝜓𝑗,𝑘(x,y) formed at the plane of detec-
+tor:
+𝜓𝑗,𝑘(𝑥,𝑦)={𝑇𝑘(𝜉,𝜂)𝑀𝑘(𝜉−𝜉𝑗,𝜂−𝜂𝑗)}. (6)
+(4) Replace the amplitude of wavefront 𝜓𝑗,𝑘(x,y) using the square
+root of the recorded intensity 𝐼𝑗(x,y) while keep the phase
+unchanged, an updated version of the wavefront 𝜓𝑗,𝑘(x,y) is
+obtained by:
+𝜓𝑗,𝑘(𝑥,𝑦)=√
+𝐼𝑗(𝑥,𝑦)exp(𝑖𝜃𝑗,𝑘), (7)
+where𝜃𝑗,𝑘is the phase of 𝜓𝑗,𝑘(x,y).
+(5) Inverse Fourier transform of 𝜓𝑗,𝑘(x,y) and an updated version
+of the wavefront existing the diffuser is:
+𝜙𝑗,𝑘(𝜉,𝜂)=−{𝜓𝑗,𝑘(𝑥,𝑦)}. (8)
+(6) Calculate the wavefront difference at the front plane of the
+diffuser:
+𝛥𝑗,𝑘=𝜙𝑗,𝑘(𝜉,𝜂)−𝑇𝑘(𝜉,𝜂)𝑀𝑘(𝜉−𝜉𝑗,𝜂−𝜂𝑗). (9)
+(7) Update the diffuser and the wavefront immediately before the
+diffuser:
+𝑀𝑘+1(𝜉−𝜉𝑗,𝜂−𝜂𝑗)=𝑀𝑘(𝜉−𝜉𝑗,𝜂−𝜂𝑗)
++||𝑇𝑘(𝜉,𝜂)||
+||𝑇k,max(𝜉,𝜂)||𝑇∗
+𝑘(𝜉,𝜂)𝛥𝑗,𝑘(
+||𝑇𝑘(𝜉,𝜂)||2+𝛼)
+𝑇𝑘+1(𝜉,𝜂)=𝑇𝑘(𝜉,𝜂)+|||𝑀𝑘(𝜉−𝜉𝑗,𝜂−𝜂𝑗)|||
+|||𝑀k,max(𝜉−𝜉𝑗,𝜂−𝜂𝑗)|||
+⋅𝑀∗
+𝑘(𝜉−𝜉𝑗,𝜂−𝜂𝑗)𝛥𝑗,𝑘(
+|||𝑀𝑘(𝜉−𝜉𝑗,𝜂−𝜂𝑗)|||2+𝛽),(10)
+where𝛼and𝛽are constant to control the update step size.
+(8) Back propagate 𝑇𝑘+1(𝜉,𝜂) to the focal plane and generate the
+complex wavefront exiting the sample by inverse Fourier trans-
+form:
+𝑜𝑘+1(𝑥,𝑦)=−{[𝑇𝑘+1(𝜉,𝜂),−𝑧]}(11)
+(9) Repeat steps (1)-(8) until the sum square error ( SSE) is sufficient
+small, the SSE is evaluated at the detector plane as:
+𝑆𝑆𝐸=∑(
+𝐼𝑗(𝑥,𝑦)−|||𝜓𝑗,𝑘(𝑥,𝑦)|||2)2
+𝑁(12)
+where Nis the number of pixels.
+3. Numerical verification
+In this section, we verify the proposed method by conducting com-
+puter simulations. Firstly, we performed ten sets of simulations by using
+different simulated samples. For each simulation, the image (consists
+of 512×512 pixels with a pixel size of 7. 4 μm2, the pixel values
+were scaled to [0–1]) in the 1st row of Fig. 2 was selected as the
+amplitude of the sample, and the image (consists of 512 ×512 pixels
+with a pixel size of 7. 4 μm2, the pixel values were scaled to [0– 𝜋])
+in the 2nd row of Fig. 2 was selected as the phase of the sample.
+The parameters used in the simulations were selected to model a real
+2
+X. He, Z. Jiang, Y. Kong et al. Optics Communications 459 (2020) 125057
+Fig. 1. Schematic setup of (a) conventional aperture-scanning Fourier ptychography and (b) the proposed method; L1, L2: lens.
+Fig. 2. Results of ten sets of simulations. The images in first and second row are amplitudes and phases of the original sample; images in third and fourth row are reconstructed
+amplitudes and phases by the proposed method; images in fifth and sixth row are reconstructed amplitudes and phases by conventional method.
+visible-light experiment, the illumination beam had a wavelength of
+632.8 nm, and the lenses had the same focal length of 100 mm. The
+diffuser with phase distributed in the range of [0– 𝜋] was placed 20 mm
+downstream of the confocal plane. The detector used in the simulations
+consists of 512 ×512 pixels with a pixel size of 7. 4 μm2. The diffuser
+was shifted to 9 ×9 grid with a step size of 0.25 mm and the intensity
+patterns recorded by the detector was calculated by Eq. (2) added into
+Gaussian noise of zero mean and standard deviation of 1% of the signal
+value. We run the algorithm described in Section 2 100 cycles and the
+corresponding reconstructed amplitudes and phases of the sample are
+shown in 3rd and 4th row of Fig. 2, respectively.To compare the results of the proposed method and the results of
+conventional aperture-scanning Fourier ptychography, we performed
+simulations using the optical setup illustrated in Fig. 1(a). The diameter
+of the aperture used in simulation had a diameter of 2 mm. The
+aperture was shift to 9 ×9 grid with a step size of 0.25 mm. The
+recorded images are calculated by Eq. (1) added into Gaussian noise of
+zero mean and standard deviation of 1% of the signal value. By running
+the conventional Fourier ptychographic phase retrieval algorithm [37]
+100 iterations, the reconstructed amplitudes and phases of the samples
+for each set of simulation are shown in 5th and 6th row of Fig. 2,
+respectively. We can find that the reconstructions by the proposed
+3
+X. He, Z. Jiang, Y. Kong et al. Optics Communications 459 (2020) 125057
+Fig. 3. The mean and standard deviation of MSE over ten sets of simulations. (a) Mean and (b) standard deviation of MSE of the reconstructed amplitude; (c) mean and (d)
+standard deviation of MSE of the reconstructed phase.
+method are better than the conventional method when comparing
+3rd/4th row images with 5th/6th row images.
+To quantitatively evaluate the reconstruction, we calculated the
+mean squared error (MSE) between the recovered image and the orig-
+inal image. Here we define the MSE as:
+MSE=∑𝑁
+1(𝑓(𝑥,𝑦)−𝑜(𝑥,𝑦))2
+𝑁, (13)
+where f(x,y) and o(x,y) are the original and reconstructed image of
+the sample, respectively, Nis the number of pixels representing the
+image. After 100 iterations the calculated MSE values are shown below
+each reconstructed image in Fig. 2. The MSE values of the images recon-
+structed by the proposed method are lower than those by conventional
+aperture-scanning Fourier ptychography, indicating that the proposed
+method has better reconstructions. The mean and standard deviation
+of MSE of the reconstructed amplitude over all ten simulations are
+shown in Fig. 3(a) and (b), respectively. The corresponding MSE of
+the reconstructed phase over all simulations are shown in Fig. 3(c)
+and (d). It can be seen from Fig. 3(a) and (c) that the mean MSE
+of the reconstruction by the proposed method (dashed red line) is
+lower than the MSE (blue line) by the conventional aperture-scanning
+method, which means that higher quality reconstructions are obtained
+by the proposed method. Besides, the standard deviation of MSE by the
+proposed method [dashed red line in Fig. 3(b) and (d)] is lower than
+the value by the conventional method [blue line in Fig. 3(b) and (d)],
+it can be concluded that the proposed method has better convergence
+stability.
+A phase type resolution chart as shown in Fig. 4(a) was used
+as the original sample to quantitatively compare the resolution of
+the proposed method with the conventional method. With the same
+parameters described above, the reconstructed phase by the proposed
+method is shown in Fig. 4(b1) and the magnified image of red boxin Fig. 4(b1) is shown in Fig. 4(b2). The reconstructed phase by
+conventional method is shown in Fig. 4(c1) and the magnified image
+of the green box in Fig. 4(c1) is shown in Fig. 4(c2). We can clearly
+distinguish group 1 in Fig. 4(b2) but it is hardly to distinguish the first
+group in Fig. 4(c2).
+4. Experimental results
+Optical experiments were carried out to evaluate the effectiveness
+of the proposed method. We built an experimental imaging system
+as shown in Fig. 1(b) by using a He-Ne laser with a wavelength of
+632.8 nm. The laser beam passed through a spatial filter consists of
+an objective lens with a magnification of 40 ×and a pinhole with a
+diameter of 10 μm , and was then expanded and collimated by a lens
+with 25 mm in diameter and 100 mm in focal length. A sample under
+test was placed 100 mm upstream of lens L1, the lenses L1 and L2 that
+make up the 4f system were the same and had a focal length of 100 mm.
+A holographic diffuser (1◦diffusing angle, Edmund) fixed on a 2D
+motorized translation stage (Mt1-Z8, controlled by KDC101 DC motor
+controller, Thorlabs) was placed 20 mm downstream of the confocal
+plane to modulate the wavefront. In the experiments we placed a 14-
+Bit CCD detector (Allied Vision Technologies Pike F421B, 2048 ×2048
+pixels with pixel size of 7. 4μm2) 100 mm downstream of L2 to record
+the intensity images.
+We used the resolution target (USAF 1951) as the sample to test the
+resolution of the imaging system. The diffuser was shifted to 13 ×13
+grid with a step size of 0.25 mm. One of the recorded images is shown
+in Fig. 5(a). The phase retrieval algorithm described in Section 2 were
+carried out for image recovering. After 100 iterations, the reconstructed
+amplitude and phase of the transmission function of the diffuser are
+shown in Fig. 5(b) and (c). The reconstructed target image is shown in
+Fig. 5(d). The magnified image of the green box in Fig. 5(d) is shown
+4
+X. He, Z. Jiang, Y. Kong et al. Optics Communications 459 (2020) 125057
+Fig. 4. (a) The original resolution target; (b1) reconstructed image by the proposed method, (b2) magnified image of the red box in (b1); (c1) reconstructed image by conventional
+method, (c2) magnified image of the green box in (c1).
+Fig. 5. (a)–(f): Results of the proposed method, (a) one of the recorded image, reconstructed (b) amplitude and (c) phase of the diffuser, (d) reconstructed target image, (e)
+magnified image of the green box in (d), (f) line profile of the blue line in (e); (g) –(i): results of the conventional method, (g) reconstructed target image, (h) magnified image
+of the red box in (g), (i) line profile of the red line in (h).
+in Fig. 5(e), in the image the fifth element in group 5 can be resolved.
+The line profile of fifth element of group 5 is shown in Fig. 5(f). To
+compare with the results of conventional method, we built an aperture-
+scanning experimental setup by scanning an aperture of a diameter of
+2 mm in the confocal plane of the 4f system. The aperture was shifted
+to 13×13 positions with the same stepsize as the proposed method.
+The reconstructed image is shown in Fig. 5(g) and the magnified image
+of the red box is shown in Fig. 5(h). The smallest detail that can beresolved in Fig. 5(h) is the third element in group 5, thus the resolution
+is lower than the proposed method.
+Another two experiments were conducted using different samples to
+compare the proposed method with the conventional method. Firstly,
+a step-height random phase plate was selected as the sample to repeat
+the above experiment. The reconstructed amplitude and phase of the
+sample by the proposed method are shown in Fig. 6(a) and (b), while
+the results by the conventional method are shown in Fig. 6(c) and
+5
+X. He, Z. Jiang, Y. Kong et al. Optics Communications 459 (2020) 125057
+Fig. 6. Experiment results using (a)–(d) random phase plate and (e)–(h) vortex phase plate; (a), (b), (e), and (f) results by the proposed method; (c), (d), (g), and (h) results by
+conventional method.
+Fig. 7. (a1)–(a2) Physical refocusing of each side of a thick glass slide; (b1)–(b2) recovered amplitude and phase of the wavefield of the slide by the proposed method; refocused
+wavefield by digitally propagating the recovered wavefield to distances of (c1)–(c2) −1 mm and (d1)–(d2) 0.2 mm.
+Fig. 6(d), respectively. Secondly, a vortex phase plate (VPP-m633, RPC
+Photonics) was selected as another sample to evaluate the performance
+of the proposed method. Vortex phase plates are commonly used optical
+element for producing vortex beam which has been widely used for
+applications such as optical tweezers, quantum information processing,
+optical communication, and high-resolution imaging [45–47]. The re-
+covered amplitude and phase of the vortex phase plate by the proposed
+method are shown in Figs. 6(e) and 7(f), and the results by conventional
+method are shown in Fig. 6(g) and (h), respectively. One can observe
+that the reconstructed phases by the conventional method are distorted
+when comparing Fig. 6(b)/(f) with Fig. 6(d)/(h).
+To demonstrate the feasibility of the proposed method for a thick
+sample, a 1.2 mm thick glass slide with cross lines and circular lines
+on each side was imaged using the proposed method. The physical
+refocused images of each side of the slide are shown in Fig. 7(a1) and
+(a2), respectively. The recovered amplitude and phase of the wavefield
+of the sample are shown in Fig. 7(b1) and (b2). The recovered wavefield
+was digitally propagated to distances of −1 mm and 0.2 mm, allowing
+different sides of the thick sample to focus, the refocused wavefields
+are shown in Fig. 7(c1)–(c2) and (d1)–(d2).5. Conclusion
+In conclusion, we have proposed and experimentally demonstrated
+a Fourier ptychographic imaging method via wavefront modulation
+with an unknown diffuser. By scanning the diffuser, the complex am-
+plitude of the sample and diffuser can be simultaneously reconstructed
+in this method, and the proposed method has been demonstrated to
+be more robust to the noise compared to the conventional aperture-
+scanning Fourier ptychographic method using an aperture. Experimen-
+tal results show that the presented method is able to measure the phase
+information of the sample being inspected.
+It is worth to point out that in conventional aperture-scanning
+Fourier ptychography, if a large aperture is used and shifted in the
+confocal plane, the low frequency component of the sample will always
+passes through the imaging system, and no dark images would be
+recorded, thus the recorded images have high SNR. However, in this
+case, the recorded images lack data diversity, which will result in slow
+convergence and low reconstruction accuracy. In our method, the low
+frequency and high frequency components of the sample spectrum are
+both modulated at each position of the diffuser, which results in high
+data diversity at the detector plane. Therefore, the presented method
+has better convergence and high reconstruction accuracy.
+6
+X. He, Z. Jiang, Y. Kong et al. Optics Communications 459 (2020) 125057
+In our experimental implement of the method, a holographic dif-
+fuser is mechanically scanned which introduces location errors of the
+diffuser and increases the data acquisition time, an alternate implement
+of the proposed method is to replace the holographic diffuser with a
+spatial light modulator (SLM) or a digital micromirror device (DMD)
+to create shifted random structures. Our future work in this field
+will investigate how to further accelerate the convergence by adding
+Nesterov’s momentum [44] and realize depth resolved imaging with
+the combination of compressive sensing techniques [36].
+The method will be used for applications such as wavefront sensing,
+wafer inspection, and optical testing.
+CRediT authorship contribution statement
+Xiaoliang He: Conceptualization, Writing - original draft, Method-
+ology, Validation. Zhilong Jiang: Methodology, Validation. Yan Kong:
+Validation. Shouyu Wang: Validation. Cheng Liu: Conceptualization,
+Supervision.
+Acknowledgments
+This work was supported by the National Natural Science Founda-
+tion of China (NSFC) (U1730132).
+References
+[1] G. Zheng, R. Horstmeyer, C. Yang, Wide-field, high-resolution Fourier
+ptychographic microscopy, Nat. Photonics 7 (2013) 739–745.
+[2] R. Horstmeyer, C. Yang, A phase space model of Fourier ptychographic
+microscopy, Opt. Express 22 (2014) 338–358.
+[3] X. Ou, G. Zheng, C. Yang, Embedded pupil function recovery for Fourier
+ptychographic microscopy, Opt. Express 22 (2014) 4960–4972.
+[4] J. Chung, H. Lu, X. Ou, H. Zhou, C. Yang, Wide-field Fourier ptychographic
+microscopy using laser illumination source, Biomed. Opt. Express 7 (2016)
+4787–4802.
+[5] Z. Bian, S. Dong, G. Zheng, Adaptive system correction for robust Fourier
+ptychographic imaging, Opt. Express 21 (2013) 32400–32410.
+[6] A. Pan, K. Wen, B. Yao, Linear space-variant optical cryptosystem via Fourier
+ptychography, Opt. Lett. 44 (2019) 2032–2035.
+[7] J. Zhang, T. Xu, Z. Shen, Y. Qiao, Y. Zhang, Fourier ptychographic microscopy
+reconstruction with multiscale deep residual network, Opt. Express 27 (2019)
+8612–8625.
+[8] J. Sun, Q. Chen, Y. Zhang, C. Zuo, Efficient positional misalignment correction
+method for Fourier ptychographic microscopy, Biomed. Opt. Express 7 (2016)
+1336–1350.
+[9] L. Bian, J. Suo, G. Zheng, K. Guo, F. Chen, Q. Dai, Fourier ptychographic
+reconstruction using Wirtinger flow optimization, Opt. Express 23 (2015)
+4856–4866.
+[10] K. Guo, S. Dong, P. Nanda, G. Zheng, Optimization of sampling pattern and the
+design of fourier ptychographic illuminator, Opt. Express 23 (2015) 6171–6180.
+[11] R. Horstmeyer, R.Y. Chen, X. Ou, B. Ames, J.A. Tropp, C. Yang, Solving
+ptychography with a convex relaxation, New J. Phys. 17 (2015) 053044.
+[12] L. Bian, J. Suo, G. Situ, G. Zheng, F. Chen, Q. Dai, Content adaptive illumination
+for Fourier ptychography, Opt. Lett. 39 (2014) 6648–6651.
+[13] X. He, C. Liu, J. Zhu, Single-shot Fourier ptychography based on diffractive beam
+splitting, Opt. Lett. 43 (2018) 214–217.
+[14] S.M. Beck, J.R. Buck, W.F. Buell, R.P. Dickinson, D.A. Kozlowski, N.J. Marechal,
+T.J. Wright, Synthetic-aperture imaging laser radar: Laboratory demonstration
+and signal processing, Appl. Opt. 44 (2005) 7621–7629.
+[15] M. Bashkansky, R.L. Lucke, E. Funk, L.J. Rickard, J. Reintjes, Two-dimensional
+synthetic aperture imaging in the optical domain, Opt. Lett. 27 (2002)
+1983–1985.
+[16] R. Hillman, T. Gutzler, S.A. Alexandrov, D.D. Sampson, High-resolution, wide-
+field object reconstruction with synthetic aperture Fourier holographic optical
+microscopy, Opt. Express 17 (2009) 7873–7892.
+[17] R.W. Gerchberg, W.O. Saxton, A practical algorithm for the determination of
+phase from image and diffraction plane pictures, Optik 35 (1972) 237–246.
+[18] J.R. Fienup, Phase retrieval algorithms: a comparison, Appl. Opt. 21 (1982)
+2758–2769.
+[19] Y. Shechtman, Y.C. Eldar, O. Cohen, H.N. Chapman, J. Miao, M. Segev, Phase
+retrieval with application to optical imaging: a contemporary overview, IEEE
+Signal Proces. Lett. 32 (2015) 87–109.[20] T. Latychevskaia, Iterative phase retrieval in coherent diffractive imaging:
+practical issues, Appl. Opt. 57 (2018) 7187–7197.
+[21] F. Zhang, B. Chen, G.R. Morrison, J. Vila-Comamala, M. Guizar-Sicairos, I.K.
+Robinson, Phase retrieval by coherent modulation imaging, Nature Commun. 7
+(2016) 13367.
+[22] X. Ou, R. Horstmeyer, G. Zheng, C. Yang, High numerical aperture Fourier
+ptychography: principle, implementation and characterization, Opt. Express 23
+(2015) 3472–3491.
+[23] J. Sun, C. Zuo, L. Zhang, Q. Chen, Resolution-enhanced Fourier ptychographic
+microscopy based on high-numerical-aperture illuminations, Sci. Rep. 7 (2017)
+1187.
+[24] A. Pan, Y. Zhang, K. Wen, M. Zhou, J. Min, M. Lei, B. Yao, Subwavelength
+resolution Fourier ptychography with hemispherical digital condensers, Opt.
+Express 26 (2018) 23119–23131.
+[25] X. Ou, R. Horstmeyer, C. Yang, G. Zheng, Quantitative phase imaging via Fourier
+ptychographic microscopy, Opt. Lett. 38 (2013) 4845–4848.
+[26] J. Sun, Q. Chen, J. Zhang, Y. Fan, C. Zuo, Single-shot quantitative phase
+microscopy based on color-multiplexed Fourier ptychography, Opt. Lett. 43
+(2018) 3365–3368.
+[27] R. Horstmeyer, X. Ou, G. Zheng, P. Willems, C. Yang, Digital pathology with
+Fourier ptychography, Comput. Med. Imaging Graph. 42 (2015) 38–43.
+[28] L. Tian, Z. Liu, L.H. Yeh, M. Chen, J. Zhong, L. Waller, Computational
+illumination for high-speed in vitro Fourier ptychographic microscopy, Optica
+2 (2015) 904–911.
+[29] R. Horstmeyer, J. Chung, X. Ou, G. Zheng, C. Yang, Diffraction tomography with
+Fourier ptychography, Optica 3 (2015) 827–835.
+[30] L. Tian, L. Waller, 3D intensity and phase imaging from light field measurements
+in an LED array microscope, Optica 2 (2015) 104–111.
+[31] A.M. Maiden, M.J. Humphry, J.M. Rodenburg, Ptychographic transmission mi-
+croscopy in three dimensions using a multi-slice approach, J. Opt. Soc. Amer. A
+29 (2012) 1606–1614.
+[32] T.M. Godden, R. Suman, M.J. Humphry, J.M. Rodenburg, A.M. Maiden, Pty-
+chographic microscope for three-dimensional imaging, Opt. Express 22 (2014)
+12513–12523.
+[33] A. Pan, B. Yao, Three-dimensional space optimization for near-field ptychogra-
+phy, Opt. Express 27 (2019) 5433–5446.
+[34] S. Dong, R. Horstmeyer, R. Shiradkar, K. Guo, X. Ou, Z. Bian, H. Xin, G. Zheng,
+Aperture-scanning Fourier ptychography for 3D refocusing and super-resolution
+macroscopic imaging, Opt. Express 22 (2014) 13586–13599.
+[35] R. Horstmeyer, X. Ou, J. Chung, G. Zheng, C. Yang, Overlapped Fourier coding
+for optical aberration removal, Opt. Express 22 (2014) 24062–24080.
+[36] X. Ou, J. Chung, R. Horstmeyer, C. Yang, Aperture scanning Fourier
+ptychographic microscopy, Biomed. Opt. Express 7 (2016) 3140–3150.
+[37] W. Tang, Y. Guo, W. Yi, J. Yang, J. Zhu, W. Wang, X. Li, A robust fast
+variable-aperture Fourier ptychography, Opt. Commun. 443 (2019) 144–149.
+[38] L. Tian, X. Li, K. Ramchandran, L. Waller, Multiplexed coded illumination for
+Fourier Ptychography with an LED array microscope, Biomed. Opt. Express 5
+(2014) 2376–2389.
+[39] L.H. Yeh, J. Dong, J. Zhong, L. Tian, M. Chen, G. Tang, M. Soltanolkotabi,
+L. Waller, Experimental robustness of Fourier ptychography phase retrieval
+algorithms, Opt. Express 23 (2015) 33214–33240.
+[40] G.J. Choi, J. Lim, S. Jeon, J. Cho, G. Lim, N.C. Park, Y.P. Park, Dual-wavelength
+Fourier ptychography using a single LED, Opt. Lett. 43 (2018) 3526–3529.
+[41] X. He, C. Liu, J. Zhu, Single-shot aperture-scanning Fourier ptychography, Opt.
+Express 26 (2018) 28187–28196.
+[42] Z. Xie, H. Ma, B. Qi, G. Ren, Y. Tan, B. He, H. Zeng, C. Jiang, Aperture-scanning
+Fourier Ptychographic encoding with phase modulation, Chin. Phys. Lett. 32
+(2015) 124203.
+[43] S. Dong, P. Nanda, R. Shiradkar, K. Guo, Guoan Zheng, High-resolution fluo-
+rescence imaging via pattern-illuminated Fourier ptychography, Opt. Express 22
+(2014) 20856–20870.
+[44] H. Zhang, S. Jiang, J. Liao, J. Deng, J. Liu, Y. Zhang, G. Zheng, Near-field
+Fourier ptychography: super-resolution phase retrieval via speckle illumination,
+Opt. Express 27 (2019) 7498–7512.
+[45] A.E. Willner, H. Huang, Y. Yan, Y. Ren, N. Ahmed, G. Xie, C. Bao, L. Li, Y.
+Cao, Z. Zhao, J. Wang, M.P.J. Lavery, M. Tur, S. Ramachandran, A.F. Molisch,
+N. Ashrafi, S. Ashrafi, Optical communications using orbital angular momentum
+beams, Adv. Opt. Photonics 7 (2015) 66–106.
+[46] L. Yan, P. Gregg, E. Karimi, A. Rubano, L. Marrucci, R. Boyd, S. Ramachandran,
+Q-plate enabled spectrally diverse orbital-angular-momentum conversion for
+stimulated emission depletion microscopy, Optica 2 (2015) 900–903.
+[47] A.M. Yao, M.J. Padgett, Orbital angular momentum: origins, behavior and
+applications, Adv. Opt. Photonics 3 (2011) 161–204.
+7

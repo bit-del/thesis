@@ -1,16 +1,16 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {1.1}{\ignorespaces 正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}}{2}{figure.caption.9}%
-\contentsline {figure}{\numberline {1.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）與斯托克斯位移。}}{3}{figure.caption.10}%
-\contentsline {figure}{\numberline {1.3}{\ignorespaces 落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}}{4}{figure.caption.11}%
-\contentsline {figure}{\numberline {1.4}{\ignorespaces OpenFlexure Delta Stage 的幾何結構與撓性機構示意圖（圖片來源：OpenFlexure 專案官方文件 \cite {openflexure_delta}）。}}{7}{figure.caption.12}%
-\contentsline {figure}{\numberline {1.5}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{11}{figure.caption.13}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程。}}{3}{figure.caption.10}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces 螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}}{4}{figure.caption.11}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces 落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}}{5}{figure.caption.12}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces OpenFlexure Delta Stage 的幾何結構與撓性機構示意圖（圖片來源：OpenFlexure 專案官方文件 \cite {openflexure_delta}）。}}{8}{figure.caption.13}%
+\contentsline {figure}{\numberline {1.6}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{12}{figure.caption.14}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces 光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍（綠色虛線區），造成高頻細節的遺失。}}{19}{figure.caption.14}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces 基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖（圖片參考自 \cite {zheng2013wide}）。系統透過可程式化控制的 LED 陣列提供不同角度的照明，將樣本的高頻資訊偏移至物鏡可接收的孔徑內。}}{20}{figure.caption.15}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{21}{figure.caption.16}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}}{24}{figure.caption.17}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程之定性與定量對比圖。圖中展示了在不同模擬環境下，經過形態學運算後影像雜訊的抑制效果，以及其對 Top 0.1\% 能量分數（Score）的顯著正面影響。}}{25}{figure.caption.18}%
-\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces 光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍（綠色虛線區），造成高頻細節的遺失。}}{18}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces 基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖（圖片參考自 \cite {zheng2013wide}）。系統透過可程式化控制的 LED 陣列提供不同角度的照明，將樣本的高頻資訊偏移至物鏡可接收的孔徑內。}}{19}{figure.caption.16}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces 圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite {dong2014high}）。}}{20}{figure.caption.17}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces 明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}}{23}{figure.caption.18}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces 基於物理模型之大範圍失焦模擬與形態學抗噪處理流程之定性與定量對比圖。圖中展示了在不同模擬環境下，經過形態學運算後影像雜訊的抑制效果，以及其對 Top 0.1\% 能量分數（Score）的顯著正面影響。}}{24}{figure.caption.19}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsfinish 

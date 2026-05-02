@@ -8,7 +8,7 @@
 
 傳統的「正立式顯微鏡（Upright Microscope）」其物鏡位於樣本之上，光源由下方穿透樣本進入物鏡。這種設計適用於觀察經過切片、固定且極薄的玻片標本。然而，在許多活體細胞研究（Live-cell Imaging）與組織培養（Tissue Culture）的應用場景中，樣本通常培養於具有一定高度的培養皿（Petri Dish）或多孔盤（Multi-well Plate）底部，且培養基（Culture Medium）會覆蓋在細胞之上。若使用正立式顯微鏡，物鏡不僅會受限於培養皿的高度而無法靠近樣本，其浸入培養基中更可能引發污染或擾動細胞生長。
 
-為了解決這個物理空間的限制，「倒立式顯微鏡（Inverted Microscope）」應運而生。倒立式顯微鏡將光源配置於樣本上方，而將物鏡倒置於樣本平台之下。這樣的幾何配置帶來了兩大優勢：首先，物鏡可以不受限於培養容器的高度，僅需隔著極薄的容器底部（通常為 0.17 mm 厚的蓋玻片或特定厚度的塑膠底）即可近距離對焦於沉澱在底部的細胞；其次，樣本上方擁有開闊的操作空間，方便研究人員使用微操作器（Micromanipulator）進行細胞注射（Microinjection）或外接微流體系統（Microfluidic System）。因此，倒立式顯微鏡成為了現代細胞生物學研究的標準配備。
+為了解決這個物理空間的限制，「倒立式顯微鏡（Inverted Microscope）」應運而生（兩者光路結構差異請參閱圖 \ref{fig:microscopes}）。倒立式顯微鏡將光源配置於樣本上方，而將物鏡倒置於樣本平台之下。這樣的幾何配置帶來了兩大優勢：首先，物鏡可以不受限於培養容器的高度，僅需隔著極薄的容器底部（通常為 0.17 mm 厚的蓋玻片或特定厚度的塑膠底）即可近距離對焦於沉澱在底部的細胞；其次，樣本上方擁有開闊的操作空間，方便研究人員使用微操作器（Micromanipulator）進行細胞注射（Microinjection）或外接微流體系統（Microfluidic System）。因此，倒立式顯微鏡成為了現代細胞生物學研究的標準配備。
 
 \begin{figure}[h!]
     \centering
@@ -22,15 +22,28 @@
 除了觀察樣本的物理形態，現代生物學更著重於分子層級的特異性標定。傳統明視野（Bright-field）顯微鏡僅能依賴樣本對光的吸收、折射或散射來產生對比度，對於內部結構極度透明的活細胞往往束手無策。為了突顯特定蛋白質或胞器，科學家發展出了「螢光顯微鏡（Fluorescence Microscope）」。
 
 \subsection{螢光現象與斯托克斯位移}
-「螢光（Fluorescence）」是一種光致發光（Photoluminescence）現象。當特定分子（螢光團，Fluorophore）受到具有較高能量（較短波長）的光子激發時，其基態（Ground State, $S_0$）的電子會吸收能量躍遷至激發態（Excited State, $S_1$ 或 $S_2$）。處於激發態的電子極不穩定，在極短的時間內（通常為皮秒至奈秒等級），電子會先透過無輻射躍遷（Non-radiative Relaxation）釋放部分能量（例如轉化為熱能）降至最低的激發態能階，接著再以發射光子的形式回到基態。
+「螢光（Fluorescence）」是一種光致發光（Photoluminescence）現象。如圖 \ref{fig:jablonski} 的雅布倫斯基圖（Jablonski Diagram）所示，當特定分子（螢光團，Fluorophore）受到具有較高能量（較短波長）的光子激發時，其位於單重基態（Singlet Ground State, $S_0$）的電子會吸收能量躍遷至一層更高的單重激發態（Singlet Excited State, $S_1$）。
 
-由於在無輻射躍遷過程中損失了部分能量，根據普朗克-愛因斯坦關係式（$E = hc/\lambda$），發射出的光子能量會小於吸收的光子能量，亦即發射光的波長（$\lambda_{em}$）會長於激發光的波長（$\lambda_{ex}$）。這種激發波長與發射波長之間的差值，被稱為**斯托克斯位移（Stokes Shift）**。
+處於激發態的電子極不穩定，在極短的時間內（通常為皮秒至奈秒等級），電子會先透過\textbf{震動衰減（Vibrational Relaxation, VR）}釋放部分能量，降至 $S_1$ 的最低振動能階。接著，電子會以發射光子的形式回到基態 $S_0$，即產生螢光；若電子發生\textbf{系間跨越（Intersystem Crossing, ISC）}轉入三重激發態（Triplet State, $T_1$），再緩慢回到基態所發出的光則稱為磷光。
 
-\begin{figure}[h!]
+由於在 VR 與 ISC 等無輻射躍遷過程中損失了部分能量，根據\textbf{普朗克-愛因斯坦關係式}:
+\begin{equation}
+    E = \frac{hc}{\lambda}
+\end{equation}
+其中 $h$ 為普朗克常數，$c$ 為光速，$\lambda$ 為波長。發射光子能量較小，導致發射光的波長（$\lambda_{em}$）長於激發光的波長（$\lambda_{ex}$）。這種激發波長與發射波長之間的差值，即被稱為\textbf{斯托克斯位移（Stokes Shift）}，如圖 \ref{fig:stokes_spectra} 所示。
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/chap1_fig2_stokes_shift.png}
-    \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）與斯托克斯位移。}
-    \label{fig:stokes_shift}
+    \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程。}
+    \label{fig:jablonski}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/stokes_shift_plot.png}
+    \caption{螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}
+    \label{fig:stokes_spectra}
 \end{figure}
 
 \subsection{螢光顯微鏡的光學濾波架構}
