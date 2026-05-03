@@ -1,12 +1,81 @@
 % !TeX root = ../main.tex
 
-\chapter{文獻探討與基礎理論}
+\chapter{文獻探討}
 
-為了建構一套兼具低成本與高效能的多功能樂高螢光倒立式顯微鏡，本研究廣泛參考了光學工程、機電整合、電腦視覺與運算成像等多個領域的先驅研究與基礎理論。本章將針對開源硬體顯微鏡的發展現況、運算成像與傅立葉疊層的數學基礎、自動對焦技術的演進，以及影像感測器的底層物理機制進行深度的探討與解釋。透過這些紮實的理論基礎，讀者將能徹底理解本研究所提出之各項設計與演算法背後的「Why」與「How」。
+為了建構一套兼具低成本與高效能的多功能樂高螢光倒立式顯微鏡，本研究廣泛參考了光學工程、機電整合、電腦視覺與運算成像等多個領域的先驅研究與基礎理論。本章首先介紹顯微鏡幾何配置與螢光成像的物理基礎，接著針對開源硬體顯微鏡的發展現況、運算成像與傅立葉疊層的數學基礎、自動對焦技術的演進，以及影像感測器的底層物理機制進行深度的探討。
+
+\section{顯微鏡幾何配置與螢光成像原理}
+
+\subsection{正立式顯微鏡與倒立式顯微鏡之比較}
+
+顯微鏡的幾何配置決定了其適用的樣本類型與操作靈活性。傳統的正立式顯微鏡（Upright Microscope）其物鏡位於樣本之上，光源由下方穿透樣本進入物鏡，適用於觀察經過切片、固定且極薄的玻片標本。然而在活體細胞研究中，樣本通常位於培養皿底部。倒立式顯微鏡（Inverted Microscope）將物鏡倒置於樣本平台之下，解決了此空間限制，成為現代細胞生物學研究的標準配備，如圖 \ref{fig:microscopes} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig1_microscopes.png}
+    \caption{正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}
+    \label{fig:microscopes}
+\end{figure}
+
+\subsection{螢光現象與斯托克斯位移}
+
+「螢光（Fluorescence）」是一種光致發光（Photoluminescence）現象。如圖 \ref{fig:jablonski} 的雅布倫斯基圖（Jablonski Diagram）所示，當特定分子（螢光團，Fluorophore）受到具有較高能量（較短波長）的光子激發時，其位於單重基態（Singlet Ground State, $S_0$）的電子會吸收能量躍遷至一層更高的單重激發態（Singlet Excited State, $S_1$）。
+
+處於激發態的電子極不穩定，在極短的時間內（通常為皮秒至奈秒等級），電子會先透過\textbf{震動衰減（Vibrational Relaxation, VR）}釋放部分能量，降至 $S_1$ 的最低振動能階。接著，電子會以發射光子的形式回到基態 $S_0$，即產生螢光；若電子發生\textbf{系間跨越（Intersystem Crossing, ISC）}轉入三重激發態（Triplet State, $T_1$），再緩慢回到基態所發出的光則稱為磷光。
+
+由於在 VR 與 ISC 等無輻射躍遷過程中損失了部分能量，根據\textbf{普朗克-愛因斯坦關係式}:
+\begin{equation}
+    E = \frac{hc}{\lambda}
+\end{equation}
+其中 $h$ 為普朗克常數，$c$ 為光速，$\lambda$ 為波長。發射光子能量較小，導致發射光的波長（$\lambda_{em}$）長於激發光的波長（$\lambda_{ex}$）。這種激發波長與發射波長之間的差值，即被稱為\textbf{斯托克斯位移（Stokes Shift）}，如圖 \ref{fig:stokes_spectra} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig2_stokes_shift.png}
+    \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程。}
+    \label{fig:jablonski}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/stokes_shift_plot.png}
+    \caption{螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}
+    \label{fig:stokes_spectra}
+\end{figure}
+
+\subsection{螢光顯微鏡的光學濾波架構}
+
+斯托克斯位移是螢光顯微鏡得以運作的物理基石。為了能在黑暗的背景中僅捕捉到微弱的螢光訊號，螢光顯微鏡必須極力排除強烈的激發光干擾。一套標準的落射式螢光顯微鏡（Epifluorescence Microscope）通常包含三個核心光學元件：
+\begin{enumerate}
+    \item \textbf{激發濾光片（Excitation Filter）}：僅允許特定波段的光線通過，用以激發樣本。例如，若使用綠色螢光蛋白（GFP），則會選擇僅讓藍光（約 470 nm）通過的濾片。
+    \item \textbf{雙色分光鏡（Dichroic Mirror）}：放置於光路中呈現 45 度角。其特殊的光學鍍膜設計使其能「反射」較短波長的激發光至物鏡方向，同時「穿透」較長波長的發射光至相機端。
+    \item \textbf{發射濾光片（Emission Filter）}：放置於相機前方，作為最後一道防線，徹底阻擋任何殘留或散射的激發光，僅讓純淨的螢光波段進入感測器。
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig3_filter_cube.png}
+    \caption{落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}
+    \label{fig:filter_cube}
+\end{figure}
+
+透過這三道濾波機制的嚴格把關，螢光顯微鏡能達到極高的訊噪比（Signal-to-Noise Ratio, SNR），使科學家能夠在微觀尺度下觀察到極其微弱的分子標記。
+
+\subsection{消費級感測器的主光線角度不匹配問題}
+
+本系統採用 Raspberry Pi Camera Module 2 作為感測器。然而，這類原本為智慧型手機設計的感測器，若直接應用於顯微光路，會面臨嚴重的問題。感測器表面的微透鏡陣列是針對原始的短焦距鏡頭設計的，當我們移除原始鏡頭、改用顯微物鏡時，光線入射的角度會產生偏差，導致畫面周圍產生嚴重的亮度衰減（暗角，Vignetting）。此外，主光線角度（Chief Ray Angle, CRA）錯位更會導致特定波長的光線穿過 Bayer 濾光片時「溢出」到相鄰的像素中，使得螢光訊號失真，顏色變得蒼白不均，如圖 \ref{fig:cra_mismatch} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chap1_fig5_cra_mismatch.png}
+    \caption{Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite{bowman2019flat}）。}
+    \label{fig:cra_mismatch}
+\end{figure}
 
 \section{開源硬體顯微鏡的發展與機構分析}
 
 隨著自造者運動（Maker Movement）的興起，學術界開始致力於打破高階儀器的壟斷，推動「硬體民主化（Hardware Democratization）」。在開源顯微鏡領域，有幾個極具代表性的專案，它們各自提出了不同的機械與光學解決方案。
+
 
 \subsection{OpenFlexure Microscope 與撓性機構的力學原理}
 由英國巴斯大學（University of Bath）Richard Bowman 團隊開發的 OpenFlexure Microscope \citep{collins2020robotic} 是目前最著名且被廣泛應用的 3D 列印開源顯微鏡之一。其最核心的技術創新在於採用了「撓性鉸鏈（Flexure Hinge）」來達成奈米等級的精確定點移動。

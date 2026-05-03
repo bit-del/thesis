@@ -1,64 +1,37 @@
 % !TeX root = ../main.tex
 
-\chapter{論文研究進度表與具體里程碑}
+\chapter{結論與未來展望}
 
-本研究預計於 2025 年 10 月正式啟動，並規劃於 2026 年 7 月（即碩士班畢業前）完成所有硬體組裝、演算法開發、生物實驗驗證以及論文定稿。為確保專案能在時限內達成既定之高標準，我們將這 10 個月的開發期劃分為六大核心里程碑（Milestones），各階段之具體工作項目與預定時程如表 \ref{table:schedule} 所示。
+\section{研究總結}
 
-\section{核心里程碑詳細規劃}
+本研究成功開發並驗證了一套結合樂高（LEGO Technic）精密結構件與運算成像（Computational Imaging）技術的「多功能螢光倒立式顯微鏡」。相較於傳統昂貴且封閉的商用成像系統，以及在剛性與行程上存有缺陷的純 3D 列印開源方案，本研究所提出之設計典範在以下三個層次均展現出顯著的科學與工程貢獻。
 
-\subsection{第一階段：文獻回顧與硬體底層架構設計 (2025年10月-11月)}
-\begin{itemize}
-    \item \textbf{理論奠基}：全面梳理包含 OpenFlexure、UC2 等開源硬體的設計圖紙，並深入研讀圖案化照明傅立葉疊層成像 (piFP) 的核心數學論文，確認相位復原演算法的疊代邏輯。
-    \item \textbf{樂高機架設計}：完成 X-Y-Z 三軸龍門式（Gantry-style）樂高機構的 CAD 建模與實體拼裝。確保 NEMA 17 馬達與導螺桿能完美嵌入樂高的 8.0 mm 幾何網格中。
-    \item \textbf{光學元件轉接件列印}：設計並以 3D 列印機印製 Raspberry Pi Camera 與顯微物鏡的有限共軛套筒，確保兩者光軸的絕對同心度。
-\end{itemize}
+在硬體結構方面，透過利用樂高積木優異的射出成型精度（公差 $<10\,\mu$m）與標準化 8.0 mm 網格幾何特性，本研究成功建構出一套具備亞微米級定位精度且穩定性極高的龍門式掃描載台（Gantry-style Stage）。這不僅突破了傳統開源顯微鏡行程受限的瓶頸，更提供了一套高度可重構（Reconfigurable）的底層架構，讓後續研究者能夠在數分鐘內完成光學架構的改裝，徹底解放了實驗設計的自由度。
 
-\subsection{第二階段：光學系統校正與機電整合測試 (2025年11月-12月)}
-\begin{itemize}
-    \item \textbf{馬達驅動調試}：將 Arduino Uno 與 CNC Shield V3 連線，啟動 A4988 晶片的 16 倍微步進（Microstepping）模式，並撰寫 Python 腳本驗證 Z 軸 $0.625 \mu m$ 定位精度的可靠性。
-    \item \textbf{光源同步控制}：完成明視野 (BF) 與螢光 (Fluo) 雙路 LED 的 GPIO 繼電器接線，確保相機快門能與光源切換達到毫秒級別的同步。
-\end{itemize}
+在軟體與演算法層次，本研究針對低成本 CMOS 感測器的物理缺陷，實作了基於愛因斯坦求和約定的空間變異張量校正（Spatially Varying Tensor Unmixing），大幅提升了顯微影像的色彩保真度與空間均勻性。此外，自動對焦狀態機（Autofocus State Machine）的三階段搜尋邏輯，使系統能在不到 14 秒內完成長達近一毫米行程的精確鎖焦，充分驗證了演算法在實際應用中的高度魯棒性（Robustness）。
 
-\subsection{第三階段：自動對焦與空間張量色彩解混開發 (2025年12月-2026年2月)}
-此階段為軟體工程的核心期：
-\begin{itemize}
-    \item \textbf{狀態機開發}：在 PySide6 多執行緒架構下，實作 \texttt{CameraWorker} 的非同步影像擷取。
-    \item \textbf{防呆對焦演算法}：利用 Python 完成 Variance、Spatial Frequency、Tenengrad 數學指標的編寫，並實作「盲區偵測」與「尋峰回溯（Peak Recovery）」之狀態機迴圈。針對螢光模式，特別開發基於「形態學開運算 + Top 0.1\% 梯度」的抗噪模組。
-    \item \textbf{張量解混矩陣建構}：拍攝大量白場與螢光基準圖，建立並訓練 $1640 \times 1232 \times 3 \times 3$ 的四維空間變異色彩解混張量（Unmixing Tensor）。隨後將愛因斯坦求和（\texttt{np.einsum}）寫入即時串流管線中，並進行效能壓測（Stress Test）以確保高 FPS。
-\end{itemize}
+在超解析度成像層次，圖案化照明傅立葉疊層成像（piFP）技術的導入初步證實了在不更換物鏡的前提下，透過演算法與隨機散斑照明的結合，能夠突破物鏡的物理繞射極限，達成超解析度成像的目標。
 
-\subsection{第四階段：圖案化照明傅立葉疊層 (piFP) 實作 (2026年1月-3月)}
-\begin{itemize}
-    \item \textbf{擴散片波前調控模組}：在載台下方新增一個微型馬達，用以驅動擴散片產生二維空間的隨機位移，以產生高頻圖案照明。
-    \item \textbf{疊代相位復原演算法}：將擷取到的多張混疊（Aliased）低頻影像匯入電腦。撰寫正反傅立葉轉換（FFT/IFFT）疊代迴圈，同步更新擴散片的傳輸函數與樣本波前，嘗試重建出超越物鏡 NA 限制的超解析度影像。
-\end{itemize}
+\section{系統限制與討論}
 
-\subsection{第五階段：系統嚴苛驗證與活體生物樣本測試 (2026年3月-5月)}
-\begin{itemize}
-    \item \textbf{標準化驗證}：使用 NBS 1952 測試板與 15 \textmu m FluoSpheres 標準螢光微球，量化分析平場校正消除暗角的能力，以及張量解混恢復螢光飽和度的精確度。
-    \item \textbf{大面積活體掃描}：導入真實的生物樣本（例如擬南芥葉片切片或培養皿中的 HeLa 細胞）。啟動全自動 Z-Stack 深度掃描與 X-Y 網格拼接協定（Grid Stitching Protocol），驗證系統在數小時連續運作下的穩定性與防漂移能力。
-\end{itemize}
+儘管本系統在初步實驗中展現出令人滿意的效能，但在追求極致成像品質的過程中，仍觀察到以下待優化的物理與計算限制，有待後續研究加以改進。
 
-\subsection{第六階段：數據統整與論文定稿 (2026年5月-7月)}
-\begin{itemize}
-    \item \textbf{量化分析與作圖}：將實驗過程中的所有對焦曲線、光譜直方圖匯出並以 Python Matplotlib 繪製成學術圖表。
-    \item \textbf{論文撰寫與口試準備}：完成第一至第五章的所有內文修訂，並於 2026 年 7 月 15 日前完成學位論文口試。
-\end{itemize}
+在光學遮蔽方面，樂高積木的接合處並非完全氣密。在進行長時間、極弱螢光訊號的曝光過程中，環境光線仍可能透過細微間隙滲入光路，增加影像的背景底噪。此外，ABS 材質在環境溫度波動較大時仍存在微小的熱膨脹，在追求奈米等級定位精度的應用場景下需加以考量。
 
-\begin{table}[h!]
-    \centering
-    \caption{預定研究進度甘特圖 (2025年10月至2026年7月)}
-    \label{table:schedule}
-    \begin{tabular}{|l|*{10}{c|}} % 10 months from Oct to Jul
-    \hline
-    \multirow{2}{*}{\diagbox{\textbf{工作項目}}{\textbf{預定時程}}} & \multicolumn{3}{c|}{\textbf{2025}} & \multicolumn{7}{c|}{\textbf{2026}} \\ \cline{2-11}
-    & 10 & 11 & 12 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline\hline
-    文獻回顧與硬體底層架構設計 & $\blacksquare$ & $\blacksquare$ & & & & & & & & \\ \hline
-    光學系統校正與機電整合測試 & & $\blacksquare$ & $\blacksquare$ & & & & & & & \\ \hline
-    自動對焦與色彩解混演算法開發 & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & & \\ \hline
-    圖案化照明傅立葉疊層 (piFP) 實作 & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & & \\ \hline
-    系統嚴苛驗證與活體生物樣本測試 & & & & & & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\ \hline
-    數據統整、綜合評估與分析 & & & & & & & & $\blacksquare$ & $\blacksquare$ & \\ \hline
-    論文撰寫、修改與定稿準備口試 & & & & & & & & & $\blacksquare$ & $\blacksquare$ \\ \hline
-    \end{tabular}
-\end{table}
+在計算效能方面，piFP 疊代重建演算法目前在嵌入式平台（Raspberry Pi 4）上的運算時間仍偏長，尚無法達成影像擷取後的即時（Real-time）顯示，這對於需要快速搜尋目標樣本區域的實驗場景而言仍有改進空間。
+
+\section{未來改進與擴充方向}
+
+針對本研究所發現之挑戰，後續的研究工作可朝以下方向深化，以進一步提升系統的實用性與科學價值。
+
+\subsection{硬體結構之遮光強化}
+
+未來計畫設計一套專屬的黑色遮光罩系統，在關鍵光路接合處採用不透光的橡膠墊片，以徹底排除雜散光對螢光訊號的干擾。同時，可嘗試在樂高結構的關鍵承重節點內崁入金屬支撐桿，進一步提升龍門架構在搭載重型高倍率物鏡時的動態剛性。
+
+\subsection{基於邊緣運算的即時重建加速}
+
+為了提升 piFP 的易用性，未來可將重建演算法移植至具備強力 GPU 或專屬 NPU 的計算平台（如 NVIDIA Jetson 系列）。透過平行化加速傅立葉轉換與矩陣運算，預期能將影像重建時間縮短至秒級，達成準即時的超解析度觀測，大幅降低研究人員的等待成本。
+
+\subsection{多通道螢光同步成像}
+
+本系統目前的濾光片架構偏向手動單色切換。未來規劃引入由步進馬達驅動的自動濾光片輪（Automatic Filter Wheel），並配合軟體腳本，實現 DAPI、GFP、RFP 等多種螢光染料的自動化、多通道同步掃描。結合大行程龍門載台，本機台將能完整支援 96 孔盤乃至 384 孔盤的高通量自動化藥物篩選實驗，充分發揮低成本高通量顯微鏡的核心價值。
