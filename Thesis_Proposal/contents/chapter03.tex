@@ -12,7 +12,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/fig2_1_microscopes.png}
+    \includegraphics[width=0.8\textwidth]{figures/ch3/fig3_1_microscopes.png}
     \caption{正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}
     \label{fig:microscopes}
 \end{figure}
@@ -25,7 +25,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/fig2_2_jablonski.png}
+    \includegraphics[width=0.8\textwidth]{figures/ch3/fig3_2_jablonski.png}
     \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程結構示意圖。}
     \label{fig:jablonski}
 \end{figure}
@@ -38,7 +38,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig2_3_stokes_spectra.png}
+    \includegraphics[width=0.85\textwidth]{figures/ch3/fig3_3_stokes_spectra.png}
     \caption{螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}
     \label{fig:stokes_spectra}
 \end{figure}
@@ -49,7 +49,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/fig2_4_filter_cube.png}
+    \includegraphics[width=0.8\textwidth]{figures/ch3/fig3_4_filter_cube.png}
     \caption{落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}
     \label{fig:filter_cube}
 \end{figure}
@@ -136,7 +136,7 @@
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig3_1_af_curves.png}
+    \includegraphics[width=0.95\textwidth]{figures/ch3/fig3_5_af_curves.png}
     \caption{明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}
     \label{fig:af_curves_comparison}
 \end{figure}
@@ -157,7 +157,7 @@
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig3_2_morphology_comparison.png}
+    \includegraphics[width=0.95\textwidth]{figures/ch3/fig3_6_morphology.png}
     \caption{形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}
     \label{fig:morphology_comparison}
 \end{figure}
@@ -182,11 +182,11 @@
     d \cdot \sin \theta = m \cdot \lambda
 \end{equation}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.90\textwidth]{figures/fig2_11_diffraction.png}
+    \includegraphics[width=0.90\textwidth]{figures/ch3/fig3_7_diffraction.png}
     \caption{光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍，造成高頻細節的遺失。}
-    \label{fig:diffraction_principle_v2}
+    \label{fig:diffraction_theory}
 \end{figure}
 
 在 piFP 中，我們透過在樣本上疊加高頻的照明圖案 $S(r)$，利用頻率混疊（Aliasing）原理，將原本位於高頻區段的樣本資訊 $O(r)$ 「搬移」至物鏡的接收範圍內。其在空間頻域的表示式可概略寫為：
@@ -195,11 +195,6 @@
 \end{equation}
 其中 $\otimes$ 代表卷積運算。這使得樣本的高頻頻譜 $\tilde{O}(k)$ 與照明圖案的頻譜 $\tilde{S}(k)$ 發生混疊，進而讓低 NA 物鏡捕捉到被編碼後的高頻細節。
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/fig2_13_pifp_concept.png}
-    \caption{圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理示意圖。}
-    \label{fig:pifp_theory_concept}
-\end{figure}
+（原理詳見第二章圖 \ref{fig:pifp_concept}）。
 
 本研究後續將針對隨機散斑圖案的產生機制與相位復原疊代演算法進行詳細實作說明。
