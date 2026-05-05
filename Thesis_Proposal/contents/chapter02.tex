@@ -2,145 +2,150 @@
 
 \chapter{文獻探討}
 
-為了建構一套兼具低成本與高效能的多功能樂高螢光倒立式顯微鏡，本研究廣泛參考了光學工程、機電整合、電腦視覺與運算成像等多個領域的先驅研究與基礎理論。本章首先介紹顯微鏡幾何配置與螢光成像的物理基礎，接著針對開源硬體顯微鏡的發展現況、運算成像與傅立葉疊層的數學基礎、自動對焦技術的演進，以及影像感測器的底層物理機制進行深度的探討。
-
-\section{顯微鏡幾何配置與螢光成像原理}
-
-\subsection{正立式顯微鏡與倒立式顯微鏡之比較}
-
-顯微鏡的幾何配置決定了其適用的樣本類型與操作靈活性。傳統的正立式顯微鏡（Upright Microscope）其物鏡位於樣本之上，光源由下方穿透樣本進入物鏡，適用於觀察經過切片、固定且極薄的玻片標本。然而在活體細胞研究中，樣本通常位於培養皿底部。倒立式顯微鏡（Inverted Microscope）將物鏡倒置於樣本平台之下，解決了此空間限制，成為現代細胞生物學研究的標準配備，如圖 \ref{fig:microscopes} 所示。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/chap1_fig1_microscopes.png}
-    \caption{正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}
-    \label{fig:microscopes}
-\end{figure}
-
-\subsection{螢光現象與斯托克斯位移}
-
-「螢光（Fluorescence）」是一種光致發光（Photoluminescence）現象。如圖 \ref{fig:jablonski} 的雅布倫斯基圖（Jablonski Diagram）所示，當特定分子（螢光團，Fluorophore）受到具有較高能量（較短波長）的光子激發時，其位於單重基態（Singlet Ground State, $S_0$）的電子會吸收能量躍遷至一層更高的單重激發態（Singlet Excited State, $S_1$）。
-
-處於激發態的電子極不穩定，在極短的時間內（通常為皮秒至奈秒等級），電子會先透過\textbf{震動衰減（Vibrational Relaxation, VR）}釋放部分能量，降至 $S_1$ 的最低振動能階。接著，電子會以發射光子的形式回到基態 $S_0$，即產生螢光；若電子發生\textbf{系間跨越（Intersystem Crossing, ISC）}轉入三重激發態（Triplet State, $T_1$），再緩慢回到基態所發出的光則稱為磷光。
-
-由於在 VR 與 ISC 等無輻射躍遷過程中損失了部分能量，根據\textbf{普朗克-愛因斯坦關係式}:
-\begin{equation}
-    E = \frac{hc}{\lambda}
-\end{equation}
-其中 $h$ 為普朗克常數，$c$ 為光速，$\lambda$ 為波長。發射光子能量較小，導致發射光的波長（$\lambda_{em}$）長於激發光的波長（$\lambda_{ex}$）。這種激發波長與發射波長之間的差值，即被稱為\textbf{斯托克斯位移（Stokes Shift）}，如圖 \ref{fig:stokes_spectra} 所示。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/chap1_fig2_stokes_shift.png}
-    \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程。}
-    \label{fig:jablonski}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/stokes_shift_plot.png}
-    \caption{螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}
-    \label{fig:stokes_spectra}
-\end{figure}
-
-\subsection{螢光顯微鏡的光學濾波架構}
-
-斯托克斯位移是螢光顯微鏡得以運作的物理基石。為了能在黑暗的背景中僅捕捉到微弱的螢光訊號，螢光顯微鏡必須極力排除強烈的激發光干擾。一套標準的落射式螢光顯微鏡（Epifluorescence Microscope）通常包含三個核心光學元件：
-\begin{enumerate}
-    \item \textbf{激發濾光片（Excitation Filter）}：僅允許特定波段的光線通過，用以激發樣本。例如，若使用綠色螢光蛋白（GFP），則會選擇僅讓藍光（約 470 nm）通過的濾片。
-    \item \textbf{雙色分光鏡（Dichroic Mirror）}：放置於光路中呈現 45 度角。其特殊的光學鍍膜設計使其能「反射」較短波長的激發光至物鏡方向，同時「穿透」較長波長的發射光至相機端。
-    \item \textbf{發射濾光片（Emission Filter）}：放置於相機前方，作為最後一道防線，徹底阻擋任何殘留或散射的激發光，僅讓純淨的螢光波段進入感測器。
-\end{enumerate}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/chap1_fig3_filter_cube.png}
-    \caption{落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}
-    \label{fig:filter_cube}
-\end{figure}
-
-透過這三道濾波機制的嚴格把關，螢光顯微鏡能達到極高的訊噪比（Signal-to-Noise Ratio, SNR），使科學家能夠在微觀尺度下觀察到極其微弱的分子標記。
-
-\subsection{消費級感測器的主光線角度不匹配問題}
-
-本系統採用 Raspberry Pi Camera Module 2 作為感測器。然而，這類原本為智慧型手機設計的感測器，若直接應用於顯微光路，會面臨嚴重的問題。感測器表面的微透鏡陣列是針對原始的短焦距鏡頭設計的，當我們移除原始鏡頭、改用顯微物鏡時，光線入射的角度會產生偏差，導致畫面周圍產生嚴重的亮度衰減（暗角，Vignetting）。此外，主光線角度（Chief Ray Angle, CRA）錯位更會導致特定波長的光線穿過 Bayer 濾光片時「溢出」到相鄰的像素中，使得螢光訊號失真，顏色變得蒼白不均，如圖 \ref{fig:cra_mismatch} 所示。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/chap1_fig5_cra_mismatch.png}
-    \caption{Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite{bowman2019flat}）。}
-    \label{fig:cra_mismatch}
-\end{figure}
+為了建構一套兼具低成本與高效能的多功能樂高螢光倒立式顯微鏡，本研究廣泛參考了光學工程、機電整合、電腦視覺與運算成像等多個領域的先驅研究與基礎理論。本章針對開源硬體顯微鏡的發展現況、自動對焦技術的演進、影像感測器的底層物理機制，以及運算成像與傅立葉疊層的數學基礎進行深度的探討。
 
 \section{開源硬體顯微鏡的發展與機構分析}
 
 隨著自造者運動（Maker Movement）的興起，學術界開始致力於打破高階儀器的壟斷，推動「硬體民主化（Hardware Democratization）」。在開源顯微鏡領域，有幾個極具代表性的專案，它們各自提出了不同的機械與光學解決方案。
 
-
 \subsection{OpenFlexure Microscope 與撓性機構的力學原理}
-由英國巴斯大學（University of Bath）Richard Bowman 團隊開發的 OpenFlexure Microscope \citep{collins2020robotic} 是目前最著名且被廣泛應用的 3D 列印開源顯微鏡之一。其最核心的技術創新在於採用了「撓性鉸鏈（Flexure Hinge）」來達成奈米等級的精確定點移動。
 
-\subsubsection{背隙（Backlash）與靜摩擦力（Stiction）問題}
-在傳統的金屬加工載台中，物體的移動依賴滑軌（Linear Guide）與齒輪（Gears）。當馬達改變旋轉方向時，齒輪齒與齒之間的空隙會導致一段時間內馬達在轉動但載台沒有位移，這被稱為「背隙（Backlash）」。此外，滑軌之間存在滑動摩擦，物體從靜止到開始移動需要克服較大的「靜摩擦力（Stiction）」，這會導致微小步進時產生「粘滑效應（Stick-slip）」，使得載台無法平順地進行微米級的移動。
+由英國巴斯大學（University of Bath） Richard Bowman 團隊開發的 OpenFlexure Microscope \citep{collins2020robotic} 是目前開源硬體領域最具代表性的 3D 列印顯微鏡，如圖 \ref{fig:openflexure} 所示。其核心技術創新在於採用了「單體式 3D 列印撓性機構（Monolithic 3D-printed flexure-based mechanism）」。該機構利用塑膠材料的彈性特性，透過四連桿平行撓性結構的微小變形來驅動載台。根據文獻報告，該系統配合標準 M3 螺栓與小型減速步進馬達，能達成 Z 軸高達 50 nm、X-Y 軸達 70 nm 的精密步進位移，展現出足以應對高倍率顯微觀測的定位能力。
 
-\subsubsection{撓性鉸鏈（Flexure Hinge）的解決方案}
-OpenFlexure 巧妙地避開了上述問題。它不使用任何滑動部件，而是將整個機身用 3D 列印一體成型。在機身的特定位置，故意將塑膠列印得極薄（約 0.5 mm 至 1 mm）。當外部施加推力時，這些薄壁處會發生局部的彈性彎曲（Elastic Bending），如同鉸鏈一般帶動其他部分移動。
-由於整個系統是連續的固體，沒有任何零件分離，因此：
-\begin{enumerate}
-    \item \textbf{絕對零背隙}：沒有齒輪間隙。
-    \item \textbf{絕對零靜摩擦}：沒有滑動接觸面。
-\end{enumerate}
-這使得 OpenFlexure 能使用極其便宜的步進馬達與塑膠螺絲，達成難以置信的平滑微調。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_6_openflexure.png}
+    \caption{OpenFlexure Microscope 之機身架構圖，展示了其一體成型的 3D 列印機構設計（圖片來源：\citep{collins2020robotic}）。}
+    \label{fig:openflexure}
+\end{figure}
 
-\subsubsection{撓性機構的致命傷：行程與剛性}
-然而，如同第一章所述，撓性機構受限於胡克定律（Hooke's Law）。塑膠的彈性變形區間極小，一旦推動距離過長，材料就會超過降服強度（Yield Strength）而產生永久變形。這使得 OpenFlexure 的 X-Y 移動範圍通常被限制在 $12 \times 12 \times 4$ mm 之內，完全無法應用於大面積的樣本掃描。此外，一體成型的 3D 列印塑膠剛性極低，任何微小的外力觸碰或長時間放置（潛變 Creep），都會導致光軸嚴重偏移。這正是本研究選擇揚棄撓性機構，改採高剛性「樂高龍門架構」的根本原因。
+這種撓性機構的設計初衷，是為了從根本上消除傳統機械結構中的背隙（Backlash）與靜摩擦力（Stiction）問題。在傳統的金屬加工載台中，物體移動依賴滑軌與齒輪間的相對運動，不可避免地會產生機械空隙與「粘滑效應（Stick-slip）」。OpenFlexure 則透過 3D 列印將整個位移機構整合為連續的固體物理連接，在特定的力學節點處縮減壁厚以形成撓性鉸鏈（如圖 \ref{fig:flexure_issue} 所示）。由於不存在任何分離的滑動面，該機構能達成絕對零背隙的平滑運動，這對於自動化對焦與高精度掃描至關重要。
 
-\subsection{模組化概念：Incubot 與 UC2 系統}
-除了追求低成本，開源系統也開始強調「模組化（Modularity）」。
-\textbf{Incubot} \citep{merces2021incubot} 是一款專為長時間放置於培養箱內設計的小型顯微鏡。其特色在於將機身極簡化，並使用防潮防腐蝕的材料。
-\textbf{UC2 (Use-Case-box)} \citep{diederich2020versatile} 則是另一款極具啟發性的設計。UC2 採用了「方塊積木」的概念，將雷射、透鏡、相機等光學元件分別裝入標準尺寸的 3D 列印方塊中。研究人員可以像拼圖一樣將這些方塊組合在帶有磁鐵的底板上。雖然 UC2 提供了高度的擴充性，但其磁吸底板的定位精度與整體結構剛性，在面對需要頻繁移動載台的自動化掃描時，仍顯得力不從心。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_7_flexure_issue.png}
+    \caption{撓性機構（Flexure Mechanism）之微米級位移原理與材料受力點分析圖。}
+    \label{fig:flexure_issue}
+\end{figure}
+
+然而，撓性機構也面臨顯著的物理限制。首先，位移行程受限於材料的彈性變形區間，OpenFlexure 的典型行程僅約為 12 $\times$ 12 $\times$ 4 mm，較傳統機械載台小得多，限制了大面積樣本的掃描能力。其次，根據胡克定律（Hooke's Law），若位移量過大導致材料應力超過降服強度，將產生不可逆的塑性形變。此外，全塑膠結構的機械剛性較低，容易受到環境振動影響，且在長時間負載下會產生應力潛變（Creep），導致光軸漂移。正是基於對上述穩定性與行程限制的考量，本研究決定選擇揚棄撓性機構，改採具備更高剛性的自動化位移平台架構。
+
+\newpage
+\subsection{Incubot 系統分析}
+\textbf{Incubot} \citep{merces2021incubot} 是一款改裝自消費級 3D 印表機機架的小型顯微鏡，其特色在於機身極簡且低成本。然而，該系統在功能上有顯著侷限：它僅針對明視野（Bright-field）成像設計，並不具備螢光觀測能力。在光路建構上，其光源採用矽膠（Silicone）進行簡易固定，這種非剛性的固定方式在培養箱的高溫潮濕環境下，極易因材料軟化或應力變化導致照明光軸偏移，難以維持長期的光路準直性，如圖 \ref{fig:incubot} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_8_incubot.png}
+    \caption{Incubot 系統架構圖，展示了其基於 3D 印表機框架的簡易設計（圖片來源：\citep{merces2021incubot}）。}
+    \label{fig:incubot}
+\end{figure}
+
+\newpage
+\subsection{UC2 模組化系統}
+\textbf{UC2 (Use-Case-box)} \citep{diederich2020versatile} 則是另一款極具啟發性的設計。UC2 採用了「方塊積木」的概念，將雷射、透鏡、相機等光學元件分別裝入標準尺寸的 3D 列印方塊中。研究人員可以像拼圖一樣將這些方塊組合在帶有磁鐵的底板上。雖然 UC2 提供了高度的擴充性，但其磁吸底板的定位精度與整體結構剛性，在面對需要頻繁移動載台的自動化掃描時，仍顯得力不從心，如圖 \ref{fig:uc2} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_9_uc2.png}
+    \caption{UC2 模組化系統，展示了其磁吸式方塊光學元件設計（圖片來源：\citep{diederich2020versatile}）。}
+    \label{fig:uc2}
+\end{figure}
+
+\newpage
+\subsection{IBM Lego Microscope：工業級積木的精密應用}
+由 IBM 蘇黎世研究實驗室研究員 Yuksel Temiz 所開發的樂高顯微鏡 \citep{temiz2020lego}，是開源硬體領域中將「消費級積木」推向「實驗室等級儀器」的標竿案例。該專案的核心理念是利用樂高科技系列（Lego Technic）積木極高的工業製造精度誤差小於 $10 \mu m$ \citep{temiz2020lego}，建構出一套具備高剛性且可重複配置的顯微鏡架構。
+
+在硬體架構上，該系統採用正立式（Upright）光路配置，整合了 Raspberry Pi 作為影像處理核心，並透過 Arduino 控制多個步進馬達，達成自動化的樣本移動與對焦控制。值得注意的是，該系統主要針對明視野成像與微流道實驗設計，並不具備螢光觀測功能。Temiz 的研究證明，透過合理的幾何桁架設計，樂高積木足以支撐標準的高倍率顯微物鏡，並在微流道（Microfluidics）實驗中精準捕捉液滴運動（如圖 \ref{fig:ibm_microscope} 所示）。相較於 3D 列印機構可能存在的層間誤差與材料老化變形，樂高積木的射出成型穩定性提供了一種更為強健、且易於在全球範圍內複製的精密機械解決方案，這也為本研究選擇樂高作為核心架構提供了重要的理論支持。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_10_ibm_microscope.png}
+    \caption{IBM Lego Microscope 系統架構圖，展示了利用樂高科技系列積木構建的高精度顯微機身（圖片來源：\cite{temiz2020lego}）。}
+    \label{fig:ibm_microscope}
+\end{figure}
 
 綜合上述文獻，我們可以發現：現有的開源設計在「低成本」、「高精度」、「大行程」與「高剛性」這四個維度上始終無法兼顧。本研究正是試圖透過樂高積木的工業級精度與龍門機電架構，找到這四者的最佳平衡點。
 
-\section{運算成像與圖案化照明傅立葉疊層 (piFP) 理論}
+\newpage
+\section{自動對焦搜索演算法之演進}
 
-傳統顯微鏡的解析度極限由德國物理學家恩斯特·阿貝（Ernst Abbe）於 1873 年提出。根據阿貝繞射極限公式：
-\begin{equation}
-    d = \frac{\lambda}{2 \cdot \text{NA}}
-\end{equation}
-其中 $d$ 是系統能分辨的最小距離，$\lambda$ 是光波長，$\text{NA}$ 是物鏡的數值孔徑（Numerical Aperture）。在低成本顯微系統中，我們通常只能負擔低 NA 的物鏡（例如 NA = 0.1 或 0.25），這使得解析度大受限制。
+在自動化顯微掃描過程中，焦平面會隨樣本不平整或機構運動而產生微米級的偏移，因此一套兼顧效率與精度的自動對焦（Autofocus, AF）演算法至關重要。傳統的對焦搜索多採用單純的登山演算法（Hill-climbing algorithm），但在複雜樣本下容易陷入局部極大值（Local Maximum），且固定步長的設計往往無法在搜索速度與精度之間取得平衡。
 
-\subsection{傅立葉光學（Fourier Optics）基礎}
-要理解如何突破繞射極限，必須先理解光學中的傅立葉轉換。當一束光穿過樣本後，樣本的空間結構（Spatial Structure）會將光波「繞射（Diffract）」到不同的角度。這個現象可以透過「光柵繞射方程式（Grating Equation）」來精確描述：
-\begin{equation}
-    d \cdot \sin \theta = m \cdot \lambda
-\end{equation}
-其中 $d$ 是樣本空間結構的週期（例如微結構的間距），$\theta$ 是繞射角，$m$ 是繞射級數（通常我們最關注一階繞射 $m=1$ 的能量分佈），而 $\lambda$ 則是照明光的波長。
+Fu 等人 \cite{fu2015fast} 針對此問題提出了一種基於改進型登山搜索（Improved Mountain-climb Searching, MCS）的快速自動對焦方法。該研究的核心改進邏輯可總結為以下三個維度。首先是引入「自適應步長」以跳過雜訊干擾區。傳統爬山演算法若使用固定小步長，極易被影像雜訊產生的微小峰值誤導。該研究設計的第一步步長 $step_1$ 與起始位置的圖像評價函數值成反比，其公式原理為 $step_1 = \text{round}(k / F_{var}(I_0))$。當系統處於嚴重離焦時，方差評價函數 $F_{var}$ 值很小，計算出的 $step_1$ 就會非常大。這個較大的初次步長能讓鏡頭直接「跳過」山腳下由雜訊引起的局部小峰值，快速抵達接近山腰的主峰斜率區。
 
-從該方程式可以直觀推導出：繞射角 $\theta$ 的正弦值與結構尺寸 $d$ 呈反比關係。如圖 \ref{fig:diffraction_principle} 所示：
-\begin{itemize}
-    \item 樣本中\textbf{較大、較粗糙的結構}（低頻資訊，對應較大的 $d$），會讓光線以\textbf{極小的角度}偏折（$\theta$ 較小）。
-    \item 樣本中\textbf{極微細、密集的結構}（高頻資訊，對應較小的 $d$），會讓光線以\textbf{極大的角度}偏折（$\theta$ 較大）。
-\end{itemize}
-
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/chap2_fig1_diffraction.png}
-    \caption{光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍（綠色虛線區），造成高頻細節的遺失。}
-    \label{fig:diffraction_principle}
+    \includegraphics[width=0.75\textwidth]{figures/MCS algorithm.png}
+    \caption{改進型登山搜索之焦平面搜索邏輯示意圖（參考自 \cite{fu2015fast}）。}
+    \label{fig:mcs_algorithm}
 \end{figure}
 
-物鏡就像是一個「低通濾波器（Low-pass Filter）」。由於物鏡的開口大小（即數值孔徑 NA）有限，它的接收錐角（Acceptance Angle）是固定的。那些被高頻微細結構以大角度偏折出去的光線，會無法進入物鏡內部，這意味著高解析度資訊在光學傳遞的過程中就已經永遠遺失了。反映在最終的相機影像上，就是模糊且看不見細節。
+其次是雙評價函數的「粗精結合」策略。研究分析發現不同的評價函數具備不同的曲線特性，為了應對局部極大值，系統將兩種函數結合使用：在粗對焦階段採用「方差函數（Variance）」，因其曲線峰值範圍較寬且在遠離焦點處較為平滑，有利於在大範圍內尋找主峰方向；在精對焦階段則切換至「Brenner 梯度函數」，其曲線極其陡峭且靈敏度高，能精確鎖定真正的全域最大值。如圖 \ref{fig:mcs_metrics_10x} 所示，這套邏輯確保了系統能在不同焦距範圍下切換最適用的評價指標。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/MCS focus metrics 10x.png}
+    \caption{在 10 倍物鏡下不同對焦評價函數之效能比較圖（MCS Metrics Comparison）。}
+    \label{fig:mcs_metrics_10x}
+\end{figure}
+
+最後，在搜索流程中引入了判定門檻值 $\Delta F_0$。如圖 \ref{fig:mcs_flowchart} 的演算法流程圖所示，當第一步 $step_1$ 走完後，若評價函數值的變化量小於 $\Delta F_0$，系統會判定目前可能落入了局部極大值的平緩區域。此時系統會強迫沿著爬坡方向再額外跨出一個「雙倍 $step_1$」的步長，以確保鏡頭能衝出雜訊干擾，進入真正的上升路徑。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/MCS flow chart.png}
+    \caption{改進型登山搜索之演算法執行流程圖（參考自 \cite{fu2015fast}）。}
+    \label{fig:mcs_flowchart}
+\end{figure}
+
+
+透過上述「大步跨越雜訊、小步鎖定精確峰值」的邏輯，該演算法在血塗片（Leukocyte）等背景複雜的樣本檢測中展現出較強的穩健性。然而，進一步分析該演算法可以發現，其效能高度依賴於對特定類型樣本與硬體環境的預先調優。具體而言，關鍵參數如自適應步長的比例係數 $k$ 與判定門檻值 $\Delta F_0$ 通常是基於特定樣本的「已知數字變化」而設定的。這種設計導致了泛用性的缺失：一旦樣本類型更換（例如從血塗片改為螢光細胞），原有的參數設定將不再適用，可能導致自適應步長失效或誤判門檻，進而使演算法失去其預期的效率。正是基於對此局限性的考量，本研究在後續實作自動化系統時，將演算法進行優化，以符合不同樣本的適用性。
+
+\newpage
+\section{感測器物理學與色彩校正 (Color Correction) 理論}
+
+將百元等級的 Raspberry Pi Camera 取代數十萬元科學級相機的代價，就是必須面對消費級感測器在光學設計上的嚴重妥協。現代 CMOS 感測器為了極致的微縮化，其每一個感光像素（Pixel）的面積極小。為了提高感光度，半導體工程師會在每一個像素上方製作一個微小凸透鏡，稱為**微透鏡陣列（Microlens Array）**。這些微透鏡負責將照射到像素邊緣的光線「匯聚」到像素中心的感光區。
+
+然而，微透鏡的聚光角度是經過精心計算的，它必須與原廠搭配的鏡頭的主光線角度（CRA）完美匹配。通常，智慧型手機鏡頭邊緣射入感測器的光線會帶有一個傾斜角度。當我們將 Raspberry Pi Camera 的原廠小鏡頭拔除，換上顯微鏡的「有限共軛系統」時，顯微光路投射到感測器邊緣的光線通常是近乎垂直的（CRA 接近 0 度）。這就導致了災難性的後果：垂直入射的顯微光線，在經過感測器邊緣的傾斜微透鏡時，被錯誤地折射到了該像素的「感光區之外」，甚至是折射到了「隔壁的像素」裡，如圖 \ref{fig:cra_mismatch} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_5_cra_mismatch.png}
+    \caption{Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite{bowman2019flat}）。}
+    \label{fig:cra_mismatch}
+\end{figure}
+
+上述的 CRA 不匹配直接導致了兩個致命的影像缺陷。首先是\textbf{嚴重暗角（Vignetting）}：畫面中心的光線垂直進入微透鏡，正確落在感光區，因此中心明亮；越靠近畫面邊緣，光線被錯誤折射流失得越多，導致影像邊緣變得極度暗沉。其次是\textbf{色彩串擾（Color Crosstalk）}：幾乎所有消費級彩色相機都覆蓋著拜爾濾波器（Bayer Filter Array, 依據 RGGB 排列），當綠色像素上的微透鏡將光線錯誤折射到隔壁的紅色或藍色像素時，感測器就會回報錯誤的顏色資訊。這使得原本應該是純綠色的螢光樣本，在影像周圍會因為光譜溢出而變成蒼白、甚至是紫紅色的錯誤色彩。
+
+這些物理層面的缺陷無法透過改變顯微鏡的機械結構來修復。針對此一挑戰，Bowman 等人 \cite{bowman2019flat} 在其研究「Flat-field and colour correction for the Raspberry Pi camera module」中，提出了一套專為 Raspberry Pi Camera Module 設計的平場與色彩校正演算法。
+唯一且最有效的方法，就是深入影像處理的底層，透過建立複雜的「空間變異增益矩陣（Spatially Varying Gain Maps）」與「解混張量（Unmixing Tensor）」，在每一個像素點上進行精準的反向數學補償。這正是本論文第三章「影像處理管線」將要詳細推導與實作的核心技術。
+
+\newpage
+\section{運算成像與圖案化照明傅立葉疊層 (piFP) 理論}
+
+為了克服傳統顯微系統中的繞射極限限制，運算成像（Computational Imaging）技術提供了突破物理孔徑限制的新途徑。本節將概述傅立葉疊層成像（Fourier Ptychography, FP）的演進過程，及其如何從明視野成像擴展至螢光成像領域。
 
 \subsection{傅立葉疊層成像 (Fourier Ptychography, FP) 的核心思想}
 如果在明視野下高頻光線進不了物鏡，那我們能不能改變照明的角度？
 FP 技術的核心思想最早由 Zheng 等人於 2013 年提出 \cite{zheng2013wide}：透過從不同角度（傾斜）照射樣本，強迫原本會發散到物鏡外的大角度高頻光線，被「推」進物鏡的接收錐角內。透過依次點亮 LED 陣列中不同位置的單元，我們可以拍攝一系列低解析度但包含不同頻譜資訊的影像。最後，利用疊代相位復原演算法（Iterative Phase Retrieval Algorithm），在電腦的頻域（Fourier Domain）空間中，將這些重疊的小區塊頻譜「縫合」成一個巨大無比的頻譜（系統架構如圖 \ref{fig:fp_setup} 所示），經由反傅立葉轉換後，即可獲得極高解析度的影像。
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/chap2_fig2_fp_setup.png}
+    \includegraphics[width=0.8\textwidth]{figures/fig2_12_fp_setup.png}
     \caption{基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖（圖片參考自 \cite{zheng2013wide}）。系統透過可程式化控制的 LED 陣列提供不同角度的照明，將樣本的高頻資訊偏移至物鏡可接收的孔徑內。}
     \label{fig:fp_setup}
+\end{figure}
+
+\subsection{基於擴散片波前調控之明視野 FP}
+針對傳統 LED 陣列 FP 系統在硬體調校上的複雜性，He 等人 \citep{he2020fourier} 提出了一種僅需利用低成本擴散片（Diffuser）進行波前調控的改良方案（Fourier ptychography via wavefront modulation with a diffuser）。
+該技術的核心在於：當照明光穿過擴散片後，會產生隨機的相位調控，強迫樣本的高頻資訊在通過物鏡前進行編碼。透過平移擴散片以產生一系列不同的隨機圖案影像，演算法便能從中還原出原本遺失的高頻細節，如圖 \ref{fig:pifp_setup_bf} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/pifp_setup_bf.png}
+    \caption{基於擴散片波前調控之明視野傅立葉疊層成像系統架構（圖片來源：\cite{he2020fourier}）。}
+    \label{fig:pifp_setup_bf}
 \end{figure}
 
 \subsection{針對螢光系統的 piFP 與波前調控}
@@ -149,104 +154,19 @@ FP 技術的核心思想最早由 Zheng 等人於 2013 年提出 \cite{zheng2013
 根據頻率混疊（Aliasing）原理，當我們將高頻的照明圖案疊加在樣本上時，照明圖案的空間頻率會與樣本的空間頻率發生相加或相減的「差頻效應」。這會將樣本極高頻的細節，硬生生地「搬移（Shift）」到低頻區域，使其能夠順利穿過低 NA 的物鏡被相機捕捉。
 He 等人 \citep{he2020fourier} 進一步證實了使用低成本擴散片（Diffuser）進行波前調控的優越性。在我們的系統中，我們即是透過移動擴散片來產生不同的隨機圖案照明，藉由記錄多張帶有不同圖案混疊的螢光影像，最終在演算法中解譯出被隱藏的高解析度螢光結構。
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/chap2_fig3_pifp_concept.png}
-    \caption{圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理與系統架構示意圖（圖片來源：\cite{dong2014high}）。}
-    \label{fig:pifp_concept}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig2_13_pifp_concept.png}
+        \caption{piFP 突破繞射極限之原理示意圖（圖片來源：\cite{dong2014high}）。}
+        \label{fig:pifp_concept}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/pifp_setup_fluo.png}
+        \caption{針對螢光系統的 piFP 實作架構示意圖。}
+        \label{fig:pifp_setup_fluo}
+    \end{minipage}
 \end{figure}
-\section{動態自動對焦技術的數學原理}
-
-在顯微鏡掃描大面積樣本（如培養皿）時，由於樣本底部不可能絕對平坦，且龍門機架移動時也會有微小起伏，焦平面（Focal Plane）的漂移是不可避免的。因此，一套強健的自動對焦（Autofocus, AF）演算法是自動化系統的靈魂。
-
-\subsection{對焦指標（Focus Metrics）的選擇}
-自動對焦的核心在於計算一張影像的「清晰度（Sharpness）」。我們透過推動 Z 軸馬達拍攝一系列影像，計算每張影像的清晰度分數，分數最高的位置即為焦平面。
-在顯微鏡中，我們通常採用對比度檢測自動對焦（Contrast-Detection Autofocus, CDAF）。其基本假設是：**影像越清晰，相鄰像素之間的對比度越大，高頻細節越豐富。** 本研究實作了三種不同數學特性的對焦指標：
-
-\subsubsection{1. 全域變異數（Global Variance）}
-變異數衡量的是影像亮度的離散程度。對於一張大小為 $M \times N$，像素值為 $I(x,y)$ 的影像，其平均亮度 $\mu$ 為：
-\begin{equation}
-    \mu = \frac{1}{MN} \sum_{x=1}^{M} \sum_{y=1}^{N} I(x,y)
-\end{equation}
-全域變異數 (Variance) 則定義為：
-\begin{equation}
-    V = \frac{1}{MN} \sum_{x=1}^{M} \sum_{y=1}^{N} [I(x,y) - \mu]^2
-\end{equation}
-\textbf{物理意義}：當影像嚴重失焦時，所有結構糊在一起，像素值趨近於平均亮度，變異數極小。當影像對焦時，亮暗分明，變異數達到最大。
-\textbf{優點與缺點}：Variance 的對焦曲線非常平緩（如同一座寬廣的平緩山丘）。這意味著即使在距離焦平面極遠（幾百微米）的地方，它仍能給出正確的梯度方向。缺點是它在峰值附近不夠尖銳，無法精確鎖定微米級的焦點。因此，在本系統中，Variance 被專門用於**「第一階段粗調」**。
-
-\subsubsection{2. 空間頻率（Spatial Frequency）}
-空間頻率評估的是影像在水平（Row）與垂直（Column）方向的像素變化劇烈程度。
-\begin{equation}
-    RowFreq = \sqrt{ \frac{1}{MN} \sum_{x=1}^{M} \sum_{y=2}^{N} [I(x,y) - I(x,y-1)]^2 }
-\end{equation}
-\begin{equation}
-    ColFreq = \sqrt{ \frac{1}{MN} \sum_{x=2}^{M} \sum_{y=1}^{N} [I(x,y) - I(x-1,y)]^2 }
-\end{equation}
-\begin{equation}
-    SF = \sqrt{RowFreq^2 + ColFreq^2}
-\end{equation}
-\textbf{物理意義}：SF 專門捕捉影像中的邊緣（Edges）資訊。它比 Variance 對失焦更敏感，曲線更陡峭，非常適合作為**「第二階段中調」**的指標。
-
-\subsubsection{3. Brenner 與 Tenengrad 梯度函數}
-這兩者是極度靈敏的高頻過濾器。Brenner 梯度計算相隔一個像素的差值平方：
-\begin{equation}
-    Brenner = \sum_{x} \sum_{y} [I(x+2,y) - I(x,y)]^2 \quad \text{for} \quad |I(x+2,y) - I(x,y)| > \text{Threshold}
-\end{equation}
-Tenengrad 則是利用著名的 Sobel 算子（分別在 x 與 y 方向求一階偏導數）來提取極高頻的邊緣：
-\begin{equation}
-    G_x = I * S_x, \quad G_y = I * S_y
-\end{equation}
-\begin{equation}
-    Tenengrad = \sum \sum (G_x^2 + G_y^2) \quad \text{for} \quad (G_x^2 + G_y^2) > \text{Threshold}
-\end{equation}
-\textbf{物理意義}：這些指標的對焦曲線如同一根尖刺（Needle-like）。在偏離焦平面哪怕只有幾微米時，其數值就會如懸崖般暴跌。因此，它們被用於**「第三階段精調」**，確保系統能以 $0.625 \mu m$ 的精度死鎖焦平面。
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/chap2_fig4_af_curves.png}
-    \caption{明視野（左）與螢光（右）環境下，不同自動對焦指標對脫焦距離的響應曲線模擬對比。}
-    \label{fig:af_curves_comparison}
-\end{figure}
-
-\subsection{極端環境下的抗噪策略：形態學對焦指標}
-上述數學模型在明視野（Bright-field）下運作完美，因為明視野影像明亮且信噪比高。但在螢光（Fluorescence）模式下，樣本發出的光極其微弱，且背景充滿了未結合螢光染劑的雜散光（Haze）與相機感測器的熱雜訊（Thermal Noise）。
-這些高頻的白雜訊會嚴重干擾 Tenengrad 等依賴梯度的演算法，導致在失焦的背景中計算出虛假的「高頻雜訊峰值」，讓演算法徹底迷失方向。
-
-為了克服此問題，本研究首創在對焦前加入「形態學開運算（Morphological Opening）」。
-開運算是影像處理學中的基石，由「侵蝕（Erosion）」與「膨脹（Dilation）」串聯組成：
-\begin{equation}
-    A \circ B = (A \ominus B) \oplus B
-\end{equation}
-其中 $A$ 為原始影像，$B$ 為結構元素（Structuring Element, 通常為 $3 \times 3$ 或 $5 \times 5$ 的矩陣）。
-\begin{itemize}
-    \item \textbf{侵蝕（Erosion）}：會將影像中孤立的、比結構元素還小的亮點（亦即雜訊）無情地抹除，同時也會讓真實的螢光細胞變小。
-    \item \textbf{膨脹（Dilation）}：隨後將剩餘的真實細胞結構恢復到原本的大小，但那些已經被抹除的雜訊則無法復原。
-\end{itemize}
-透過開運算徹底洗淨雜訊後，再進行 Sobel 梯度計算。為求極致的抗干擾性，我們在程式中甚至加入了一道排序過濾：\textbf{僅提取全圖前 0.1\% 最強烈的像素（Top 0.1\% Peaks）} 來計算最終得分。這確保了系統永遠只對最明亮的螢光結構對焦，徹底免疫背景雜散光的干擾。
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/chap2_fig5_morphology_comparison.png}
-    \caption{基於物理模型之大範圍失焦模擬與形態學抗噪處理流程之定性與定量對比圖。圖中展示了在不同模擬環境下，經過形態學運算後影像雜訊的抑制效果，以及其對 Top 0.1\% 能量分數（Score）的顯著正面影響。}
-    \label{fig:morphology_comparison}
-\end{figure}
-
-\section{感測器物理學與色彩校正 (Color Correction) 理論}
-
-將百元等級的 Raspberry Pi Camera 取代數十萬元科學級相機的代價，就是必須面對消費級感測器在光學設計上的嚴重妥協。
-
-\subsection{主光線角度 (Chief Ray Angle, CRA) 的幾何偏誤}
-現代 CMOS 感測器為了極致的微縮化，其每一個感光像素（Pixel）的面積極小。為了提高感光度，半導體工程師會在每一個像素上方製作一個微小凸透鏡，稱為**微透鏡陣列（Microlens Array）**。這些微透鏡負責將照射到像素邊緣的光線「匯聚」到像素中心的感光區。
-然而，微透鏡的聚光角度是經過精心計算的，它必須與原廠搭配的鏡頭的主光線角度（CRA）完美匹配。通常，智慧型手機鏡頭邊緣射入感測器的光線會帶有一個傾斜角度（例如 25 度）。
-當我們將 Raspberry Pi Camera 的原廠小鏡頭拔除，換上顯微鏡的「有限共軛系統」時，顯微光路投射到感測器邊緣的光線通常是近乎垂直的（CRA 接近 0 度）。這就導致了災難性的後果：
-垂直入射的顯微光線，在經過感測器邊緣的傾斜微透鏡時，被錯誤地折射到了該像素的「感光區之外」，甚至是折射到了「隔壁的像素」裡。
-
-\subsection{暗角與色彩串擾的形成}
-上述的 CRA 不匹配直接導致了兩個致命的影像缺陷：
-\begin{enumerate}
-    \item \textbf{嚴重暗角（Vignetting）}：畫面中心的光線垂直進入微透鏡，正確落在感光區，因此中心明亮。越靠近畫面邊緣，光線被錯誤折射流失得越多，導致影像邊緣變得極度暗沉。
-    \item \textbf{色彩串擾（Color Crosstalk）}：幾乎所有消費級彩色相機都覆蓋著拜爾濾波器（Bayer Filter Array, 依據 RGGB 排列）。當綠色像素上的微透鏡將光線錯誤折射到隔壁的紅色或藍色像素時，感測器就會回報錯誤的顏色資訊。這使得原本應該是純綠色的螢光樣本，在影像周圍會因為光譜溢出而變成蒼白、甚至是紫紅色的錯誤色彩。
-\end{enumerate}
-
-這些物理層面的缺陷無法透過改變顯微鏡的機械結構來修復。唯一且最有效的方法，就是深入影像處理的底層，透過建立複雜的「空間變異增益矩陣（Spatially Varying Gain Maps）」與「解混張量（Unmixing Tensor）」，在每一個像素點上進行精準的反向數學補償。這正是本論文第三章「影像處理管線」將要詳細推導與實作的核心技術。

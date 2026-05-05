@@ -4,126 +4,202 @@
 
 本章將毫無保留地揭露本研究所開發之「多功能樂高螢光倒立式顯微鏡」的底層技術細節。我們將從最基礎的光學佈局開始，依序探討機電整合硬體、非同步軟體架構，最終深入剖析系統核心的「多階段動態自動對焦」與「張量影像校正」演算法的數學原理與程式實作邏輯。
 
+\section{顯微鏡幾何配置與螢光成像原理}
+
+\subsection{正立式顯微鏡與倒立式顯微鏡之比較}
+
+顯微鏡的幾何配置決定了其適用的樣本類型與操作靈活性。傳統的正立式顯微鏡（Upright Microscope）其物鏡位於樣本之上，光源由下方穿透樣本進入物鏡，適用於觀察經過切片、固定且極薄的玻片標本。然而在活體細胞研究中，樣本通常位於培養皿底部。倒立式顯微鏡（Inverted Microscope）將物鏡倒置於樣本平台之下，解決了此空間限制，成為現代細胞生物學研究的標準配備，如圖 \ref{fig:microscopes} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_1_microscopes.png}
+    \caption{正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}
+    \label{fig:microscopes}
+\end{figure}
+
+\subsection{螢光現象與斯托克斯位移}
+
+「螢光（Fluorescence）」是一種光致發光（Photoluminescence）現象。如圖 \ref{fig:jablonski} 的雅布倫斯基圖（Jablonski Diagram）所示，當特定分子（螢光團，Fluorophore）受到具有較高能量（較短波長）的光子激發時，其位於單重基態（Singlet Ground State, $S_0$）的電子會吸收能量躍遷至一層更高的單重激發態（Singlet Excited State, $S_1$）。
+
+處於激發態的電子極不穩定，在極短的時間內（通常為皮秒至奈秒等級），電子會先透過\textbf{震動衰減（Vibrational Relaxation, VR）}釋放部分能量，降至 $S_1$ 的最低振動能階。接著，電子會以發射光子的形式回到基態 $S_0$，即產生螢光；若電子發生\textbf{系間跨越（Intersystem Crossing, ISC）}轉入三重激發態（Triplet State, $T_1$），再緩慢回到基態所發出的光則稱為磷光。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_2_jablonski.png}
+    \caption{螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程結構示意圖。}
+    \label{fig:jablonski}
+\end{figure}
+
+由於在 VR 與 ISC 等無輻射躍遷過程中損失了部分能量，根據\textbf{普朗克-愛因斯坦關係式}:
+\begin{equation}
+    E = \frac{hc}{\lambda}
+\end{equation}
+其中 $h$ 為普朗克常數，$c$ 為光速，$\lambda$ 為波長。發射光子能量較小，導致發射光的波長（$\lambda_{em}$）長於激發光的波長（$\lambda_{ex}$）。這種激發波長與發射波長之間的差值，即被稱為\textbf{斯托克斯位移（Stokes Shift）}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig2_3_stokes_spectra.png}
+    \caption{螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}
+    \label{fig:stokes_spectra}
+\end{figure}
+
+\subsection{螢光顯微鏡的光學濾波架構}
+
+一套標準的落射式螢光顯微鏡（Epifluorescence Microscope）通常由三個核心光學元件構成嚴密的濾波架構。首先是\textbf{激發濾光片（Excitation Filter）}，其功能在於僅允許特定波段的光線通過以激發樣本，例如針對綠色螢光蛋白（GFP）篩選出約 470 nm 的藍光。接著，放置於光路中呈 45 度角的\textbf{雙色分光鏡（Dichroic Mirror）}，利用其特殊的光學鍍膜將短波長的激發光反射至物鏡，同時讓長波長的發射光穿透至相機端。最後，\textbf{發射濾光片（Emission Filter）}作為最後一道防線放置於感測器前方，負責徹底阻絕任何殘留或散射的激發光，確保僅有純淨的螢光波段進入成像系統。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_4_filter_cube.png}
+    \caption{落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}
+    \label{fig:filter_cube}
+\end{figure}
+
+透過這三道濾波機制的嚴格把關，螢光顯微鏡能達到極高的訊噪比（Signal-to-Noise Ratio, SNR），使科學家能夠在微觀尺度下觀察到極其微弱的分子標記。
+
 \section{系統硬體架構與機電整合}
 
 \subsection{有限共軛光路設計 (Finite-Conjugate Optical Design)}
-為求極致的精簡與成本控制，本系統揚棄了傳統高階顯微鏡中體積龐大的「無限遠校正光學系統（Infinity-Corrected Optical System）」。在傳統無限遠系統中，物鏡將光線轉化為平行光束（無限遠），必須在光路後端加裝一顆管鏡（Tube Lens）才能將平行光重新匯聚成像於感測器上。
-
-本系統改採基於 OpenFlexure \citep{collins2020robotic} 理念的**「有限共軛（Finite-Conjugate）」**光學設計。在此配置下，我們直接利用 Raspberry Pi Camera Module 2 (IMX219) 感測器，並搭配標準顯微物鏡。物鏡直接將樣本上的影像，經過一段固定的物理距離（即鏡筒長度，Tube Length），直接投射並聚焦於 CMOS 感測器裸片上。
+為求極致的精簡與成本控制，本系統揚棄了傳統高階顯微鏡中體積龐大的「無限遠校正光學系統（Infinity-Corrected Optical System）」。本系統改採基於 OpenFlexure \citep{collins2020robotic} 理念的**「有限共軛（Finite-Conjugate）」**光學設計。在此配置下，物鏡直接將樣本上的影像，經過一段固定的物理距離（鏡筒長度），投射並聚焦於 CMOS 感測器裸片上。
 根據高斯透鏡公式（Gaussian Lens Equation）：
 \begin{equation}
     \frac{1}{f} = \frac{1}{u} + \frac{1}{v}
 \end{equation}
-其中 $f$ 為物鏡焦距，$u$ 為樣本至物鏡的主面距離（物距），$v$ 為物鏡至感測器的距離（像距）。系統的放大倍率（Magnification, $M$）則由幾何關係決定：
-\begin{equation}
-    M = \frac{v}{u} \approx \frac{L}{f}
-\end{equation}
-其中 $L$ 近似於我們所設計的 3D 列印鏡筒長度。透過精確計算與設計 3D 列印轉接套件，我們能將物鏡與相機感測器牢牢固定在樂高底板上，確保光軸（Optical Axis）絕對垂直且同心。
+其中 $f$ 為物鏡焦距，$u$ 為物距，$v$ 為像距。透過精確設計 3D 列印轉接套件，我們能將物鏡與相機感測器牢牢固定在樂高底板上，確保光軸絕對垂直且同心。
 
 \subsection{基於樂高與龍門架構之機械載台}
-為了解決純 3D 列印顯微鏡（如 OpenFlexure）因撓性鉸鏈導致的「極短行程」與「潛變漂移」問題，本研究大膽引入了工業自動化中常見的**剛性龍門架構（Gantry-style Architecture）**，並將其與樂高積木的標準幾何網格完美結合。
-\begin{itemize}
-    \item \textbf{樂高光學桌（LEGO Optical Breadboard）}：顯微鏡的基座由大量互相卡扣的樂高科技系列（LEGO Technic）積木構成。由於樂高具備極其嚴苛的射出成型公差（$<10 \mu m$），其標準的 8.0 mm 孔距為整個光學系統提供了一個天然且完美的正交座標系，大幅降低了組裝時的對齊誤差。
-    \item \textbf{龍門傳動系統}：捨棄塑膠變形機制，X、Y、Z 三軸皆採用真實的金屬線性滑軌與導螺桿（Lead Screw）傳動，這使得載台能輕易進行數公分以上的大範圍平移，完美支援多孔盤（Multi-well plate）的高通量掃描。
-\end{itemize}
+為了解決純 3D 列印顯微鏡因撓性鉸鏈導致的行程限制與潛變問題，本研究大膽引入了剛性龍門架構（Gantry-style Architecture）。顯微鏡的基座由大量互相卡扣的樂高科技系列（LEGO Technic）積木構成。由於樂高具備極其嚴苛的射出成型公差（$<10 \mu m$），其標準的 8.0 mm 孔距為整個光學系統提供了一個天然且完美的正交座標系，大幅降低了組裝時的對齊誤差。
 
 \subsection{動力與電子控制子系統}
-本系統的機電大腦由 Raspberry Pi 4 單板電腦與 Arduino Uno 微控制器共同組成。
-
-\subsubsection{1. 步進馬達與極限微步進 (Microstepping) 控制}
-載台的驅動核心為三顆 NEMA 17 兩相四線步進馬達。為了驅動這些馬達，我們使用 Arduino Uno 搭配 CNC Shield V3 擴充板，並在上面安插了 A4988 馬達驅動晶片。
-一般 NEMA 17 馬達的物理步進角為 $1.8^\circ$，亦即馬達軸心旋轉一整圈需要 $360^\circ / 1.8^\circ = 200$ 步。為了達到顯微等級的定位精度，我們在 CNC Shield 上透過硬體跳線（Jumper）啟動了 A4988 的 **16 倍微步進（16x Microstepping）** 模式。
-微步進技術透過精密控制兩個線圈的電流比例（利用正弦與餘弦波形），強迫馬達轉子停在兩個物理磁極之間。這使得原本旋轉一圈的 200 步被細分成了 $200 \times 16 = 3200$ 微步。
-
-在我們的 Z 軸設計中，配備了導程（Lead）為 2.0 mm 的導螺桿（即馬達旋轉一圈，載台垂直移動 2.0 mm）。根據系統組態檔（\texttt{config.py}）的數學定義，Z 軸的理論定位精度可精確計算如下：
+載台的驅動核心為三顆 NEMA 17 步進馬達。為了達到顯微等級的定位精度，我們啟動了 A4988 驅動晶片的 **16 倍微步進（16x Microstepping）** 模式。在我們的 Z 軸設計中，配備了導程為 2.0 mm 的導螺桿，Z 軸的理論定位精度可精確計算如下：
 \begin{equation}
-    Resolution_Z = \frac{2.0~\text{mm}}{3200~\text{steps}} = 0.000625~\text{mm/step} = 0.625~\text{\textmu m/step}
+    Resolution_Z = \frac{2.0~\text{mm}}{200 \times 16~\text{steps}} = 0.000625~\text{mm/step} = 0.625~\text{\textmu m/step}
 \end{equation}
-此高達亞微米（$0.625 \mu m$）的驚人定位精度，賦予了系統精確切割焦平面的能力，是後續演算法能成功鎖定焦點的絕對物理前提。
-
-\subsubsection{2. 雙模光源的 GPIO 同步控制}
-顯微鏡的照明系統分為明視野（Bright Field）的透射白光，以及螢光模式（Fluorescence）的激發光源。我們在 \texttt{hardware\_control.py} 中實作了 \texttt{LightControl} 類別，直接呼叫 \texttt{RPi.GPIO} 函式庫控制樹莓派的硬體腳位。明視野光源連接至 GPIO 17，螢光光源連接至 GPIO 27。此設計允許軟體在掃描過程中以毫秒級的延遲瞬間切換光源，有效避免螢光樣本在不拍攝時遭到持續照射而產生螢光淬滅（Photobleaching）現象。
+此高達亞微米（$0.625 \mu m$）的驚人定位精度，賦予了系統精確切割焦平面的能力。
 
 \section{非同步多執行緒的軟體架構}
 
-要讓一台顯微鏡流暢運作，最大的軟體挑戰在於「如何同時處理即時的高解析度影像串流、繁重的影像處理矩陣運算，以及與硬體的序列埠（Serial Port）通訊，而不導致使用者介面（GUI）卡頓？」
-為了解決這個併發性（Concurrency）問題，本研究基於 Python 語言，引入了 PySide6 (Qt) 的事件迴圈（Event Loop）機制，構建了嚴密的**多執行緒（Multi-threading）架構**。
-
-\subsection{模組化執行緒設計 (\texttt{workers.py})}
-系統的核心被封裝在 \texttt{CameraWorker} 類別中。這是一個獨立於主 GUI 執行的背景工作物件。
-\begin{itemize}
-    \item \textbf{影像擷取與運算迴圈}：\texttt{CameraWorker} 內部不斷向 \texttt{Picamera2} 請求最新的原始影像陣列（Raw Array）。獲取陣列後，立即在該執行緒內進行平場校正與色彩解混等繁重的矩陣運算（詳見後述）。
-    \item \textbf{硬體通訊分離}：對於需要等待 Arduino 回應的馬達控制指令，我們實作了 \texttt{MotorControl} 類別。當 \texttt{CameraWorker} 決定要移動馬達時，它不會傻傻等待，而是將指令交給一個專屬的 IO 執行緒（IO Thread）去與 Serial Port 溝通。這種「發射後不理（Fire-and-forget）」的設計，確保了相機的 FPS 永遠不會因為等待馬達移動而掉幀。
-\end{itemize}
-
-\subsection{RESTful 風格的 API 處理器 (\texttt{api\_handler.py})}
-為了讓這台顯微鏡具備遠端操作的潛力，我們並沒有將 UI 按鈕直接綁定硬體指令。相反地，我們設計了一個名為 \texttt{ApiHandler} 的中介層。所有的控制命令（如 \texttt{move\_z\_1\_10}、\texttt{autofocus}、\texttt{toggle\_color\_correction}）皆封裝為類似 RESTful API 的請求。主程式透過呼叫 \texttt{handle\_request(cmd, params)} 進行邏輯分發。這種解耦（Decoupling）的設計，使得未來只要外掛一個輕量級的 HTTP Server，研究人員就可以透過網頁瀏覽器（Browser）在世界任何角落操控這台顯微鏡。
+要讓一台顯微鏡流暢運作，必須解決即時影像串流、矩陣運算與硬體通訊的併發性問題。本研究基於 Python 語言引入了 PySide6 (Qt) 的事件迴圈機制。系統核心被封裝在 \texttt{CameraWorker} 類別中，這是一個獨立於主 GUI 執行的背景工作物件。影像擷取與運算迴圈在該執行緒內進行，而馬達控制指令則交給專屬的 IO 執行緒去處理。這種「發射後不理（Fire-and-forget）」的設計，確保了相機的 FPS 永遠不會因為等待馬達移動而掉幀。
 
 \section{空間變異張量影像校正管線 (Image Processing Pipeline)}
 
-如第二章所述，消費級感測器在顯微光路下會產生嚴重的暗角與色彩串擾。本節將詳細推導 \texttt{image\_processing.py} 中為解決此問題而開發的四大矩陣運算步驟。
+如第二章所述，本節將詳細推導 \texttt{image\_processing.py} 中為解決 CRA 缺陷而開發的矩陣運算步驟。
 
 \subsection{1. 硬體黑電平補償 (Black Level Subtraction)}
-所有 CMOS 感測器即使在完全黑暗的環境下，也會因為熱電子釋放而產生微小的基底電壓信號。在 Raspberry Pi Camera V2 的 ISP (Image Signal Processor) 設定中，這個基準值（Pedestal）通常被設為 64（在 10-bit raw 資料下）。
-我們在讀取原始 Bayer 資料後，第一步就是利用廣播機制（Broadcasting）將所有通道的像素值強行扣除這個偏移量：
 \begin{equation}
     I_{R}(x,y) = \max(0, Raw_R(x,y) - 64.0)
 \end{equation}
-此步驟對於後續的乘法校正極為關鍵。如果沒有扣除底噪，平場校正會將背景雜訊無差別地倍增，導致畫面充滿雪花般的噪點。
 
-\subsection{2. 背景扣除 (Background Subtraction) 對抗環境漏光}
-在螢光模式下，任何極其微弱的環境漏光（Stray Light）或載玻片自發的背景螢光，都會嚴重影響微弱樣本的信號。系統提供了一個校準機制：在沒有樣本的情況下先拍攝一張全黑的「背景幀（Background Frame, $I_{bg}$）」。在後續即時運算中，每一幀影像都會逐像素扣除該背景：
+\subsection{2. 背景扣除 (Background Subtraction)}
+每一幀影像都會逐像素扣除背景幀：
 \begin{equation}
     I'_{R,G,B}(x,y) = \max(0, I_{R,G,B}(x,y) - I_{bg,R,G,B}(x,y))
 \end{equation}
 
 \subsection{3. 空間增益矩陣平場校正 (Flat-field Correction)}
-為了解決 CRA 造成的暗角問題，我們引入了增益矩陣（Gain Maps）。在系統初始化時，對著均勻的白光背景拍攝一張基準影像 $W$。為了避免極端高光或灰塵造成的雜訊干擾，我們不直接取最高亮度，而是計算每個通道中心區域亮度的 \textbf{95 百分位數 (95th Percentile)} 作為目標基準值 $T_{channel}$。
-隨後，我們計算出一張與畫面解析度等大 ($M \times N$) 的增益矩陣 $G$：
+我們計算出一張與畫面解析度等大 ($M \times N$) 的增益矩陣 $G$：
 \begin{equation}
     G_{channel}(x,y) = \frac{T_{channel}}{W_{channel}(x,y)}
 \end{equation}
-在即時運算中，透過矩陣點乘 (Element-wise Multiplication, Hadamard Product)，將畫面邊緣衰減的亮度強行放大補償回來：
+在即時運算中，透過 Hadamard Product 將畫面邊緣衰減的亮度補償回來：
 \begin{equation}
     I_{flat}(x,y) = I'(x,y) \circ G(x,y)
 \end{equation}
 
-\subsection{4. 愛因斯坦求和與色彩解混張量 (Tensor Unmixing)}
-這一步是本系統在影像處理上最具突破性的核心。為了解決綠色像素微透鏡將光線折射到紅色像素所造成的「色彩串擾（Color Crosstalk）」，我們不能只使用全域的色彩校正矩陣（Global CCM）。因為 CRA 在畫面中心與邊緣的角度是完全不同的，**色彩的溢出程度在空間中是連續變異的**。
-為此，我們訓練並載入了一個名為 \texttt{unmix\_tensor.npy} 的四維張量（Tensor）。其維度為 $H \times W \times 3 \times 3$。這意味著：**畫面上的每一個像素點，都有一個專屬於該位置的 $3 \times 3$ 解混矩陣。**
-
-假設某個像素位置 $(x,y)$ 測得的錯誤顏色向量為 $\vec{C}_{measured} = [R_{m}, G_{m}, B_{m}]^T$，真實顏色向量為 $\vec{C}_{true}$，串擾轉換矩陣為 $M_{crosstalk}$，則：
-\begin{equation}
-    \vec{C}_{measured} = M_{crosstalk} \cdot \vec{C}_{true}
-\end{equation}
-我們預先計算好的解混張量中的 $3 \times 3$ 矩陣 $U(x,y)$ 就是 $M_{crosstalk}$ 的反矩陣。因此，還原真實顏色的數學式為：
-\begin{equation}
-    \vec{C}_{true}(x,y) = U(x,y) \cdot \vec{C}_{measured}(x,y)
-\end{equation}
-要在高解析度（例如 $1640 \times 1232$）下，對每一個像素執行 $3 \times 3$ 矩陣乘法，如果使用 Python 的 \texttt{for} 迴圈，耗時將長達數秒，根本無法串流影片。
-在這裡，我們巧妙地運用了 NumPy 庫中最底層、基於 C 語言高度最佳化的**愛因斯坦求和約定（Einstein Summation Convention, \texttt{np.einsum}）**：
+\subsection{4. 色彩解混張量 (Tensor Unmixing)}
+為了在高解析度下對每一個像素執行空間變異的色彩解混，我們運用了 NumPy 庫中的愛因斯坦求和約定（Einstein Summation Convention）：
 \begin{equation}
     I_{unmixed} = \text{\texttt{np.einsum}}('hwij,hwj \rightarrow hwi', U, I_{flat})
 \end{equation}
-這行極度簡潔的程式碼，利用多執行緒向量運算（Vectorization），在數十毫秒內完成了數百萬次的微型矩陣乘積，完美還原了每一顆細胞的真實色彩。
 
 \section{多階段動態自動對焦狀態機 (State Machine)}
 
-在顯微鏡的高通量掃描中，系統必須能夠在一無所知的狀態下，指揮 Z 軸馬達自動尋找到幾微米厚度的焦平面。這是一個典型的「最佳化搜尋（Optimization Search）」問題。我們在 \texttt{autofocus.py} 中構建了一個嚴謹的狀態機（State Machine）來主導這場搜尋。
+在顯微掃描過程中，系統必須在未知的 Z 軸起始位置下，自動尋找到焦平面。本研究實作了一套基於 Fu et al. \cite{fu2015fast} 改進型 MCS 理論的「多階段動態自動對焦狀態機」。
 
-\subsection{三重對焦指標的切換邏輯}
-正如第二章所述，不同的數學指標適用於不同的失焦距離。本系統設計了一個名為 \texttt{FOCUS\_STEPS\_LIST} 的步數表，例如 \texttt{[(100, True), (25, True), (3, False)]}。
-\begin{itemize}
-    \item \textbf{第一階段（廣域搜索，步長 100 \textmu m）}：系統距離焦平面極遠。此時啟動**全域變異數 (Global Variance)**。馬達大步幅跨越，只要變異數持續上升，就表示方向正確。
-    \item \textbf{第二階段（收斂搜索，步長 25 \textmu m）}：進入焦平面附近，變異數曲線變得平緩。此時演算法自動切換為**空間頻率 (Spatial Frequency)**。利用邊緣對比度更陡峭的特性，快速逼近焦點。
-    \item \textbf{第三階段（精細鎖死，步長 3 \textmu m 至 1 \textmu m）}：進入微米級決戰。在明場模式下切換為 **Tenengrad 梯度**；在螢光模式下，則切換為**「形態學開運算 + 前 0.1\% 梯度」**（Morphological + Top 0.1\%）。此時，對焦曲線變得如針尖般銳利。
-\end{itemize}
+\subsection{對焦評價函數之數學實作 (Mathematical Implementation)}
 
-\subsection{防呆盲區偵測與閉迴圈峰值回溯 (Peak Recovery)}
-在真實環境中，搜尋並非總是一帆風順。
-\subsubsection{1. 盲區偵測 (Blind Zone Detection)}
-如果一開始馬達移動的方向是「遠離」焦平面，所有指標的分數都會連續下降。演算法內建了計數器，一旦偵測到分數連續兩次或三次下降，就會觸發「盲區防呆機制」，強制將馬達的搜尋方向反轉（乘以 -1），並大幅跨步退回起始點重新搜索。
+\subsubsection{1. 全域變異數 (Global Variance) —— 粗調階段}
+\begin{equation}
+    V = \frac{1}{MN} \sum_{x=1}^{M} \sum_{y=1}^{N} [I(x,y) - \mu]^2
+\end{equation}
 
-\subsubsection{2. 尋峰回溯機制 (Closed-loop Peak Recovery)}
-由於對焦指標是「離散的」，系統不可能恰好停在物理上的絕對最高點。通常的情況是，馬達會「跨過（Overshoot）」山頂，導致分數從最高點開始滑落。
-當演算法在精調階段偵測到分數跌破歷史最高分數（Historical Max Score）的 80\% 時，狀態機將判定「已經過頭了」。此時，系統會啟動「尋峰回溯」：馬達會自動反向，並以極小的步長（例如 1 微步）慢慢爬回剛才的山頂。直到當前分數回升至歷史最高分的 98\% 以上時，系統才會宣告對焦「成功（FINISHED）」。這套閉迴圈的確認機制，徹底抹平了廉價步進馬達不可避免的物理背隙誤差。
+\subsubsection{2. 空間頻率 (Spatial Frequency) —— 中調階段}
+\begin{equation}
+    SF = \sqrt{ \frac{1}{MN} \left( \sum \sum [I(x,y) - I(x,y-1)]^2 + \sum \sum [I(x,y) - I(x-1,y)]^2 \right) }
+\end{equation}
+
+\subsubsection{3. Tenengrad 梯度與形態學指標 —— 精細鎖定}
+針對螢光模式下的高頻雜訊干擾，本系統首創在計算梯度前加入形態學開運算（Morphological Opening）：
+\begin{equation}
+    I_{clean} = (I \ominus B) \oplus B
+\end{equation}
+我們僅提取全圖前 0.1\% 最強烈的梯度值進行加總，確保系統死鎖在真實的螢光結構上。
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig3_1_af_curves.png}
+    \caption{明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}
+    \label{fig:af_curves_comparison}
+\end{figure}
+
+\subsection{三段式變步長搜索策略與尋峰機制}
+
+本系統將對焦邏輯抽象化為一個非同步執行緒狀態機：
+\begin{enumerate}
+    \item \textbf{盲區偵測}：若連續三次指標分數下降，系統會自動反轉馬達方向。
+    \item \textbf{多階步長切換}：
+    \begin{itemize}
+        \item \textbf{Rough}：步長 62.5 \textmu m (100 微步)，使用 $V$ 指標。
+        \item \textbf{Moderate}：步長降至 15.6 \textmu m (25 微步)，切換為 $SF$。
+        \item \textbf{Fine}：步長降至 1.875 \textmu m (3 微步)，使用 Tenengrad 或形態學指標。
+    \end{itemize}
+    \item \textbf{閉迴圈尋峰回溯 (Peak Recovery)}：當馬達跨過指標最高點導致分數跌破峰值 80\% 時，系統會反轉並以 0.625 \textmu m/step 的解析度爬回山頂，直到分數回升至最高值的 98\% 以上，宣告對焦完成。
+\end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig3_2_morphology_comparison.png}
+    \caption{形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}
+    \label{fig:morphology_comparison}
+\end{figure}
+
+\section{圖案化照明傅立葉疊層 (piFP) 之數學理論基礎}
+
+本研究實作之高解析度成像核心基於圖案化照明傅立葉疊層（piFP）理論。為了在後續演算法中準確還原高頻資訊，必須在此詳細推導其光學傳遞模型。
+
+\subsection{阿貝繞射極限與物鏡的低通特性}
+傳統顯微鏡的解析度極限受限於阿貝繞射極限（Abbe diffraction limit）。在低成本顯微系統中，由於物鏡的數值孔徑（Numerical Aperture, NA）通常較小，這使得成像系統能分辨的最小距離（解析度）受到物理上的限制，難以觀察到樣本的微細結構。根據阿貝公式：
+\begin{equation}
+    d_{min} = \frac{\lambda}{2 \cdot \text{NA}}
+\end{equation}
+其中 $\lambda$ 為照明光波長，$\text{NA} = n \sin \alpha$ 為物鏡的數值孔徑。在頻率空間（Fourier Domain）中，這代表物鏡僅能接收小於截止頻率 $f_c = \frac{\text{NA}}{\lambda}$ 的空間頻率。
+
+物鏡在光學系統中扮演著「低通濾波器（Low-pass Filter）」的角色。由於物鏡的數值孔徑有限，其接收錐角是固定的。那些攜帶高頻細節的大角度繞射光線若無法進入物鏡，相關的高解析度資訊便會遺失，導致最終成像模糊。
+
+\subsection{光柵繞射與頻率偏移原理}
+要理解如何突破繞射極限，必須先理解光學中的傅立葉轉換。當一束光穿過樣本後，樣本的空間結構（Spatial Structure）會將光波「繞射」到不同的角度。根據繞射理論，樣本中較大、較粗糙的結構（低頻資訊）會產生較小的繞射角；而極微細、密集的結構（高頻資訊）則會產生較大的繞射角。
+其關係遵循光柵方程式：
+\begin{equation}
+    d \cdot \sin \theta = m \cdot \lambda
+\end{equation}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.90\textwidth]{figures/fig2_11_diffraction.png}
+    \caption{光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍，造成高頻細節的遺失。}
+    \label{fig:diffraction_principle_v2}
+\end{figure}
+
+在 piFP 中，我們透過在樣本上疊加高頻的照明圖案 $S(r)$，利用頻率混疊（Aliasing）原理，將原本位於高頻區段的樣本資訊 $O(r)$ 「搬移」至物鏡的接收範圍內。其在空間頻域的表示式可概略寫為：
+\begin{equation}
+    I(k) \propto \mathcal{F} \{ O(r) \cdot S(r) \} = \tilde{O}(k) \otimes \tilde{S}(k)
+\end{equation}
+其中 $\otimes$ 代表卷積運算。這使得樣本的高頻頻譜 $\tilde{O}(k)$ 與照明圖案的頻譜 $\tilde{S}(k)$ 發生混疊，進而讓低 NA 物鏡捕捉到被編碼後的高頻細節。
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig2_13_pifp_concept.png}
+    \caption{圖案化照明傅立葉疊層 (piFP) 突破繞射極限之原理示意圖。}
+    \label{fig:pifp_theory_concept}
+\end{figure}
+
+本研究後續將針對隨機散斑圖案的產生機制與相位復原疊代演算法進行詳細實作說明。
