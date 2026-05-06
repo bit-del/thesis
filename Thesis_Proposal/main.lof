@@ -15,13 +15,12 @@
 \contentsline {figure}{\numberline {2.13}{\ignorespaces piFP 突破繞射極限之原理示意圖（圖片來源：\cite {dong2014high}）。透過照明圖案與樣本結構的頻率混疊，實現頻譜位移並擴展系統的有效截止頻率。}}{19}{figure.caption.21}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces 正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}}{21}{figure.caption.22}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。圖中標註了震動衰減（VR）、系間跨越（ISC）以及 $S_0$、$S_1$、$T_1$ 等能階躍遷過程結構示意圖。}}{22}{figure.caption.23}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces 螢光分子之激發光譜與發射光譜示意圖。兩者峰値之間的波長差即為斯托克斯位移（Stokes Shift）。}}{23}{figure.caption.24}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces 落射式螢光顯微鏡（Epifluorescence Microscope）之濾光方塊（Filter Cube）與光路示意圖。}}{24}{figure.caption.25}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}}{29}{figure.caption.26}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}}{30}{figure.caption.27}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces 光柵繞射原理示意圖。左圖（A）顯示較大的結構週期 $d$ 會產生較小的繞射角，光線易於進入物鏡接收錐角內；右圖（B）顯示細微結構（極小的 $d$）會導致光線以極大角度繞射，甚至超出物鏡的接收範圍，造成高頻細節的遺失。}}{32}{figure.caption.28}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。}}{21}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces 螢光分子之激發光譜與發射光譜示意圖與斯托克斯位移。}}{22}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces 落射式螢光顯微鏡之濾光方塊（Filter Cube）與光路示意圖。}}{22}{figure.caption.25}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}}{32}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}}{32}{figure.caption.27}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

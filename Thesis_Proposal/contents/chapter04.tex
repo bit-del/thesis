@@ -1,6 +1,6 @@
 % !TeX root = ../main.tex
 
-\chapter{初步實驗結果與系統效能評估}
+\chapter{結果與討論}
 
 本研究在完成「多功能樂高螢光倒立式顯微鏡」的原型機組裝與軟硬體整合後，隨即開展了一系列的基準測試（Benchmarking）。本章將詳述系統在明視野解析度、螢光色彩校正保真度，以及動態自動對焦收斂速度等三大面向的初步實驗數據與量化分析結果。所有實驗均在室溫恆定，且遮蔽外部環境光源的條件下進行，以確保測試數據的客觀性與可重複性。
 
@@ -36,6 +36,27 @@
 \section{大行程高速自動對焦效能剖析}
 
 最後一項關鍵指標，是系統在進行高通量大面積掃描時的自動對焦能力。我們使用厚度不一的植物細胞切片進行了極限測試。
+
+為了驗證多階段對焦狀態機中各評價函數在實際應用場景下的效能，我們先分別探討各項指標的響應曲線特性，接著再剖析整體狀態機的尋峰過程。
+
+\subsection{評價函數之響應曲線與形態學抗噪分析}
+如圖 \ref{fig:af_curves_comparison} 所示，不同的評價函數對於脫焦距離呈現出截然不同的敏感度與響應範圍：全域變異數（Global Variance）在嚴重脫焦時仍保有平滑的單調遞增趨勢，這正是其被選為大步長粗調指標的原因；相對地，Tenengrad 梯度在接近焦平面時曲線變得極度陡峭，適合用於最終的微步精細鎖定。
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/ch4/fig4_1_af_curves.png}
+    \caption{明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}
+    \label{fig:af_curves_comparison}
+\end{figure}
+
+然而，在螢光環境中，樣本本身的微弱背景螢光或是灰塵會被高靈敏度的梯度演算法誤認為焦點特徵。圖 \ref{fig:morphology_comparison} 展示了本系統首創之「形態學抗噪處理」如何解決此問題。透過對原始影像進行形態學開運算（Morphological Opening），細小的雜點被成功濾除，使得系統在提取前 0.1\% 最強烈能量分數時，能夠將響應曲線的峰值精準釘死在真實的螢光結構上，徹底排除了局部極大值導致的「假對焦」。
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/ch4/fig4_2_morphology.png}
+    \caption{形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}
+    \label{fig:morphology_comparison}
+\end{figure}
 
 \subsection{14 秒鎖定焦點：三重指標的接力賽}
 在其中一次極端測試中，我們刻意將物鏡初始位置設定在距離真實焦平面極遠的地方。總搜尋行程長達 $937.5 \mu m$。在如此長的距離下，肉眼從螢幕上只能看見一片模糊的灰色背景，完全沒有任何可辨識的結構。
