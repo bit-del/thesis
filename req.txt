@@ -1,0 +1,199 @@
+附件⼗七
+國立臺灣大學生物機電工程學研究所
+博(碩)士班論文格式及撰寫要點
+⼀、論⽂按順序包含：封⾯(Cover)、標題⾴(Title Page)、簽名⾴(Signature Page)、誌謝
+(Acknowledgements) 、摘要(Abstract) 、⽬錄(Table of Contents) 、前⾔
+(Introduction) 、⽂獻探討(Literature Review)、材料與⽅法(Materials and Methods) 、
+結果與討論(Results and Discussion) 、結論(Conclusions) 、參考⽂獻 (References) 及附
+錄(Appendices) 。摘要包括中⽂及英⽂兩種，均排列於前⾔之前。且中⽂摘要列於
+英⽂摘要之前。
+⼆、內⽂之書寫：
+1.封⾯、標題⾴、簽名⾴及⽬錄請參考範例。
+2.中英⽂摘要約500⾄1000字，以不超過三⾴為限。內容應涵蓋研究之⽬的、⽅
+法、結果與結論，且內容須完整易於瞭解,切忌1、2、3…等條列式書寫法。中英
+⽂摘要之內容須⼀致。於末尾應註明中英⽂關鍵詞 (Keywords) 各3〜5個。
+3.⽂字敘述之編號：內⽂章節⽤1.1或1-1。圖表按章以圖1-1，表1-1等順序表⽰。
+表格及圖⽚均應有⼀獨⽴完整之內容；表格之標題應列在表格上⽅，圖⽚之標
+題則列在圖⽚下⽅。
+4.⾴碼之編排：正⽂前之⾴碼以⼩寫羅⾺字i, ii標⽰，誌謝為第i⾴;正⽂則以阿拉伯
+字1, 2標⽰。⾴碼須置於底部中間。
+5.排版邊界：本⽂留⽩上3公分、下2公分、左右各3公分，各⾴正下⽅應置中註明
+⾴碼。
+6.數字與單位
+(1).⽂字敘述中之數字，除⼗位以下之數字外 , 請⽤阿拉伯數字表⽰。
+(2).單位⼀律採⽤SI Units(國際單位)，其規定詳美國農業⼯程師學會出版之
+ASAE Standards 。如需要採⽤其他單位如台制或英制者，須以SI制為主要單
+位，⽽再以括弧列明其他單位。
+(3).習⾒之符號、如：m；kg；ppm；pH等不必另⽤中⽂。專⾨名詞無適當譯名
+者，從原⽂。
+7.照⽚限⽤原始攝影⽽富有學術或說明價值者，圖⽚之內容如涉及⼤⼩，則應嵌
+⼊⼤⼩單位之標⽰。
+8.參考⽂獻：
+（1）以確經正 ⽂中引⽤者為限。
+（2）中⽇⽂者以姓⽒筆畫多少為序，英（歐）⽂者以姓⽒之字⺟先後排列。並按
+中⽂、⽇⽂、英（歐）⽂之次序排列。如同⼀⼈有數篇時，應按發表年次
+之先後排列。
+（3）英（歐）⽂雜誌名稱能縮寫者請⽤縮寫，縮寫⽅法以學術界通⽤為準。可參
+考International Standard ISO4-1984(E) 。
+（4）正⽂中引⽤參考⽂獻時 以括號註明作者姓⽒及發表年份 或作者之後以括
+（4）正⽂中引⽤參考⽂獻時，以括號註明作者姓⽒及發表年份，或作者之後以括
+號註明年份。例：(Smith, 1985)，Smith (1985)，(林與張，1960)， (Smith and 
+Kline, 1968)，(Smith, 1985; Wang and Lin, 1992)。作者若超過三⼈（含三
+⼈），英（歐）⽂採⽤ (Smith et al., 1990) ，中⽂採⽤ (陳等⼈， 1989)。
+（5）參考⽂獻若為期刊上之論⽂，可依下列次序書寫：
+1.作者姓名  2.出版年  3.論⽂篇名  4.期刊名稱  5.卷及期號  
+6.⾴數。例如：
+(a) Anderson, G. T., C. V. Renard , L. M. Strein , E. C. Cayo , and M. M. Mervin.  
+1998. A new technique for rapid deployment of rollover protective structures. 
+Applied Eng. in Agric . 23(2): 34-42.
+(b) Waladi , W., B. Partek , and J. Manoosh . 1999. Regulating ammonia  
+concentration in swine housing: Part II. Application examples. Transactions of 
+the ASAE 43(4): 540-547.
+(c) Powers, J. B., J. T. Gunn, and F. C. Jacob. 1953. Electronic color sorting of 
+fruits and vegetables. Agric. Eng. 34(3): 149-154, 158.
+(d) ⽥秉才、陳世銘、馮丁樹。1989。檸檬顏⾊選別裝置之研製。農業⼯程
+學報  35(4): 73-82 。
+(e) 張福祥、盧福明。1992。芋頭收穫機之研究。農業機械學刊 1(1): 50-
+59。
+（6）參考⽂獻若為圖書單⾏本時，可依下列次序書寫：
+1.作者姓名  2.出版年  3.書名  4.版次  5.⾴數  6.出版地  
+7.出版社。例如：
+（7）書之⼀部分（此書通常為多⼈合寫之組合，並有⼈主編）
+（8）會議記錄或專集 (Proceedings)
+ 
+(b)李哖 台灣切花產業之發展策略規劃出⾃〝花卉栽培技術與產Holman, J. P. 1978. Experimental Meth ods for Engineers. 3rd ed., 405-427.  
+New York: McGraw-Hill.(a)
+Coombs, T. R., and F. C. Watson. 1997. Computational Fluid Dynamics. 3rd 
+ed. Wageningen , The Netherlands : Elsevier Science.(b)
+ 盧福明。 1986。農產加⼯⼯程學。初版， 143-214。台北：茂昌。 (c)
+Overstreet, H. A. 1925. The psycholog y of effective writing. In "Effective  
+Report Writing: Principles and Practices'', ed. W. H. Pierce, 87-109. Chicago : 
+Graphic Publishing Co.(a)
+ASAE Standards , 36th ed. 1989. S352.1: Moisture measurement -- Grain and 
+seeds. St. Joseph , Mich. : ASAE.(b)
+Miller , F. R., and R. A. Creelman. 1980. Sorghum: A new fuel. In "Proc. 35th 
+Annual Corn and Sorghum Industry Research Conference'', 219-232. H. D. 
+Londen  and W. Wilkinson, eds. Washington , DC: Am. Seed Trade Assoc.(a)
+(b)李哖。1992。台灣切花產業之發展策略規劃。出⾃〝花卉栽培技術與產
+業規劃研討會專集〞，207-235。張學琨、傅仰⼈主編。桃園：台灣省桃
+園區農業改良場。
+(c)艾群、洪滉祐、林正亮、⿈清旺。1994。快速機器視覺應⽤於雞蛋殼裂
+縫檢測之研究。出⾃〝⼋⼗三年度農業機械論⽂發表會論⽂摘要集〞，
+68-69。台北：中華農業機械學會。
+（9）會議論⽂ (Conference Paper)
+Rumsey , T. R. 1985. An anisotropic model for air flow in beds of rice. ASAE  
+Paper No. 85-3554. St. Joseph , MI: ASAE.
+（10）碩博⼠論⽂
+（11）電腦軟體
+（12）網站資料
+（13）專利
+三、論⽂正⽂ :
+1.論⽂以中⽂或英⽂撰寫為原則，雙⾯印刷，但⾴數為80⾴以下得以單⾯印刷
+（彩⾊圖⽚亦可單⾯印刷） 。
+2.原則上中⽂以12號楷書（細明體及標楷體為主），英⽂以12號Times New Roman
+打字，中⽂撰寫以15間距，英⽂則以雙⾏間距，字體顏⾊為⿊⾊，⽂內要加標邱奕志。1990。分級機並列式出料之設計。碩⼠論⽂。台北：臺灣⼤學
+農業機械⼯程學研究所。(a)
+Campbell, M. D. 1991. The lower limit of soil water potential for potato  
+growth. PhD dissertation. Pullman , Wash.: Washington  State  University , 
+Department of Agricultural Engineering.(b)
+SAS. 1990. SAS User's Guide: Statistics. Ver. 6a. Cary , N.C. : SAS Institute,  
+Inc.(a)
+SPSS. 2000. SigmaPlot  for Windows. Ver. 3.2. Chicago , Ill.: SPSS, Inc. (b)
+USDA. 1999. Wheat Production in the Upper Plains: 1998-1999. National  
+Agricultural Statistics Database. Washington , D.C. : USDA  National  
+Agricultural Statistics Service. Available  at: www .nass.usda.gov . Accessed 23 
+April 2000 .(a)
+NSC. 2000. Injury Facts Online. Itasca , Ill.: National Safety Council.  
+Available at: www .nsc.or g. Accessed 17 December 2000 .(b)
+⾏政院衛⽣署。2001。健康⾷品安全評估⽅法。台北：⾏政院衛⽣署。
+網址： http://www .doh.gov .tw/。上網⽇期： 2001-02-12 。(c)
+Moulton, R. K. 1992. Method for on-site cleaning of contaminant filters in 
+livestock housing facilities. U.S. Patent No. 32455986.(a)
+林新智、吳錫侃、陳福祥。1995。緊固裝配之螺紋件。中華⺠國發明專
+利第 073009號。(b)
+打字中⽂撰寫以1.5間距英⽂則以雙⾏間距字體顏⾊為⿊⾊⽂內要加標
+點，全⽂不得塗汙刪節，不得使⽤複寫紙。
+四、裝訂 :
+1.論⽂尺⼨以 A4⼤⼩為原則。
+2.紙張：除封⾯、封底外，均採⽤⽩⾊ A4 80磅之⽩⾊模造紙裝訂。
+3.平裝本：採⽤淺藍⾊ 200磅銅西卡紙或雲彩紙（上亮 P）裝訂之（ A4）。
+4.書背、封⾯、第⼀⾴與⽬錄之式樣如下 ：
+  (論⽂書背 )
+國 立 臺 灣 
+大 學
+生物機電工
+程學系  
+碩
+（博
+）士
+論文  
+（12pt
+）   
+論文
+中文
+題目 
+（14
+pt）     
+○○
+○撰    
+⼠論
+⽂
+109
+ 7
+（封⾯⾴）
+國⽴臺灣⼤學 ⽣物資源暨 農學院⽣物機電⼯程學系
+碩⼠論⽂ /博⼠論⽂
+Department of Biomechatronics Engineering
+College of Bioresources and Agriculture
+National Taiwan University
+Master Thesis/Doctoral Dissertation
+電源接地平⾯之模型化與地訊抑制
+Modeling for Power/Ground Planes and
+Suppression of Ground Bounce
+李⼩明
+Siao-Ming  Lee
+指導教授： 王⼤中  博⼠
+Advisor:  Da-Chung  Wang, Ph.D.
+中華⺠國 109年7⽉
+July 2020
+(第⼀⾴）
+國⽴臺灣⼤學（碩）博⼠學位論⽂
+⼝試委員會審定書
+論⽂中⽂題⽬
+論⽂英⽂題⽬
+本論⽂係 ○○○ 君（ ○ 學號 ○ ）在國⽴臺灣⼤學 ○○ 學系、所完成
+之碩（博）⼠學位論⽂，於⺠國 ○○ 年 ○○ ⽉ ○○ ⽇承下列考試委員
+審查通過及⼝試及格，特此證明
+⼝試委員：
+                （簽名）
+（指導教授）
+         
+         
+         
+         
+系主任、所⻑             （簽名）
+⽬     錄
+=================
+                           ⾴數
+⼝試委員審定書 i
+誌謝 ii
+中⽂摘要……………………………………………………….iii
+英⽂摘要……………………………………………………….v
+圖⽬錄………………………………………………………… vi
+表⽬錄………………………………………………………….vii
+符號說明……………………………………………………… viii
+第⼀章 前⾔………………………………………………….1
+    1.1 ○○○………………………………………………… 2
+    1.2 ○○○………………………………………………… 3
+第⼆章⽂獻探討 5
+第⼆章 ⽂獻探討…………………………………………….5
+    2.1 ○○○………………………………………………… 7
+第三章 理論模式推導……………………………………….21
+    3.1 ○○○………………………………………………… 24
+第四章 試驗設備與⽅法……………………………………..41
+第五章 結果與討論…………………………………………...61
+第六章 結論…………………………………………………...71
+第七章 建議…………………………………………………..75
+參考⽂獻………………………………………………………..77
+附錄⼀…………………………………………………………...81
+附錄⼆…………………………………………………………...85

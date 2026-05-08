@@ -42,19 +42,19 @@
 \subsection{評價函數之響應曲線與形態學抗噪分析}
 如圖 \ref{fig:af_curves_comparison} 所示，不同的評價函數對於脫焦距離呈現出截然不同的敏感度與響應範圍：全域變異數（Global Variance）在嚴重脫焦時仍保有平滑的單調遞增趨勢，這正是其被選為大步長粗調指標的原因；相對地，Tenengrad 梯度在接近焦平面時曲線變得極度陡峭，適合用於最終的微步精細鎖定。
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/ch4/fig4_1_af_curves.png}
-    \caption{明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}
+    \caption{明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比}
     \label{fig:af_curves_comparison}
 \end{figure}
 
 然而，在螢光環境中，樣本本身的微弱背景螢光或是灰塵會被高靈敏度的梯度演算法誤認為焦點特徵。圖 \ref{fig:morphology_comparison} 展示了本系統首創之「形態學抗噪處理」如何解決此問題。透過對原始影像進行形態學開運算（Morphological Opening），細小的雜點被成功濾除，使得系統在提取前 0.1\% 最強烈能量分數時，能夠將響應曲線的峰值精準釘死在真實的螢光結構上，徹底排除了局部極大值導致的「假對焦」。
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/ch4/fig4_2_morphology.png}
-    \caption{形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}
+    \caption{形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖}
     \label{fig:morphology_comparison}
 \end{figure}
 

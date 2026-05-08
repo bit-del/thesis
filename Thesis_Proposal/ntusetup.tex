@@ -31,7 +31,7 @@
 
 \usepackage[authoryear,round]{natbib}   % 參考文獻
 \usepackage{amsmath, amsthm, amssymb}   % 數學環境
-\usepackage{ulem, CJKulem}              % 下劃線、雙下劃線與波浪紋效果
+\usepackage{ulem}              % 下劃線、雙下劃線與波浪紋效果
 \usepackage{booktabs}                   % 改善表格設置
 \usepackage{multirow}                   % 合併儲存格
 \usepackage{diagbox}                    % 插入表格反斜線
@@ -41,8 +41,12 @@
 \usepackage{float}                      % 強制固定圖片位置 [H]
 
 
+\usepackage{anyfontsize}                % 解決字體大小代換警告
 \usepackage{lipsum}                     % 英文亂字
 \usepackage{zhlipsum}                   % 中文亂字
+
+% 設定 CJK 等寬字體以解決 \texttt 產生的警告
+\setCJKmonofont{Microsoft YaHei}        % Windows 常用字體
 
 % --------------------------------------------------
 % 套件設定（Packages Settings）

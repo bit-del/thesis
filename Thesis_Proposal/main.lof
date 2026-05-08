@@ -1,26 +1,28 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces OpenFlexure Microscope 之機身架構圖，展示了其一體成型的 3D 列印機構設計（圖片來源：\citep {collins2020robotic}）。}}{4}{figure.caption.9}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces 撓性機構（Flexure Mechanism）之微米級位移原理與材料受力點分析圖。}}{5}{figure.caption.10}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Incubot 系統架構圖，展示了其基於 3D 印表機框架的簡易設計（圖片來源：\citep {merces2021incubot}）。}}{6}{figure.caption.11}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces UC2 模組化系統，展示了其磁吸式方塊光學元件設計（圖片來源：\citep {diederich2020versatile}）。}}{7}{figure.caption.12}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces IBM Lego Microscope 系統架構圖，展示了利用樂高科技系列積木構建的高精度顯微機身（圖片來源：\cite {temiz2020lego}）。}}{9}{figure.caption.13}%
-\contentsline {figure}{\numberline {2.6}{\ignorespaces 改進型登山搜索之焦平面搜索邏輯示意圖（參考自 \cite {fu2015fast}）。}}{10}{figure.caption.14}%
-\contentsline {figure}{\numberline {2.7}{\ignorespaces 在 10 倍物鏡下不同對焦評價函數之效能比較圖（MCS Metrics Comparison）。}}{11}{figure.caption.15}%
-\contentsline {figure}{\numberline {2.8}{\ignorespaces 改進型登山搜索之演算法執行流程圖（參考自 \cite {fu2015fast}）。}}{12}{figure.caption.16}%
-\contentsline {figure}{\numberline {2.9}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖（圖片來源：\cite {bowman2019flat}）。}}{14}{figure.caption.17}%
-\contentsline {figure}{\numberline {2.10}{\ignorespaces 基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖（圖片參考自 \cite {zheng2013wide}）。系統透過可程式化控制的 LED 陣列提供不同角度的照明，將樣本的高頻資訊偏移至物鏡可接收的孔徑內。}}{16}{figure.caption.18}%
-\contentsline {figure}{\numberline {2.11}{\ignorespaces 基於擴散片波前調控之明視野傅立葉疊層成像系統架構（圖片來源：\cite {he2020fourier}）。}}{17}{figure.caption.19}%
-\contentsline {figure}{\numberline {2.12}{\ignorespaces 針對螢光系統的 piFP 實作架構示意圖，展示了透過擴散片產生隨機結構化照明的配置。}}{18}{figure.caption.20}%
-\contentsline {figure}{\numberline {2.13}{\ignorespaces piFP 突破繞射極限之原理示意圖（圖片來源：\cite {dong2014high}）。透過照明圖案與樣本結構的頻率混疊，實現頻譜位移並擴展系統的有效截止頻率。}}{19}{figure.caption.21}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces OpenFlexure Microscope 之機身架構圖，展示了其一體成型的 3D 列印機構設計\citep {collins2020robotic}}}{5}{figure.caption.9}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces 撓性機構（Flexure Mechanism）之位移原理與材料受力點分析圖\citep {openflexure_delta}}}{6}{figure.caption.10}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Incubot 系統架構圖，展示了其基於 3D 印表機框架的簡易設計\citep {merces2021incubot}}}{7}{figure.caption.11}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces UC2 模組化系統，展示了其磁吸式方塊光學元件設計\citep {diederich2020versatile}}}{8}{figure.caption.12}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces IBM Lego Microscope 系統架構圖，利用樂高科技系列積木構建高精度機身\citep {temiz2020lego}}}{10}{figure.caption.13}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces 改進型登山搜索之焦平面搜索邏輯示意圖\citep {fu2015fast}}}{11}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.7}{\ignorespaces 不同對焦評價函數在 10 倍物鏡下之響應特性（MCS Metrics Comparison）\citep {fu2015fast}}}{12}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.8}{\ignorespaces 改進型登山搜索演算法執行流程圖\citep {fu2015fast}}}{13}{figure.caption.16}%
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Raspberry Pi Camera 邊緣像素的主光線角度（CRA）錯位與色彩串擾示意圖\citep {bowman2019flat}}}{14}{figure.caption.17}%
+\contentsline {figure}{\numberline {2.10}{\ignorespaces 基於 LED 陣列之傅立葉疊層成像 (FP) 系統架構示意圖\citep {zheng2013wide}}}{16}{figure.caption.18}%
+\contentsline {figure}{\numberline {2.11}{\ignorespaces 基於擴散片波前調控之明視野傅立葉疊層成像系統架構\citep {he2020fourier}}}{17}{figure.caption.19}%
+\contentsline {figure}{\numberline {2.12}{\ignorespaces 針對螢光系統的 piFP 實作架構示意圖}}{18}{figure.caption.20}%
+\contentsline {figure}{\numberline {2.13}{\ignorespaces piFP 突破繞射極限之原理示意圖\citep {dong2014high}。透過頻率混疊實現頻譜位移}}{19}{figure.caption.21}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces 正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖。}}{21}{figure.caption.22}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）。}}{21}{figure.caption.23}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces 螢光分子之激發光譜與發射光譜示意圖與斯托克斯位移。}}{22}{figure.caption.24}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces 落射式螢光顯微鏡之濾光方塊（Filter Cube）與光路示意圖。}}{22}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces 正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖}}{21}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）}}{21}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces 螢光分子之激發光譜與發射光譜示意圖與斯托克斯位移}}{22}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces 落射式螢光顯微鏡之濾光方塊（Filter Cube）與光路示意圖}}{22}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces 系統光路設計示意圖。(a) LED 激發光源配置，包含激發濾光片與聚光鏡。(b) Laser 激發光源配置，移除聚光鏡並使用擴散片。(c) 明視野光源配置，使用穿透式白光 LED 與聚光鏡。}}{24}{figure.caption.26}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces 步進馬達之梯形速度加減速曲線示意圖}}{29}{figure.caption.27}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比。}}{32}{figure.caption.26}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖。}}{32}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比}}{42}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖}}{43}{figure.caption.29}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 
