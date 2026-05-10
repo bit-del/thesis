@@ -8,8 +8,15 @@
 
 本系統的硬體架構設計旨在兼顧低成本與微米級的高精度定位。我們將光學佈局與機電整合兩大元素緊密結合。
 
-\subsection{顯微鏡幾何配置與螢光成像原理}
-顯微鏡的幾幾何配置決定了其適用的樣本類型與操作靈活性。傳統的正立式顯微鏡其物鏡位於樣本之上，適用於玻片標本；然而本系統採用倒立式顯微鏡（Inverted Microscope）配置，將物鏡倒置於樣本平台之下，解決了活體細胞培養皿的空間限制，如圖 \ref{fig:microscopes} 所示。
+\subsection{樂高積木光學架構}
+本系統結合了樂高積木與 3D 列印技術，以實現高自由度且低成本的模組化光學系統。樂高科技系列（LEGO Technic）積木因其極高的射出成型精度與標準化的孔距，被用作系統的基礎結構與「光學麵包板」。
+
+為了克服純 3D 列印撓性機構的潛變與行程限制，顯微鏡基座採用樂高科技系列積木構成剛性龍門架構（Gantry-style Architecture）。樂高極高的射出成型公差（$<10 \mu m$）與標準孔距為系統提供了天然的正交座標系。
+
+透過設計並 3D 列印客製化介面與轉接件，這些 3D 列印件底部設計有與樂高顆粒或插銷相容的結構，使得它們能精確且牢固地卡入樂高框架中。透過這種方式，我們既保留了樂高快速拆裝與重構的優勢，又達成了光學元件所需的對齊精度。
+
+\subsection{光學系統部件}
+顯微鏡的幾何配置決定了其適用的樣本類型與操作靈活性。傳統的正立式顯微鏡其物鏡位於樣本之上，適用於玻片標本；然而本系統採用倒立式顯微鏡（Inverted Microscope）配置，將物鏡倒置於樣本平台之下，解決了活體細胞培養皿的空間限制，如圖 \ref{fig:microscopes} 所示。
 
 \begin{figure}[H]
     \centering
@@ -18,7 +25,7 @@
     \label{fig:microscopes}
 \end{figure}
 
-本系統支援螢光成像。螢光分子受到高能量光子激發後，部分能量會透過震動衰減（Vibrational Relaxation, VR）與系間跨越（Intersystem Crossing, ISC）以無輻射形式流失，隨後電子回到基態釋放波長較長的光子，此激發與發射光譜之間的差異即為斯托克斯位移（Stokes Shift）（如圖 \ref{fig:jablonski}、圖 \ref{fig:stokes_spectra} 所示）。我們利用此物理特性，在光路中佈置了激發濾光片、雙色分光鏡與發射濾光片，構成嚴密的濾光方塊（Filter Cube，如圖 \ref{fig:filter_cube} 所示），以捕捉純淨的微弱螢光訊號。
+本系統支援螢光成像。螢光分子受到高能量光子激發後，部分能量會透過震動衰減與系間跨越以無輻射形式流失，隨後電子回到基態釋放波長較長的光子，此激發與發射光譜之間的差異即為斯托克斯位移（如圖 \ref{fig:jablonski}、圖 \ref{fig:stokes_spectra} 所示）。我們利用此物理特性，在光路中佈置了激發濾光片（shortpass filter, 15-257, Edmund Optics）、雙色分光鏡（dichroic mirror, DMLP490, Thorlabs）與發射濾光片（longpass filter, FGL495, Thorlabs），構成嚴密的濾光方塊（如圖 \ref{fig:filter_cube} 所示），以捕捉純淨的微弱螢光訊號。
 
 \begin{figure}[H]
     \centering
@@ -41,30 +48,12 @@
     \label{fig:filter_cube}
 \end{figure}
 
-\subsection{有限共軛光路}
-為求極致精簡，本系統採「有限共軛（Finite-Conjugate）」光學設計，物鏡依據高斯透鏡公式直接將影像聚焦於 CMOS 感測器上。在本系統中，物鏡與相機感測器之間的距離（即機械筒長 Mechanical Tube Length）被設定為標準的 $160\text{ mm}$。此設計遵循經典的 RMS 標準，物鏡直接將樣本放大並成像於感測器平面，省去了無限共軛系統中所需的筒透鏡（Tube Lens），從而大幅簡化了系統結構並降低了成本。
+\subsubsection{有限共軛光路}
+為求極致精簡，本系統採「有限共軛（Finite-Conjugate）」光學設計，物鏡（10× magnification objective lens, A10, Olympus, Tokyo, Japan）依據高斯透鏡公式直接將影像聚焦於 CMOS 感測器（Raspberry Pi Camera Module v2, Raspberry Pi Ltd）上。在本系統中，物鏡與相機感測器之間的距離（即機械筒長）被設定為標準的 $160\text{ mm}$。此設計遵循經典的 RMS 標準，物鏡直接將樣本放大並成像於感測器平面，省去了無限共軛系統中所需的筒透鏡，從而大幅簡化了系統結構並降低了成本。
 
-值得注意的是，有限共軛物鏡的設計在維持齊焦性（Parfocality）與適應不同工作距離（Working Distance, WD）之間取得了巧妙的平衡。雖然不同倍率的物鏡因焦距不同而具有截然不同的工作距離（低倍率物鏡具備較長的工作距離，高倍率物鏡則工作距離極短），但其齊焦距離（Parfocal Distance）均被標準化為 $45\text{ mm}$（即樣本至物鏡安裝平面的距離）。光學廠透過調整物鏡鏡筒的金屬長度，補償了不同倍率下的工作距離差異。此一標準化設計確保了在切換不同倍率物鏡時，樣本焦平面位置維持相對穩定，避免了重新大範圍對焦的需求，亦降低了高倍率物鏡在切換時碰撞樣本的風險。本系統在硬體機構設計上，亦嚴格遵循此一幾何約束，以確保光學成像的高保真度與操作便利性。
+值得注意的是，有限共軛物鏡的設計在維持齊焦性與適應不同工作距離之間取得了巧妙的平衡。雖然不同倍率的物鏡因焦距不同而具有截然不同的工作距離，但其齊焦距離均被標準化為 $45\text{ mm}$（即樣本至物鏡安裝平面的距離）。光學廠透過調整物鏡鏡筒的金屬長度，補償了不同倍率下的工作距離差異。此一標準化設計確保了在切換不同倍率物鏡時，樣本焦平面位置維持相對穩定，避免了重新大範圍對焦的需求，亦降低了高倍率物鏡在切換時碰撞樣本的風險。本系統在硬體機構設計上，亦嚴格遵循此一幾何約束，以確保光學成像的高保真度與操作便利性。
 
-在落射式螢光成像模式中，本系統提供兩種不同的激發光源配置。第一種為 LED 激發光源配置（如圖 \ref{fig:optical_led} 所示）。此配置使用高功率 LED 作為光源，光線經由聚光鏡（Condenser）聚焦，並透過激發濾光片（Excitation Filter）篩選出特定波長的激發光，最後經由雙色分光鏡反射至物鏡並照射樣本。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/ch3/fig3_5_optical_led.png}
-    \caption{LED 激發光源配置示意圖，包含激發濾光片與聚光鏡。}
-    \label{fig:optical_led}
-\end{figure}
-
-第二種為 Laser 激發光源配置（如圖 \ref{fig:optical_laser} 所示）。在此配置中，我們將聚光鏡移除，並加入擴散片（Diffuser）以破壞雷射的高相干性，從而減少散斑（Speckle）雜訊，提供更均勻的照明。此配置適用於需要高強度激發光的應用場景。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/ch3/fig3_6_optical_laser.png}
-    \caption{Laser 激發光源配置示意圖，移除聚光鏡並使用擴散片以提供均勻照明。}
-    \label{fig:optical_laser}
-\end{figure}
-
-除了螢光成像外，本系統亦支援標準的明視野（Brightfield）成像。明視野光源配置（如圖 \ref{fig:optical_brightfield} 所示）將白光 LED 置於樣本上方，光線向下穿過聚光鏡均勻照射樣本，透射光由下方的物鏡收集並成像於相機感測器上。此配置常用於觀察樣本的整體形態與自動對焦的基準。
+本系統支援標準的明視野（Brightfield）成像。明視野光源配置（如圖 \ref{fig:optical_brightfield} 所示）將白光 LED（6500 K white LED, XQEAWT-H0-0000-00000BFE1, Cree LED, Durham, NC）置於樣本上方，光線向下穿過聚光鏡（condenser lens, ACL12708U, Thorlabs, Newton, NJ）均勻照射樣本，透射光由下方的物鏡收集並成像於相機感測器上。此配置常用於觀察樣本的整體形態與自動對焦的基準。
 
 \begin{figure}[H]
     \centering
@@ -73,11 +62,336 @@
     \label{fig:optical_brightfield}
 \end{figure}
 
-\subsection{龍門載台}
-為了克服純 3D 列印撓性機構的潛變與行程限制，顯微鏡基座採用樂高科技系列（LEGO Technic）積木構成剛性龍門架構（Gantry-style Architecture）。樂高極高的射出成型公差（$<10 \mu m$）與標準孔距為系統提供了天然的正交座標系。
+除了明視野成像外，本系統亦支援落射式螢光成像。在落射式螢光成像模式中，本系統提供兩種不同的激發光源配置。第一種為 LED 激發光源配置（如圖 \ref{fig:optical_led} 所示）。此配置使用高功率藍光 LED（high-power blue LED, LZ4-40B208, LED Engin, Santa Clara, CA）作為光源，光線經由非球面聚光鏡（aspheric condenser, 15-194, Edmund Optics, Barrington, NJ）聚焦，並透過激發濾光片篩選出特定波長的激發光，最後經由雙色分光鏡（Dichroic Mirror, DMLP490, Thorlabs）反射至物鏡並照射樣本。樣本產生的螢光訊號則由物鏡收集，穿過雙色分光鏡並透過發射濾光片（Emission Filter, FGL495, Thorlabs）濾除雜散光，最後成像於相機感測器上。
 
-\subsection{機電架構}
-動力驅動方面，採用 NEMA 17 步進馬達搭配 A4988 驅動晶片的 16 倍微步進（16x Microstepping）模式，結合導程 2.0 mm 的螺桿，Z 軸理論解析度高達 $0.625 \mu m/\text{step}$。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/ch3/fig3_5_optical_led.png}
+    \caption{LED 激發光源配置示意圖，包含激發濾光片與聚光鏡。}
+    \label{fig:optical_led}
+\end{figure}
+
+第二種為 Laser 激發光源配置（如圖 \ref{fig:optical_laser} 所示）。在此配置中，我們將聚光鏡移除，並加入擴散片（Ground Glass Diffuser, 38-786, Edmund Optics）以破壞雷射的高相干性，進而產生隨機散斑，讓我們的重建演算法得以實現。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/ch3/fig3_6_optical_laser.png}
+    \caption{Laser 激發光源配置示意圖，移除聚光鏡並使用擴散片以產生隨機散斑圖案。}
+    \label{fig:optical_laser}
+\end{figure}
+
+為了更直觀地呈現系統內部的精密光學配置，我們繪製了系統整體的光學路徑剖面圖（如圖 \ref{fig:optical_profile} 所示），分別從正面與 45 度角視角展示了各光學元件在有限共軛光路中的相對位置與幾何約束。
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_39_Optical_Path_Cross_Section_Front.png}
+        \par (a) 正面剖面
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_39_Optical_Path_Cross_Section_45Deg.png}
+        \par (b) 45度角剖面
+    \end{minipage}
+    \caption{系統整體光學路徑剖面圖}
+    \label{fig:optical_profile}
+\end{figure}
+
+\subsection{載台元件}
+動力驅動方面，採用 NEMA 17 步進馬達（17HS3401S, MotionKing, Changzhou, China）搭配 Arduino CNC Shield (Version 3.0, Protoneer, Wellington, New Zealand) 與 A4988 驅動晶片的 16 倍微步進（16x Microstepping）模式，結合導程 2.0 mm 的螺桿，Z 軸理論解析度高達 $0.625 \mu m/\text{step}$。
+
+\subsection{3D 列印部件}
+為了詳細記錄本系統的所有組成元件，我們依據 3D CAD 裝配模型，將所有客製化 3D 列印件條列並說明如下。此處條列之部件不使用粗體字，且每張圖片均附有獨立的圖表下標。
+
+明視野聚光鏡座 (Brightfield\_Condenser\_Mount)：用於固定聚光鏡，並確保其與成像光軸精確共軸。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_10_Brightfield_Condenser_Mount.png}
+    \caption{明視野聚光鏡座 (Brightfield\_Condenser\_Mount)}
+    \label{fig:part_brightfield_condenser_mount}
+\end{figure}
+
+明視野 LED 座 (Brightfield\_LED\_Mount)：用於安裝穿透式照明之白光 LED，具備良好的定位與散熱接觸面。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_11_Brightfield_LED_Mount.png}
+    \caption{明視野 LED 座 (Brightfield\_LED\_Mount)}
+    \label{fig:part_brightfield_led_mount}
+\end{figure}
+
+相機轉接座 (Camera\_Mount)：用於固定 Raspberry Pi Camera Module，並確保其感測器平面與光軸垂直。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_31_Camera_Mount.png}
+    \caption{相機轉接座 (Camera\_Mount)}
+    \label{fig:part_camera_mount}
+\end{figure}
+
+濾光方塊座 (Filter\_Cube\_Mount)：系統的核心光學件，用於精確固定雙色分光鏡與濾光片。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_32_Filter_Cube_Mount.png}
+    \caption{濾光方塊座 (Filter\_Cube\_Mount)}
+    \label{fig:part_filter_cube_mount}
+\end{figure}
+
+擴散片座 (Diffuser\_Mount)：固定擴散片之機構件，具備長方形鑷子夾取槽與圓弧重力自擺正導引槽。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_12_Diffuser_Mount.png}
+    \caption{擴散片座 (Diffuser\_Mount)}
+    \label{fig:part_diffuser_mount}
+\end{figure}
+
+激發濾光片座 (Excitation\_Filter\_Mount)：固定激發濾光片，同樣具備便於更換的鑷子槽與防呆的圓弧重力自擺正槽。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_13_Excitation_Filter_Mount.png}
+    \caption{激發濾光片座 (Excitation\_Filter\_Mount)}
+    \label{fig:part_excitation_filter_mount}
+\end{figure}
+
+螢光聚光鏡座 (Fluorescence\_Condenser\_Mount)：固定螢光聚光鏡之機構件。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_14_Fluorescence_Condenser_Mount.png}
+    \caption{螢光聚光鏡座 (Fluorescence\_Condenser\_Mount)}
+    \label{fig:part_fluorescence_condenser_mount}
+\end{figure}
+
+螢光 LED 座 (Fluorescence\_LED\_Mount)：安裝高功率藍光 LED，考量到高功率發熱，設計有較大的散熱接觸面積。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_15_Fluorescence_LED_Mount.png}
+    \caption{螢光 LED 座 (Fluorescence\_LED\_Mount)}
+    \label{fig:part_fluorescence_led_mount}
+\end{figure}
+
+螢光雷射座 (Fluorescence\_Laser\_Mount)：用於安裝雷射光源之機構件，提供穩固的指向性。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_33_Fluorescence_Laser_Mount.png}
+    \caption{螢光雷射座 (Fluorescence\_Laser\_Mount)}
+    \label{fig:part_fluorescence_laser_mount}
+\end{figure}
+
+物鏡轉接座 (Objective\_Mount)：具備內部 RMS 標準螺紋，是連接顯微物鏡與樂高積木剛性框架的關鍵轉接件。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_16_Objective_Mount.png}
+    \caption{物鏡轉接座 (Objective\_Mount)}
+    \label{fig:part_objective_mount}
+\end{figure}
+
+X 軸馬達座 (X\_Motor\_Mount)：固定驅動 X 軸的 NEMA 17 步進馬達，確保傳動時馬達不發生位移。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_20_X_Motor_Mount.png}
+    \caption{X 軸馬達座 (X\_Motor\_Mount)}
+    \label{fig:part_x_motor_mount}
+\end{figure}
+
+X 軸軸承座 (X\_Bearing\_Mount)：安裝軸承以支撐 X 軸 T8 螺桿的遠端，減少螺桿旋轉時的偏擺。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_18_X_Bearing_Mount.png}
+    \caption{X 軸軸承座 (X\_Bearing\_Mount)}
+    \label{fig:part_x_bearing_mount}
+\end{figure}
+
+X 軸被動端支架 (X\_Driven\_Bracket)：配合軸承座，固定 X 軸傳動鏈的末端。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_19_X_Driven_Bracket.png}
+    \caption{X 軸被動端支架 (X\_Driven\_Bracket)}
+    \label{fig:part_x_driven_bracket}
+\end{figure}
+
+X 軸導軌樂高轉接件 (X\_Rail\_Lego\_Adapter)：將工業級線性導軌轉換並固定至樂高結構孔位的關鍵介面。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_21_X_Rail_Lego_Adapter.png}
+    \caption{X 軸導軌樂高轉接件 (X\_Rail\_Lego\_Adapter)}
+    \label{fig:part_x_rail_lego_adapter}
+\end{figure}
+
+X 軸導軌至軸承轉接件 (X\_Rail\_To\_Bearing\_Adapter)：連接滑軌滑塊與軸承系統的轉接機構。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_22_X_Rail_To_Bearing_Adapter.png}
+    \caption{X 軸導軌至軸承轉接件 (X\_Rail\_To\_Bearing\_Adapter)}
+    \label{fig:part_x_rail_to_bearing_adapter}
+\end{figure}
+
+X 軸 T8 螺帽支架 (X\_T8\_Nut\_Bracket)：固定 T8 銅螺帽，將螺桿的旋轉運動轉換為 X 軸的線性平移。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_23_X_T8_Nut_Bracket.png}
+    \caption{X 軸 T8 螺帽支架 (X\_T8\_Nut\_Bracket)}
+    \label{fig:part_x_t8_nut_bracket}
+\end{figure}
+
+Y 軸馬達座 (Y\_Motor\_Mount)：固定驅動 Y 軸的步進馬達。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_25_Y_Motor_Mount.png}
+    \caption{Y 軸馬達座 (Y\_Motor\_Mount)}
+    \label{fig:part_y_motor_mount}
+\end{figure}
+
+Y 軸軸承座 (Y\_Bearing\_Mount)：支撐 Y 軸 T8 螺桿的軸承座。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_24_Y_Bearing_Mount.png}
+    \caption{Y 軸軸承座 (Y\_Bearing\_Mount)}
+    \label{fig:part_y_bearing_mount}
+\end{figure}
+
+Y 軸導軌至軸承轉接件 (Y\_Rail\_To\_Bearing\_Adapter)：Y 軸導軌系統與傳動軸承的連接件。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_26_Y_Rail_To_Bearing_Adapter.png}
+    \caption{Y 軸導軌至軸承轉接件 (Y\_Rail\_To\_Bearing\_Adapter)}
+    \label{fig:part_y_rail_to_bearing_adapter}
+\end{figure}
+
+Y 軸至 X 軸轉接件 (Y\_Rail\_To\_X\_Adapter)：連接 Y 軸移動滑塊與 X 軸整體機構的十字轉接座，是實現 X-Y 二維平面正交運動的核心件。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_27_Y_Rail_To_X_Adapter.png}
+    \caption{Y 軸至 X 軸轉接件 (Y\_Rail\_To\_X\_Adapter)}
+    \label{fig:part_y_rail_to_x_adapter}
+\end{figure}
+
+Y 軸 T8 螺帽支架 (Y\_T8\_Nut\_Bracket)：固定 Y 軸 T8 螺帽。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_28_Y_T8_Nut_Bracket.png}
+    \caption{Y 軸 T8 螺帽支架 (Y\_T8\_Nut\_Bracket)}
+    \label{fig:part_y_t8_nut_bracket}
+\end{figure}
+
+樣本夾 (Sample\_Holder)：安裝於載台最頂層，用於穩固夾持載玻片或培養皿，防止掃描時發生滑移。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_17_Sample_Holder.png}
+    \caption{樣本夾 (Sample\_Holder)}
+    \label{fig:part_sample_holder}
+\end{figure}
+
+樣本固定夾 (Sample\_Clip)：用於在樣本夾上進一步穩固固定特定尺寸的樣本。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_34_Sample_Clip.png}
+    \caption{樣本固定夾 (Sample\_Clip)}
+    \label{fig:part_sample_clip}
+\end{figure}
+
+Z 軸基座 (Z\_Axis\_Base)：構成 Z 軸垂直導軌的基礎支架。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_29_Z_Axis_Base.png}
+    \caption{Z 軸基座 (Z\_Axis\_Base)}
+    \label{fig:part_z_axis_base}
+\end{figure}
+
+Z 軸螺帽支架 (Z\_Nut\_Bracket)：固定 Z 軸螺帽，帶動載台進行垂直升降，實現自動對焦與 Z-Stack 採集。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/ch3/fig3_30_Z_Nut_Bracket.png}
+    \caption{Z 軸螺帽支架 (Z\_Nut\_Bracket)}
+    \label{fig:part_z_nut_bracket}
+\end{figure}
+
+為了進一步提升實驗操作的便利性，我們在上述多個光學固定座（如濾光方塊、\texttt{Diffuser\_Mount}、\texttt{Excitation\_Filter\_Mount}）上引入了人性化的「鑷子夾取槽」設計，方便使用者不接觸鏡面即可快速更換元件。同時，在 \texttt{Diffuser\_Mount} 與 \texttt{Excitation\_Filter\_Mount} 內部設計有圓弧導引槽，利用重力原理使濾光片放入後能自動擺正至最佳位置。而濾光方塊則採用「推到底即定位」的防呆設計，確保每次更換後均能恢復至最優光學幾何交點。
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_35_Filter_Cube_Tweezers_Slot.png}
+        \par (a) 濾光方塊
+    \end{minipage}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_35_Diffuser_Mount_Tweezers_Slot.png}
+        \par (b) 擴散片座
+    \end{minipage}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_35_Excitation_Mount_Tweezers_Slot.png}
+        \par (c) 激發濾光片座
+    \end{minipage}
+    \caption{便利更換之「鑷子夾取槽」設計}
+    \label{fig:design_tweezers}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_38_Diffuser_Self_Aligning_Arc.png}
+        \par (a) 擴散片座圓弧設計
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_38_Excitation_Self_Aligning_Arc.png}
+        \par (b) 激發濾光片座圓弧設計
+    \end{minipage}
+    \caption{利用重力原理之自擺正圓弧設計}
+    \label{fig:design_arc}
+\end{figure}
+
+此外，本系統在結構設計上也融入了多項對齊與支撐的巧思。除了利用樂高積木的標準孔距進行大部對齊外，我們在濾光方塊與激發濾光片座等關鍵對齊部件上，設計了微型的「卡榫（Mortise and Tenon）」結構，確保其次微米級的對齊精度（如圖 \ref{fig:design_alignment} 所示）。而在聚光鏡的安裝上，為了確保光學元件的同軸度與穩定性，我們採用了類似「內縮三角形」的概念，透過三點約束（Three-Point Constraint）的方式將聚光鏡牢固地支撐住，有效避免了傳統圓形套筒可能產生的偏擺（如圖 \ref{fig:design_3point} 所示）。
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_36_Cube_Ex_Filter_Mortise_Tenon_Assembly.png}
+        \par (a) 整體對齊
+    \end{minipage}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_36_Filter_Cube_Mortise_Tenon.png}
+        \par (b) 濾光方塊卡榫
+    \end{minipage}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_36_Ex_Filter_Mortise_Tenon.png}
+        \par (c) 激發濾光片座卡榫
+    \end{minipage}
+    \caption{提升對齊精度之卡榫設計}
+    \label{fig:design_alignment}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_37_BF_Condenser_Three_Point_Constraint.png}
+        \par (a) 明視野聚光鏡 3點設計
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_37_BF_Condenser_Assembly.png}
+        \par (b) 明視野聚光鏡組裝
+    \end{minipage}
+    \vspace{0.5cm}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_37_Fluo_Condenser_Three_Point_Constraint.png}
+        \par (c) 螢光聚光鏡 3點設計
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ch3/fig3_37_Fluo_Condenser_Assembly.png}
+        \par (d) 螢光聚光鏡組裝
+    \end{minipage}
+    \caption{聚光鏡之三點約束（Three-Point Constraint）支撐設計}
+    \label{fig:design_3point}
+\end{figure}
 
 \section{軟體與系統控制}
 
@@ -135,7 +449,7 @@
 
 \subsection{指令解析器與序列通訊協定}
 
-韌體實作了一個高效的字串解析器，採用類似工業 G-code 的輕量化格式。當 Raspberry Pi 透過 USB 序列埠發送指令時，韌體的處理邏輯如下：
+韌體實作了一個高效的字串解析器，採用類似工業 G-code 的輕量化格式。當 Raspberry Pi 5（Raspberry Pi Ltd, Cambridge, UK）透過 USB 序列埠發送指令時，韌體的處理邏輯如下：
 
 \begin{itemize}
     \item \textbf{指令結構}：採用「軸識別碼 + 數值」格式（例如 \texttt{X500}、\texttt{Z-20}）。韌體透過 \texttt{Serial.readStringUntil('\textbackslash n')} 讀取完整的緩衝區指令。
@@ -319,7 +633,7 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
 
 為了量化評估系統在明視野與螢光條件下的效能，本研究採用了以下幾種標準樣本進行基準測試：
 \begin{itemize}
-    \item \textbf{NBS 1952 標準解析度測試卡}：作為評估系統基礎光學極限與平場校正演算法效能的基準。
-    \item \textbf{$15 \mu m$ 黃綠色螢光微球 (FluoSpheres)}：具有極高色彩純度，用於檢驗張量解混演算法修復色彩串擾與空間不均勻性的能力。
+    \item \textbf{NBS 1952 標準解析度測試卡（NIST, Gaithersburg, MD）}：作為評估系統基礎光學極限與平場校正演算法效能的基準。
+    \item \textbf{$15 \mu m$ 黃綠色螢光微球（FluoSpheres, Thermo Fisher Scientific, Waltham, MA）}：具有極高色彩純度，用於檢驗張量解混演算法修復色彩串擾與空間不均勻性的能力。
     \item \textbf{植物細胞切片與血塗片}：提供具有複雜背景與多樣化形態特徵的真實生物樣本，用以測試自動對焦狀態機在複雜場景下的尋峰穩定度與收斂速度。
 \end{itemize}
