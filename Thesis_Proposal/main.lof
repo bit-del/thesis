@@ -15,46 +15,38 @@
 \contentsline {figure}{\numberline {2.13}{\ignorespaces piFP 突破繞射極限之原理示意圖\citep {dong2014high}。透過頻率混疊實現頻譜位移}}{19}{figure.caption.21}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces 正立式顯微鏡與倒立式顯微鏡之光學與機構配置差異比較圖}}{21}{figure.caption.22}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）}}{22}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces 螢光分子激發與發射過程之雅布倫斯基圖（Jablonski Diagram）}}{21}{figure.caption.23}%
 \contentsline {figure}{\numberline {3.3}{\ignorespaces 螢光分子之激發光譜與發射光譜示意圖與斯托克斯位移}}{22}{figure.caption.24}%
 \contentsline {figure}{\numberline {3.4}{\ignorespaces 落射式螢光顯微鏡之濾光方塊（Filter Cube）與光路示意圖}}{23}{figure.caption.25}%
 \contentsline {figure}{\numberline {3.5}{\ignorespaces 明視野光源配置示意圖，使用穿透式白光 LED 與聚光鏡，由上方照射樣本。}}{24}{figure.caption.26}%
 \contentsline {figure}{\numberline {3.6}{\ignorespaces LED 激發光源配置示意圖，包含激發濾光片與聚光鏡。}}{25}{figure.caption.27}%
 \contentsline {figure}{\numberline {3.7}{\ignorespaces Laser 激發光源配置示意圖，移除聚光鏡並使用擴散片以產生隨機散斑圖案。}}{26}{figure.caption.28}%
-\contentsline {figure}{\numberline {3.8}{\ignorespaces 系統整體光學路徑剖面圖}}{27}{figure.caption.29}%
-\contentsline {figure}{\numberline {3.9}{\ignorespaces 明視野聚光鏡座 (Brightfield\_Condenser\_Mount)}}{28}{figure.caption.30}%
-\contentsline {figure}{\numberline {3.10}{\ignorespaces 明視野 LED 座 (Brightfield\_LED\_Mount)}}{28}{figure.caption.31}%
-\contentsline {figure}{\numberline {3.11}{\ignorespaces 相機轉接座 (Camera\_Mount)}}{29}{figure.caption.32}%
-\contentsline {figure}{\numberline {3.12}{\ignorespaces 濾光方塊座 (Filter\_Cube\_Mount)}}{29}{figure.caption.33}%
-\contentsline {figure}{\numberline {3.13}{\ignorespaces 擴散片座 (Diffuser\_Mount)}}{30}{figure.caption.34}%
-\contentsline {figure}{\numberline {3.14}{\ignorespaces 激發濾光片座 (Excitation\_Filter\_Mount)}}{31}{figure.caption.35}%
-\contentsline {figure}{\numberline {3.15}{\ignorespaces 螢光聚光鏡座 (Fluorescence\_Condenser\_Mount)}}{32}{figure.caption.36}%
-\contentsline {figure}{\numberline {3.16}{\ignorespaces 螢光 LED 座 (Fluorescence\_LED\_Mount)}}{33}{figure.caption.37}%
-\contentsline {figure}{\numberline {3.17}{\ignorespaces 螢光雷射座 (Fluorescence\_Laser\_Mount)}}{34}{figure.caption.38}%
-\contentsline {figure}{\numberline {3.18}{\ignorespaces 物鏡轉接座 (Objective\_Mount)}}{34}{figure.caption.39}%
-\contentsline {figure}{\numberline {3.19}{\ignorespaces X 軸馬達座 (X\_Motor\_Mount)}}{35}{figure.caption.40}%
-\contentsline {figure}{\numberline {3.20}{\ignorespaces X 軸軸承座 (X\_Bearing\_Mount)}}{35}{figure.caption.41}%
-\contentsline {figure}{\numberline {3.21}{\ignorespaces X 軸被動端支架 (X\_Driven\_Bracket)}}{36}{figure.caption.42}%
-\contentsline {figure}{\numberline {3.22}{\ignorespaces X 軸導軌樂高轉接件 (X\_Rail\_Lego\_Adapter)}}{36}{figure.caption.43}%
-\contentsline {figure}{\numberline {3.23}{\ignorespaces X 軸導軌至軸承轉接件 (X\_Rail\_To\_Bearing\_Adapter)}}{37}{figure.caption.44}%
-\contentsline {figure}{\numberline {3.24}{\ignorespaces X 軸 T8 螺帽支架 (X\_T8\_Nut\_Bracket)}}{37}{figure.caption.45}%
-\contentsline {figure}{\numberline {3.25}{\ignorespaces Y 軸馬達座 (Y\_Motor\_Mount)}}{38}{figure.caption.46}%
-\contentsline {figure}{\numberline {3.26}{\ignorespaces Y 軸軸承座 (Y\_Bearing\_Mount)}}{38}{figure.caption.47}%
-\contentsline {figure}{\numberline {3.27}{\ignorespaces Y 軸導軌至軸承轉接件 (Y\_Rail\_To\_Bearing\_Adapter)}}{39}{figure.caption.48}%
-\contentsline {figure}{\numberline {3.28}{\ignorespaces Y 軸至 X 軸轉接件 (Y\_Rail\_To\_X\_Adapter)}}{39}{figure.caption.49}%
-\contentsline {figure}{\numberline {3.29}{\ignorespaces Y 軸 T8 螺帽支架 (Y\_T8\_Nut\_Bracket)}}{40}{figure.caption.50}%
-\contentsline {figure}{\numberline {3.30}{\ignorespaces 樣本夾 (Sample\_Holder)}}{40}{figure.caption.51}%
-\contentsline {figure}{\numberline {3.31}{\ignorespaces 樣本固定夾 (Sample\_Clip)}}{41}{figure.caption.52}%
-\contentsline {figure}{\numberline {3.32}{\ignorespaces Z 軸基座 (Z\_Axis\_Base)}}{41}{figure.caption.53}%
-\contentsline {figure}{\numberline {3.33}{\ignorespaces Z 軸螺帽支架 (Z\_Nut\_Bracket)}}{42}{figure.caption.54}%
-\contentsline {figure}{\numberline {3.34}{\ignorespaces 便利更換之「鑷子夾取槽」設計}}{43}{figure.caption.55}%
-\contentsline {figure}{\numberline {3.35}{\ignorespaces 利用重力原理之自擺正圓弧設計}}{43}{figure.caption.56}%
-\contentsline {figure}{\numberline {3.36}{\ignorespaces 提升對齊精度之卡榫設計}}{44}{figure.caption.57}%
-\contentsline {figure}{\numberline {3.37}{\ignorespaces 聚光鏡之三點約束（Three-Point Constraint）支撐設計}}{45}{figure.caption.58}%
-\contentsline {figure}{\numberline {3.38}{\ignorespaces 步進馬達之梯形速度加減速曲線示意圖}}{50}{figure.caption.59}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces 系統整體光學路徑正面剖面圖}}{27}{figure.caption.29}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces 系統整體光學路徑 45 度角剖面圖}}{28}{figure.caption.30}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces 自動化影像控制系統之機電架構圖，展示主控端、下位機、馬達驅動與光源控制路徑。}}{30}{figure.caption.31}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces 明視野 LED 座 (Brightfield\_LED\_Mount)}}{31}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces 擴散片座 (Diffuser\_Mount)}}{31}{figure.caption.33}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces 明視野聚光鏡座 (Brightfield\_Condenser\_Mount)}}{32}{figure.caption.34}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces 物鏡轉接座 (Objective\_Mount)}}{32}{figure.caption.35}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces 濾光方塊座 (Filter\_Cube\_Mount)}}{33}{figure.caption.36}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces 激發濾光片座 (Excitation\_Filter\_Mount)}}{34}{figure.caption.37}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces 螢光聚光鏡座 (Fluorescence\_Condenser\_Mount)}}{35}{figure.caption.38}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces 螢光 LED 座 (Fluorescence\_LED\_Mount)}}{36}{figure.caption.39}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces 螢光雷射座 (Fluorescence\_Laser\_Mount)}}{37}{figure.caption.40}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces 相機轉接座 (Camera\_Mount)}}{37}{figure.caption.41}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces X 軸部件}}{39}{figure.caption.42}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces Y 軸部件}}{41}{figure.caption.43}%
+\contentsline {figure}{\numberline {3.23}{\ignorespaces Z 軸與樣本夾部件}}{43}{figure.caption.44}%
+\contentsline {figure}{\numberline {3.24}{\ignorespaces 濾光方塊之鑷子夾取槽設計}}{44}{figure.caption.45}%
+\contentsline {figure}{\numberline {3.25}{\ignorespaces 擴散片座與激發濾光片座之鑷子夾取槽設計}}{45}{figure.caption.46}%
+\contentsline {figure}{\numberline {3.26}{\ignorespaces 濾光方塊卡榫結構與擴散片座自擺正圓弧設計}}{45}{figure.caption.47}%
+\contentsline {figure}{\numberline {3.27}{\ignorespaces 激發濾光片座之圓弧自擺正與卡榫設計}}{46}{figure.caption.48}%
+\contentsline {figure}{\numberline {3.28}{\ignorespaces 濾光方塊與激發濾光片座之卡榫整體對齊示意圖}}{47}{figure.caption.49}%
+\contentsline {figure}{\numberline {3.29}{\ignorespaces 聚光鏡之三點約束（Three-Point Constraint）支撐設計}}{48}{figure.caption.50}%
+\contentsline {figure}{\numberline {3.30}{\ignorespaces 步進馬達之梯形速度加減速曲線示意圖}}{53}{figure.caption.51}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比}}{62}{figure.caption.60}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖}}{63}{figure.caption.61}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比}}{68}{figure.caption.57}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖}}{69}{figure.caption.58}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

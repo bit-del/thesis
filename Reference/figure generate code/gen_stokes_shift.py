@@ -53,7 +53,7 @@ def generate_stokes_shift_plot(save_path):
     plt.xlabel('Wavelength (nm)', fontsize=14)
     plt.ylabel('Normalized Intensity (a.u.)', fontsize=14)
     plt.xlim(380, 620)
-    plt.ylim(0, 1.2)
+    plt.ylim(0, 1.0)
     plt.legend(loc='upper right', fontsize=12)
     plt.grid(axis='y', linestyle=':', alpha=0.6)
     
