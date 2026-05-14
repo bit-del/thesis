@@ -55,6 +55,10 @@ XY_LEAD_SCREW_MM = 2.0
 STEPS_PER_UM_Z = (MOTOR_STEPS_PER_REV * MICROSTEP_DIVIDER) / Z_LEAD_SCREW_MM / 1000.0
 STEPS_PER_UM_XY = (MOTOR_STEPS_PER_REV * MICROSTEP_DIVIDER) / XY_LEAD_SCREW_MM / 1000.0
 
+# --- Backlash Compensation (Steps) ---
+BACKLASH_X = 25
+BACKLASH_Y = 110
+
 # --- Autofocus Settings ---
 FOCUS_FOLDER = "/home/pi/Desktop/GUI/autofocus_picture" 
 

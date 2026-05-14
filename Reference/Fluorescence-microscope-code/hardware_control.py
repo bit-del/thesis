@@ -5,7 +5,7 @@ import serial
 from serial.tools import list_ports
 import threading
 
-from config import (GPIO, RPI_GPIO_AVAILABLE, STEPS_PER_UM_Z, STEPS_PER_UM_XY)
+from config import (GPIO, RPI_GPIO_AVAILABLE, STEPS_PER_UM_Z, STEPS_PER_UM_XY, BACKLASH_X, BACKLASH_Y)
 
 class LightControl:
     def __init__(self, bf_pin, fluo_pin, status_callback):
@@ -54,6 +54,7 @@ class MotorControl:
         self.status_callback = status_callback
         self.port = self._find_arduino_port()
         self.lock = threading.Lock()
+        self.last_direction = {'x': 1, 'y': 1, 'z': 1} # 1 for forward, -1 for reverse
         
         if self.port:
             try:
@@ -83,25 +84,52 @@ class MotorControl:
                     final_command = command
                     original_command = command
                     
+                    # --- 解析移動指令與背隙補償 (Backlash Compensation) ---
+                    axis_found = None
+                    steps_to_move = 0
+                    
                     if command.startswith('s'):
-                        final_command = command[1:]
+                        # 's' 開頭代表直接輸入步數 (如 'sx100', 'sy-50')
+                        cmd_body = command[1:].lower()
+                        if len(cmd_body) > 1 and cmd_body[0] in ['x', 'y', 'z']:
+                            axis_found = cmd_body[0]
+                            try:
+                                steps_to_move = int(float(cmd_body[1:]))
+                            except ValueError:
+                                axis_found = None
+                        final_command = command[1:] # 預設去除 's'
                     elif command[0].lower() in ['x', 'y', 'z']:
-                        axis = command[0].lower()
+                        # 一般開頭代表輸入 um (如 'x10.5')
+                        axis_found = command[0].lower()
                         value_str = command[1:]
                         if value_str not in ['0', 'center']: 
                             try:
                                 um_val = float(value_str)
-                                if axis == 'z':
+                                if axis_found == 'z':
                                     microsteps = MotorConversion.um_to_microsteps_z(abs(um_val))
-                                elif axis == 'x' or axis == 'y':
+                                else:
                                     microsteps = MotorConversion.um_to_microsteps_xy(abs(um_val))
-                                
-                                microsteps_with_dir = microsteps if um_val >= 0 else -microsteps
-                                final_command = f"{axis}{microsteps_with_dir}" 
+                                steps_to_move = microsteps if um_val >= 0 else -microsteps
+                                final_command = f"{axis_found}{steps_to_move}"
                             except ValueError:
                                 logging.error(f"Invalid motor val: {value_str}")
                                 if not silent: self.status_callback(f"Invalid: {value_str}")
                                 return
+                        else:
+                            axis_found = None # 0 或 center 不做補償
+
+                    # 執行補償邏輯 (僅限 X, Y 軸且步數不為 0)
+                    if axis_found in ['x', 'y'] and steps_to_move != 0:
+                        new_dir = 1 if steps_to_move > 0 else -1
+                        if new_dir != self.last_direction[axis_found]:
+                            gap = BACKLASH_X if axis_found == 'x' else BACKLASH_Y
+                            # 補償：在目標步數上額外增加 (方向 * 間隙)
+                            steps_to_move += new_dir * gap
+                            logging.info(f"Applying Backlash Compensation [{axis_found}]: {self.last_direction[axis_found]} -> {new_dir}, compensation: {new_dir * gap} steps")
+                            if not silent: self.status_callback(f"Backlash Comp {axis_found.upper()}: {new_dir * gap} steps added")
+                        
+                        self.last_direction[axis_found] = new_dir
+                        final_command = f"{axis_found}{steps_to_move}"
 
                     self.ser.reset_input_buffer() 
                     self.ser.write(f"{final_command}\n".encode('utf-8'))
