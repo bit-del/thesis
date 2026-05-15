@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" version="21.0.0">
+  <diagram id="Page-1" name="Page-1">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Client (Web)" style="fillColor=#e8f8f5;strokeColor=#1abc9c;dashed=1;verticalAlign=top;fontStyle=1;fontSize=14;fillOpacity=50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="20" y="100" width="260" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Main Thread" style="fillColor=#ebf5fb;strokeColor=#2980b9;dashed=1;verticalAlign=top;fontStyle=1;fontSize=14;fillOpacity=50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="260" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="Background Threads" style="fillColor=#f5eef8;strokeColor=#8e44ad;dashed=1;verticalAlign=top;fontStyle=1;fontSize=14;fillOpacity=50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="650" y="100" width="260" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="Hardware Layer" style="fillColor=#fdf2e9;strokeColor=#e67e22;dashed=1;verticalAlign=top;fontStyle=1;fontSize=14;fillOpacity=50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="940" y="100" width="260" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="Web GUI&lt;br/&gt;(HTML5 / Fetch)" style="fillColor=#a3e4d7;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="355" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="StreamingServer&lt;br/&gt;(ThreadingMixIn)" style="fillColor=#aed6f1;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="205" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="ApiHandler&lt;br/&gt;(Request Router)" style="fillColor=#aed6f1;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="355" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="CameraManager&lt;br/&gt;(State)" style="fillColor=#aed6f1;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;shape=hexagon;" vertex="1" parent="1">
+          <mxGeometry x="360" y="505" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="CameraWorker&lt;br/&gt;(QThread)" style="fillColor=#d7bde2;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="205" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="FIFO Queue&lt;br/&gt;(maxsize)" style="fillColor=#d7bde2;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;shape=parallelogram;perimeter=parallelogramPerimeter;" vertex="1" parent="1">
+          <mxGeometry x="690" y="355" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="Daemon Threads&lt;br/&gt;(IO / Motor)" style="fillColor=#d7bde2;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="505" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="Picamera2&lt;br/&gt;(CMOS)" style="fillColor=#f5cba7;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="980" y="205" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="18" value="Storage&lt;br/&gt;(SSD / SD)" style="fillColor=#f5cba7;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;shape=cylinder;" vertex="1" parent="1">
+          <mxGeometry x="980" y="355" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="19" value="Stepper Motor&lt;br/&gt;(MCU)" style="fillColor=#f5cba7;strokeColor=#333333;strokeWidth=1.5;fontStyle=1;fontSize=11;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="980" y="505" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="1. RESTful&lt;br/&gt;HTTP GET" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="10" target="11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="2. Route" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="11" target="12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="3a. Config" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="12" target="13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="23" value="3b. invokeMethod" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="12" target="14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="24" value="3c. Spawn Thread" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="12" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="25" value="Push&lt;br/&gt;(Producer)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="14" target="15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="26" value="Consume&lt;br/&gt;(Consumer)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="15" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="27" value="Write Image" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="16" target="18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="28" value="Serial Cmd" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="16" target="19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="29" value="Raw Array" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="17" target="14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="30" value="JPEG&lt;br/&gt;(notify_all)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="14" target="11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="31" value="MJPEG Stream" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="11" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="32" value="Status Sync&lt;br/&gt;(Signals)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2980b9;dashed=1;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="14" target="13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="33" value="State" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2980b9;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="13" target="12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="34" value="JSON&lt;br/&gt;HTTP 200" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2980b9;html=1;fontSize=9;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="12" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
