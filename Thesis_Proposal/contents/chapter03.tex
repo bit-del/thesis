@@ -90,13 +90,22 @@
 本研究開發之顯微鏡控制軟體採用 Python 語言為核心，並深度整合 PySide6 (Qt for Python) 框架的事件驅動能力，以及輕量級 HTTP 伺服器的網路通訊功能。為平衡高解析度影像採集的即時性與複雜演算法的運算負載，系統核心採用了高度解耦的「非同步多執行緒（Asynchronous Multi-threading）混和架構」。此架構確保了高畫質即時串流、硬體精準位移與背景影像增強處理得以並行運作，徹底解決了傳統單執行緒設計在面對密集運算時產生的使用者介面凍結（UI Freezing）問題。
 
 \subsection{非同步多執行緒架構與內部狀態調度 (Asynchronous Multi-threading Architecture and Internal State Scheduling)}
-為確保系統在高解析度影像連續採集、即時硬體矩陣運算（如色彩解混與平場校正）以及多軸步進馬達控制時，仍能維持流暢且零延遲之使用者體驗，本研究開發之顯微鏡控制軟體屏棄了傳統單一執行緒同步輪詢（Synchronous Polling）之設計，轉而採用「非同步多執行緒混和架構（Asynchronous Multi-threading Hybrid Architecture）」。為落實此高度並發之設計，系統於軟體底層進行了嚴謹的職責分離（Separation of Concerns），將核心影像處理與系統調度邏輯進行了解耦。
+為確保系統在高解析度影像連續採集、即時硬體矩陣運算（如色彩解混與平場校正）以及多軸步進馬達控制時，仍能維持流暢且零延遲之使用者體驗，本研究開發之顯微鏡控制軟體屏棄了傳統單一執行緒同步輪詢（Synchronous Polling）之設計，轉而採用「非同步多執行緒混和架構（Asynchronous Multi-threading Hybrid Architecture）」。為落實此高度並發之設計，系統於軟體底層進行了嚴謹的職責分離（Separation of Concerns），將核心影像處理與系統調度邏輯進行了解耦。系統之完整軟體架構與執行緒分配如圖 \ref{fig:software_architecture} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/ch3/microscope_software_architecture.drawio.png}
+    \caption{顯微鏡系統之非同步多執行緒與通訊架構圖}
+    \label{fig:software_architecture}
+\end{figure}
 
 在此架構中，系統最耗費中央處理器（CPU）資源之任務，全數委派予獨立之 \texttt{CameraWorker} 類別執行。為防止高負載運算導致主執行緒（Main Thread）之伺服器響應凍結，系統嚴格採納了 Qt 框架中推薦之「工作者—物件（Worker-Object）」模式。系統啟動時，中央調度樞紐 \texttt{CameraManager} 會先實例化一標準之 Qt 執行緒載體 \texttt{QThread}，繼而創建 \texttt{CameraWorker} 實例，並透過調用 \texttt{moveToThread()} 方法，將該物件之執行緒親和性（Thread Affinity）完整遷移至背景子執行緒中。
 
-此架構設計之最高指導原則在於確保嚴謹的執行緒安全性（Thread Safety）。當多個執行緒同時運行時，若未經同步鎖定（如 Mutex 或 Semaphore）約束而直接跨執行緒調用物件方法，將引發極度危險之競爭危害（Race Condition），導致記憶體區塊（如正在寫入之影像矩陣）損毀或引發核心分段錯誤（Segmentation Fault）。為徹底規避此風險，本系統深度運用了 Qt 框架核心之「訊號與槽（Signals and Slots）」機制。這是一種基於觀察者模式（Observer Pattern）之型別安全（Type-safe）通訊協定，允許不同執行緒間的物件進行非同步的狀態廣播與接收。例如，當 \texttt{CameraWorker} 完成單幀影像之擷取與處理後，會發射 \texttt{status\_updated} 或 \texttt{af\_status\_finished} 等訊號，而處於主執行緒之 \texttt{CameraManager} 則透過預先綁定之槽函數（Slots）被動接收更新，全程無須直接存取工作者內部之變數。
+此架構設計之最高指導原則在於確保嚴謹的執行緒安全性（Thread Safety）。當多個執行緒同時運行時，若未經同步鎖定（如 Mutex 或 Semaphore）約束而直接跨執行緒調用物件方法，將引發極度危險之競爭危害（Race Condition），導致記憶體區塊（如正在寫入之影像矩陣）損毀或引發核心分段錯誤（Segmentation Fault）。為徹底規避此風險，本系統深度運用了 Qt 框架核心之「訊號與槽（Signals and Slots）」機制。這是一種基於觀察者模式（Observer Pattern）之型別安全（Type-safe）通訊協定，允許不同執行緒間的物件進行非同步的狀態廣播與接收。例如，當 \texttt{CameraWorker} 完成單幀影像之擷取與處理後，會發射 \texttt{status\_updated} 或 \texttt{af\_status\_finished} 等訊號，而處於主執行緒之 \texttt{CameraManager}則透過預先綁定之槽函數（Slots）被動接收更新，全程無須直接存取工作者內部之變數。
 
 除了基於 Qt 的事件驅動執行緒外，系統對於不需頻繁指令互動的任務（如磁碟寫入與影像存檔），則採用原生的 Python「守護執行緒（Daemon Thread, \texttt{threading.Thread}）」以降低記憶體開銷並實現生產者—消費者模型。所謂「守護執行緒」，係指一種在背景運作且生命週期依附於主程式的特殊執行緒。在作業系統的多執行緒管理中，若尚有一般執行緒（Non-daemon Thread）在運行，程式便無法結束；而守護執行緒的特性在於，當系統中所有的一般執行緒（如主 GUI 執行緒）皆結束時，無論守護執行緒的工作是否完成，作業系統皆會強制將其終止並關閉程式。此一特性極其適合用於處理本系統中耗時的 I/O 存檔任務，能確保當使用者關閉操作介面時，程式不會因為背景佇列中仍有殘餘影像未寫入完成而發生「程式卡死、無法正常關閉」的現象。在此機制下，採集端作為生產者，將處理後的影像推入具備容量限制（\texttt{maxsize}）的先進先出佇列（Queue）中；後端的 I/O 守護執行緒則作為消費者，從佇列中取出資料執行非同步存檔。此處引入的「防爆機制（Frame Dropping）」確保了當硬碟寫入速率低於採集速率時，系統會主動拋棄過剩幀以防止記憶體溢出（OOM），顯著提升了系統的長效穩定性。
+
+此外，為避免耗時的 I/O 存檔任務（如連續寫入 SD 卡）阻塞對時序要求較高的馬達控制，系統並未將馬達指令排入上述之影像 I/O 佇列中。當 \texttt{ApiHandler} 解析出馬達位移指令時，會動態生成一個獨立的瞬態執行緒（Transient Thread）來執行序列埠指令發送，從而確保了運動控制的即時性，並徹底隔離了 I/O 阻塞對動力系統的影響。
 
 此外，當前端應用程式介面（\texttt{ApiHandler}）需要主動向下達控制指令（如啟動自動對焦、鎖定曝光暫存器參數等）給正處於背景無限循環擷取影像之 \texttt{CameraWorker} 時，系統絕對禁止使用傳統的直接函數呼叫（Direct Function Call）。取而代之的是，系統採用了 Qt 的元物件系統（Meta-Object System）進行跨執行緒之指令派發。以啟動自動對焦功能為例，系統精確使用了以下之指令敘述：
 
