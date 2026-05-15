@@ -148,33 +148,96 @@ MJPEG 是一種基於 HTTP 伺服器推送（Server-Push）機制之多媒體傳
 更重要的是，\texttt{ApiHandler} 在完成每一次的指令調度後，皆會封裝一份標準化之 JSON（JavaScript Object Notation）格式物件作為 HTTP 200 OK 之響應實體（Response Body）。該 JSON 封包不僅包含指令執行結果之字串（如 \texttt{"message": "Manual Exp Set."}），更同時夾帶了系統當前之關鍵物理狀態回饋（包含絕對類比增益值 \texttt{current\_gain}、以微秒計之精確曝光時間 \texttt{current\_exp\_us}，以及各項演算法模組之布林狀態如 \texttt{bg\_subtract\_enabled}）。這種基於 JSON 格式的雙向狀態同步機制，確保了「前端 UI 顯示」與「後端硬體暫存器」之間的絕對一致性，完美建構了一個高內聚、低耦合且具備高度容錯性之顯微鏡遠端控制生態系統。
 
 
-\subsection{機械誤差補償與物理慣性管理}
+\subsection{機械誤差補償與物理慣性管理 (Mechanical Error Compensation and Physical Inertia Management)}
 
-為克服使用平價傳動機構（如樂高齒輪）帶來的物理侷限，本軟體在硬體控制層面實作了精密的補償邏輯：
+在全自動顯微鏡系統中，軟體層的高速非同步架構與物理世界的機械慣性之間存在著巨大的時間尺度差異。微處理器與作業系統的運算頻率高達千兆赫茲（GHz），而步進馬達與機械傳動機構的響應時間則落在毫秒（ms）甚至秒級。若軟體僅負責盲目發送控制指令而未將機械作動的物理特性納入考量，極易導致通訊緩衝區溢位、馬達失步（Lost Steps），甚至因齒輪間隙造成累積定位誤差。為解決此一機電耦合難題，本系統於底層驅動模組中實作了專屬的軟體背隙補償演算法與通訊防堵同步機制。
 
-齒輪背隙補償（Backlash Compensation）： 齒輪換向時產生的空轉間隙是影響定位精度的關鍵。系統在 \texttt{MotorControl} 類別中動態紀錄各軸的移動方向。當馬達由正轉切換為反轉時，軟體會自動計算並疊加預設的補償步數（\texttt{BACKLASH\_X/Y}），提前抵銷齒輪間隙，確保了雙向定位的準確性。
+\subsubsection{軟體定義之機械背隙補償 (Software-defined Mechanical Backlash Compensation)}
 
-動態慣性消散時間（Settle Time）： 機構在急速停轉瞬間會產生肉眼難見的微震動。為此，狀態機在馬達位移後會觸發一個 200 毫秒的強制等待計時器（Timer），待機構慣性完全消散後才執行影像採集，有效消除了動態模糊（Motion Blur）。
+在微米級距的精密空間定位中，由導螺桿（Lead Screw）與步進馬達組成的傳動系統，無可避免地會面臨「背隙（Backlash）」的物理限制。當馬達沿單一方向持續作動時，齒輪處於緊密貼合狀態，不會產生誤差；然而，當馬達接收到「反向移動」指令時，啟動初期的若干步數會完全消耗在抵銷這段空隙上，導致實際的物理載物台並未發生相對應的位移。在顯微鏡進行大面積多區塊掃描以供後續影像拼接（Stitching Protocol）或多階段鋸齒狀自動對焦時，頻繁的 X、Y 軸來回換向若未經校正，將導致影像座標嚴重偏移與疊圖演算法失效。
 
-\subsection{多階段鋸齒狀自動對焦演算法 (N-Stage Zigzag AF)}
-為了解決大範圍搜尋與高精度鎖定之間的矛盾，本系統開發了一套基於有限狀態機（Finite State Machine, FSM）的閉環自動對焦演算法。該演算法結合了多指標切換策略（Coarse-to-Fine Strategy）與多重雜訊防護機制，其運作邏輯主要分為以下五個階段：
+為此，本研究開發了一套高性價比的軟體定義背隙補償演算法。在指令發送邏輯中，系統利用狀態字典永久記憶 X、Y、Z 三軸當前最後一次作動的物理方向。當系統接收到新的位移指令時，演算法會優先檢驗目標方向：若判定即將發生反向操作，演算法會自動從配置檔中提取該軸向專屬的補償常數（如 \texttt{BACKLASH\_X}），並將該補償步數以正確的向量符號疊加至原始目標步數上。補償完成後，系統同步更新方向暫存器，並重組最終指令字串下達給下游控制器。透過此一動態干預機制，系統在不增加硬體成本之前提下，實現了微米級的高精度雙向復歸能力。
+
+\subsubsection{序列通訊防堵與硬體同步機制 (Serial Communication Blocking and Hardware Synchronization)}
+
+除了空間域的背隙誤差外，時間域的物理慣性同步更是系統穩定的關鍵。為確保相機拍攝影像的瞬間，載物台處於絕對靜止且減震完畢的狀態，軟體與硬體控制器之間必須建立嚴密的交握（Handshaking）機制。
+
+在系統底層的馬達控制方法中，為防止多個非同步執行緒（如使用者手動點擊與自動化演算法）同時爭搶序列埠（Serial Port）資源，系統首先佈署了嚴格的執行緒鎖（Mutex Lock），確保指令寫入過程的不可分割性（Indivisibility）。所謂不可分割性，係指單一指令（例如控制 X 軸移動的字串）在透過序列埠傳輸時，必須被視為一個完整且不可中斷的最小作動單元；在該指令完全發送完畢前，系統將強制阻擋其他執行緒的通訊請求，藉此徹底杜絕不同指令在底層傳輸時發生交錯與混疊（例如兩道指令錯亂拼接為無效亂碼），從而確保硬體控制器能正確無誤地解析每道命令。
+
+當指令寫入微控制器後，系統隨即進入通訊防堵與等待確認（ACK Waiting）狀態。此階段的監聽迴圈會持續檢查硬體回傳訊號，唯有當硬體端完成全部的馬達微步驅動，並透過序列埠吐出執行完成之應答（Acknowledgement）時，該阻塞函數才會釋放並結束執行。
+
+值得注意的是，為避免在等待馬達作動期間引發忙碌等待（Busy Waiting）進而耗盡中央處理器資源，系統在該監聽迴圈中實作了資源讓出（Resource Yielding）機制。透過極短暫的執行緒休眠，系統不僅能確保底層通訊緩衝區的資料被穩健讀取，亦能主動將寶貴的運算週期釋放給上層的影像串流伺服器與核心演算法模組。此外，由於此通訊防堵會阻塞當前執行緒，上層的狀態機在呼叫馬達控制時，皆會動態生成瞬態執行緒（Transient Thread）來將其包裹。這種雙層非同步設計，確保了耗時的物理作動等待被完美隔離，使得顯微鏡的軟體視覺反饋不因硬體作動而卡頓，達成了極佳的機電協同控制。
+
+\subsection{多階段鋸齒狀自動對焦演算法 (N-Stage Zigzag AF and Triple-Metric Fusion)}
+
+在顯微成像系統中，高倍率物鏡的焦深（Depth of Field）極其有限。若掃描步距過大，極易直接跨越並錯失焦點；若步距過小，則會導致對焦時間過長，進而引發螢光樣本的光漂白（Photobleaching）效應。為解決此硬體限制，本研究開發了一套「多階段鋸齒狀自動對焦演算法（N-Stage Zigzag AF）」。該演算法採用由粗至精的馬達微步數（Microsteps）迭代掃描機制，並實作了三指標動態切換與雙軌過峰判定邏輯，確保系統在雜訊干擾下仍能穩健鎖焦。演算法之完整控制流程如圖 \ref{fig:autofocus_algorithm_flowchart_ch3} 所示。
+
+\subsubsection{三指標特徵與動態切換機制 (Triple-Metric Features and Dynamic Switching Mechanism)}
+
+本演算法並非自始至終使用單一評分標準，而是針對不同的散焦程度，實作了三種特徵迥異的影像清晰度函數，並依據目前的掃描階段（Stage Index）與成像模式進行嚴密的動態接管：
 
 \begin{enumerate}
-    \item 初始化與盲區防護（Starting Phase \& Wrong Way Defense）： 
-    系統自 IDLE 狀態接收到啟動指令後進行參數初始化。為防範初始移動方向錯誤，程式在第一步移動後會立即進行方向檢查。若首步移動導致聚焦分數下降（Metric Decay），系統會判定為走錯方向，此時會立即反轉馬達，並將步幅增加至 $1.5$ 倍，以快速逃離梯度平緩的低對比盲區。
-    
-    \item 多指標由粗至細搜尋（Climbing Phase with Multi-Metric）： 
-    在主搜尋循環中，系統採用了動態指標切換策略。在明場模式下，階段 1 與 2 採用對離焦大範圍敏感的影像方差（Variance）作為粗調指標；階段 3 切換為空間頻率（Spatial Frequency）；階段 4 以後則切換為對細節高度敏感的 Brenner 梯度指標進行精細搜尋（螢光模式下則切換為基於形態學開運算之專用螢光指標）。此策略有效兼顧了「大捕捉範圍」與「高對焦精度」的需求。
-    
-    \item 過頭判定與雜訊過濾（Peak Crossover Confirmation）： 
-    系統會持續紀錄歷史最高分（$M_{max}$）。為了避免光學隨機雜訊或震動引起誤判，系統設定了嚴格的越峰條件：必須滿足「連續兩次（或三次，依步幅而定）分數下降」或「當前分數已低於 $80\% M_{max}$」，系統才會確認已真正越過焦點山頂。
-    
-    \item 精準回溯與防震盪鎖定（Peak Recovery Phase）： 
-    確認過頭後，系統進入回溯階段，馬達反向移動以尋找最高點。為避免馬達在山頂最尖端處因微小雜訊而不斷來回震盪（Hunting），系統採用閉環控制，只要對焦分數重新回到 $98\% M_{max}$ 的區間，即視為達到最清晰對焦點並停止。
-    
-    \item 安全機制與完成（Finalization \& Timeout）： 
-    若系統在回溯階段因雜訊干擾連續移動超過 $20$ 步仍未找到目標，將會觸發超時保護機制（Timeout）強制停止，確保硬體安全。鎖定後，系統更新最終的 Z 軸座標並回到 IDLE 狀態。
+    \item \textbf{全域變異數 (Wide-field Variance)}：
+    計算影像整體亮度的離散程度。在嚴重散焦時，影像呈現均勻灰階，變異數仍能保持平滑的梯度變化，是引導系統大跨步跳脫模糊盲區的絕佳指標。其公式如下：
+    \begin{equation}
+        F_{Var} = \frac{1}{M \times N} \sum_{x=1}^{M} \sum_{y=1}^{N} (I(x,y) - \mu)^2
+    \end{equation}
+    其中 $\mu$ 為影像的平均灰階值：
+    \begin{equation}
+        \mu = \frac{1}{M \times N} \sum_{x=1}^{M} \sum_{y=1}^{N} I(x,y)
+    \end{equation}
+
+    \item \textbf{空間頻率 (Spatial Frequency, SF)}：
+    透過計算水平與垂直方向的相鄰像素差值平方和，反映影像中頻的邊緣輪廓，對中度散焦具備良好的敏感度。其公式如下：
+    \begin{equation}
+        F_{SF} = \sum_{x=1}^{M-1} \sum_{y=1}^{N} (I(x+1,y) - I(x,y))^2 + \sum_{x=1}^{M} \sum_{y=1}^{N-1} (I(x,y+1) - I(x,y))^2
+    \end{equation}
+
+    \item \textbf{銳利度指標 (Sharpness Metric)}：
+    明視野模式下採用 Brenner 指標（相隔兩像素之差值平方），其公式如下：
+    \begin{equation}
+        F_{Brenner} = \sum_{x=1}^{M-2} \sum_{y=1}^{N} (I(x+2,y) - I(x,y))^2
+    \end{equation}
+    螢光模式下則利用形態學開運算結合 Sobel 算子，擷取極值梯度進行評估。首先對影像進行形態學開運算以濾除背景雜訊：
+    \begin{equation}
+        I' = I \circ B
+    \end{equation}
+    其中 $B$ 為結構元素。隨後計算 Sobel 梯度：
+    \begin{equation}
+        G_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} * I', \quad G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix} * I'
+    \end{equation}
+    最終的螢光銳利度指標為梯度幅值的總和：
+    \begin{equation}
+        F_{Fluo} = \sum_{x} \sum_{y} \sqrt{G_x(x,y)^2 + G_y(x,y)^2}
+    \end{equation}
 \end{enumerate}
+
+\textbf{動態切換時機}：在對焦初期（第 0 至 1 階段，步距 100 與 50 微步），系統強制以「全域變異數」作為主導指標以尋找大方向；進入第 2 階段（25 微步）後，明視野模式會切換至「空間頻率」定位半焦輪廓，螢光模式則直接進入「銳利度指標」；當進入第 3 階段以後的微距掃描（10、3、1 微步）時，所有模式皆全面交由「銳利度指標」執行精密尋峰。此機制避免了高靈敏度函數在遠焦區因數值平坦而失效的問題。
+
+\subsubsection{演算法狀態機與完整執行流程 (State Machine and Full Execution Flow)}
+
+本演算法深度整合了幀驅動狀態機（Frame-driven State Machine），以下完整推演從啟動到最終鎖焦的每一個決策節點與物理作動：
+
+\begin{itemize}
+    \item \textbf{階段一：第一步盲區防呆與初始方向修正 (Blind Zone Protection and Initial Direction Correction)} \\
+    對焦啟動後，系統載入第 0 階段配置（100 微步），並驅動馬達踏出第一步。為防止系統一開始就朝著遠離樣本的「盲區」移動，演算法在第一步後會立即檢驗：若發現主導指標（全域變異數）低於起始分數，即判定初始方向錯誤。此時演算法會立即觸發方向反轉，並強制將下一步的位移量放大 1.5 倍（即 $100 \times \text{direction} \times 1.5$ 微步），此一超調補償確保系統能迅速跨越原點，回到正確的尋峰軌道。
+
+    \item \textbf{階段二：雜訊過濾與局部極值迴避 (Noise Filtering and Local Maxima Avoidance)} \\
+    確認方向正確後，系統持續正向推進。為避免影像暗電流雜訊造成的微小波動被誤判為焦平面，演算法設立了絕對門檻：若歷史最高分小於 10.0，系統將視其為純雜訊，拒絕啟動過峰判定。此外，系統追蹤連續分數下滑次數（\texttt{drop\_count}），並具備動態彈性：當步距大於 5 微步時，連續下跌 2 次即判定可能過峰；當進入 5 微步以下的微距階段時，為濾除微小震動干擾，下跌容忍值會放寬至 3 次，藉此有效迴避局部假性極值。
+
+    \item \textbf{階段三：雙軌過峰判定邏輯 (Dual-Track Peak Passing Detection)} \\
+    在正向掃描過程中，系統實作了兩個完全獨立平行的觸發條件（OR 邏輯），只要滿足其一即判定跨越峰值：
+    \begin{enumerate}
+        \item \textbf{顯著比例下跌 (Significant Ratio Drop)}：當前評分跌破歷史最高分的 80\%。
+        \item \textbf{動態連續下跌 (Dynamic Consecutive Drops)}：分數下跌次數達到前述之動態門檻（2 次或 3 次）。
+    \end{enumerate}
+
+    \item \textbf{階段四：單步退回補償與鋸齒狀換檔 (Single-Step Rollback and Zigzag Gear-shifting)} \\
+    一旦雙軌判定觸發，系統立即中止當前掃描。有別於複雜的座標計算，本系統採用高效的「單步退回」策略：演算法會立即發出一道與當前方向相反、距離為一個原始步距的位移指令，將感測器拉回至剛開始跌落山坡的臨界點。隨後，系統載入下一階段配置（步距依序縮小至 50、25、10、3、1 微步），並將馬達方向強制反轉，開始反向爬坡。此一過程反覆執行，在 Z 軸空間劃出逐漸收斂的鋸齒狀（Zigzag）軌跡。
+
+    \item \textbf{階段五：閉迴路精密尋峰與 98\% 最終鎖焦 (Closed-loop Recovery and 98\% Focus Lock)} \\
+    當推進至最後一個掃描階段（步距 1 微步）並再次過峰後，系統切換至「峰值回溯」狀態。在此閉迴路中，系統以該階段測得的絕對最高銳利度（\texttt{sharp\_max}）為靶心，馬達以 1 微步為單位緩慢倒退。考量到機械背隙與感測器雜訊，為避免在峰頂無限震盪，演算法導入了 98\% 的彈性收斂閾值：只要當前銳利度 $\ge \text{sharp\_max} \times 0.98$，系統即認定已精準鎖定焦平面。此時狀態機正式發出 \texttt{FINISHED} 訊號，完成整套自動對焦程序。
+\end{itemize}
 
 \clearpage
 \begin{figure}[p]
@@ -186,15 +249,97 @@ MJPEG 是一種基於 HTTP 伺服器推送（Server-Push）機制之多媒體傳
 \clearpage
 
 
-\subsection{智慧影像處理管線（Image Processing Pipeline）}
+\subsection{智慧影像處理流程 (Intelligent Image Processing Workflow and Signal Enhancement)}
 
-本系統的核心競爭力在於其背景執行的影像處理管線，能將感測器輸出的 Bayer Raw 資料轉換為具備科學定量的 16-bit 影像。處理流程包含：
+在精密顯微成像中，為了維持光學訊號的線性度並獲得高品質的科學數據，本系統開發了一套基於軟體定義的 16-bit 智慧影像處理流程。該流程直接處理感測器輸出的 Bayer 原始數據，並透過逐像素校正矩陣與空間變異解混技術，消除光學系統的非均勻性與光譜重疊問題。影像處理之邏輯流程與運算架構如圖 \ref{fig:image_processing_pipeline} 所示。
 
-基礎校正： 扣除感測器黑電平（Sensor Black Level）與固定背景（Fixed Background Subtraction），大幅降低熱雜訊干擾。
+\subsubsection{原始通道擷取與底層數據解碼 (Raw Data Extraction)}
 
-平場校正（Flat-Field）： 透過預先計算的增益映射圖（Gain Maps）修正光學系統的照明不均與暗角現象。
+系統處理流程始於對感測器 SBGGR16 格式原始數據的攔截。為了解構此交錯的原始數據，系統首先透過 \texttt{get\_raw\_channels} 函數，依據感測器排列規律將像素點分離為四個獨立的二維矩陣（R, Gr, Gb, B）。隨後，系統會進行 $2 \times 2$ 的像素合併（Binning）與重組：具體而言，系統將分離出的兩個綠色通道（Gr, Gb）相加除以 2，並與原本的紅、藍通道重新組合成標準的 RGB 影像。此操作使得後續運算中的影像解析度長寬皆變為原本的二分之一，但在解析度減半的同時，完整保留了每個 $2 \times 2$ 區塊原本就擁有的 R、G、B 完整色彩資訊，且能有效提升訊噪比並加速運算。為了確保後續校正的計算精度，系統全程採用 \texttt{float32} 浮點數進行運算，這能有效避免在多重矩陣變換過程中產生的捨入誤差，保留微弱螢光訊號的完整性。
 
-色彩解混（Color Unmixing）： 針對螢光光譜串擾問題，系統匯入預訓練之張量矩陣（\texttt{unmix\_tensor.npy}），利用 \texttt{np.einsum} 進行高效能的張量運算，即時剝離不同螢光通道間的偽訊號，還原樣本真實的生物分佈資訊。
+\subsubsection{逐像素鏡頭遮蔽表校正與多通道均勻化 (Lens Shading Table Correction)}
+
+顯微鏡光路系統常因物鏡邊緣失光（Vignetting）或光源照明不均，導致影像中心與邊緣存在顯著的亮度梯度。本系統實作了精密之逐像素「鏡頭遮蔽表（Lens Shading Table, LST）」校正機制，針對 R、G、B 三通道進行獨立的空間增益補償：
+
+\begin{itemize}
+    \item \textbf{三通道獨立增益圖計算}：系統會針對各通道分別擷取空白背景（Flat Field）影像。演算法會計算各通道「中心區域的平均亮度（$CenterMean_r$）」，並根據每個像素位置 $(i, j)$ 的局部強度，計算出對應 R、G、B 三通道的逐像素鏡頭遮蔽表（Lens Shading Table, $LST_{ijr}$）：
+    \begin{equation}
+        LST_{ijr} = \frac{CenterMean_r}{FlatField_{ijr}}
+    \end{equation}
+    其中，$LST_{ijr}$ 為像素 $(i, j)$ 處通道 $r$（$r \in \{R, G, B\}$）的校正增益值，$CenterMean_r$ 為該通道影像中央 $1/9$ 區域的平均強度，而 $FlatField_{ijr}$ 為空白背景影像在該像素與通道的強度。此設計不僅精確補償了光學透鏡固有的邊緣亮度跌落（Lens Shading），更同時消除了因相機感測器（CMOS Sensor）對不同光譜波長接收靈敏度差異所導致的空間色彩偏差。
+
+    \item \textbf{即時逐像素補償應用}：在實時處理過程中，系統會將擷取的原始通道影像與對應的增益圖進行逐點相乘：
+    \begin{equation}
+        Image'_{ijr} = Image_{ijr} \times LST_{ijr}
+    \end{equation}
+    其中，$Image'_{ijr}$ 為校正後的像素強度，$Image_{ijr}$ 為原始擷取的像素強度。透過此種針對不同顏色通道獨立定義的校正表，系統能精確補償光學系統中複雜的空間非均勻性，確保全視野範圍內的螢光量測結果具備高度的線性一致性與空間亮度均勻性。
+\end{itemize}
+
+\subsubsection{智慧型空間變異色彩解混 (Spatially-varying Fluorescence Unmixing)}
+
+本處理流程最核心的技術建立於解決螢光串擾（Crosstalk）與空間不均勻性問題之智慧型空間變異色彩解混模組。本系統之方法完整導入了 OpenFlexure 顯微鏡專案的開源技術（\url{https://gitlab.com/openflexure/openflexure-colour-correction.git}）與其核心論文《Flat-field and colour correction for the Raspberry Pi camera module》（Knapper et al., 2021）。
+
+為了讓讀者與後續開發者能如閱讀「使用手冊」般深入理解，以下詳細拆解本系統如何透過採集五張未校正影像，推導出最終的 4D 空間變異張量（\texttt{unmix\_tensor.npy}）之運算邏輯：
+
+\paragraph{1. 採集五張基礎未校正影像 (Acquisition of Five Base Uncorrected Images)}
+在校正階段，系統需在無樣本狀態下，分別在五種不同的照明條件下採集全解析度的原始（Raw）影像。這五張影像各自對應不同的物理校正目的：
+\begin{itemize}
+    \item \textbf{全暗影像 ($I_K$)}：在完全無光條件下採集，用於記錄相機感測器的暗電流（Dark Current）與零點偏移（Zero Offset）。
+    \item \textbf{白光影像 ($I_W$)}：在全白光均勻照射下採集，用於記錄光學系統的全域光強分佈、鏡頭暗角與感測器的平場特徵。
+    \item \textbf{紅、綠、藍光影像 ($I_R, I_G, I_B$)}：分別在純紅、純綠、純藍單色光照射下採集，用於記錄感測器各像素點在不同色彩通道間的串擾（Crosstalk）程度。
+\end{itemize}
+
+\paragraph{2. 底層數據預處理與黑電平扣除 (Pre-processing and Black Level Subtraction)}
+在載入上述影像資料後，系統首先會將所有影像的 RGB 數據減去全暗影像 $I_K$ 的對應數值（或固定的黑電平偏移量），以確保後續運算的線性度與光學物理意義之準確性。
+
+\paragraph{3. 建立空間變異之色彩串擾矩陣 (Construction of Crosstalk Matrix)}
+在此流程中，針對 3 種照明光源與 3 個顏色通道，系統共會生成 $3 \times 3 = 9$ 張解析度為 $W \times H$ 的空間響應圖（例如紅光在綠通道的響應）。若將這 9 張子影像在空間中依據光源與通道的排列進行拼接，會形成一個維度為 $3W \times 3H$ 的巨觀矩陣。
+而在實際逐像素處理時，對於影像中的任意微觀座標 $(i, j)$（其中 $0 \leq i < W, 0 \leq j < H$），系統會從這 9 張子影像中相同位置 $(i, j)$ 處各取一個數值，依據通道與光源的對應關係，填入一個 $3 \times 3$ 的色彩串擾矩陣 $C_{qr}(i, j)$ 中（其中 $q, r$ 為通道索引）。透過此種從 $3W \times 3H$ 空間數據到逐點 $3 \times 3$ 矩陣的重組，實現了空間變異的色彩校正。
+為了同時消除空間光場的不均勻性（平場校正），演算法會將該矩陣的每一列除以白光影像在該點對應通道的強度：
+\begin{equation}
+    C_{qr}(i, j) = \frac{Image'_{r, q}(i, j)}{Image'_{W, r}(i, j)}
+\end{equation}
+其中，$Image'_{r, q}(i, j)$ 代表在光源 $q$ 照射下，感測器通道 $r$ 在像素 $(i, j)$ 處的線性強度（經黑電平扣除與 LST 校正後），而 $Image'_{W, r}(i, j)$ 代表在白光照射下，感測器通道 $r$ 在像素 $(i, j)$ 處的線性強度。$C_{qr}(i, j)$ 即為對應 4-matrix 公式中的微觀串擾矩陣元素。
+
+\paragraph{4. 矩陣反轉換與中心對齊目標 (Matrix Inversion and Centre Target Alignment)}
+為了「解混」被串擾的色彩，我們需要求得串擾矩陣的逆矩陣（Inverse Matrix）：
+\begin{equation}
+    M_{raw, 3 \times 3}(x, y) = C_{3 \times 3}(x, y)^{-1}
+\end{equation}
+其中，$M_{raw, 3 \times 3}(x, y)$ 為像素 $(x, y)$ 處未經中心對齊的原始色彩解混逆矩陣。
+直接應用此逆矩陣會將影像還原至理論上絕對的光譜分離狀態，但往往會導致影像邊緣的雜訊被過度放大。為此，文獻中提出並實作了「中心對齊（Centre Target）」策略：
+系統會先計算影像中央的 $1/9$ 區域（即長與寬各取中央的 $1/3$ 部分）的平均串擾矩陣 $C_{center, 3 \times 3}$。最終儲存於 \texttt{unmix\_tensor.npy} 的解混張量 $M_{3 \times 3}(x, y)$ 則由逆矩陣與中心響應矩陣相乘所得：
+\begin{equation}
+    M_{3 \times 3}(x, y) = C_{3 \times 3}(x, y)^{-1} \times C_{center, 3 \times 3}
+\end{equation}
+其中，$M_{3 \times 3}(x, y)$ 為最終儲存於 \texttt{unmix\_tensor.npy} 的空間變異解混矩陣，而 $C_{center, 3 \times 3}$ 為影像中心區域的平均串擾矩陣。
+\textbf{原理}：此一反轉換的物理意義在於，它並非將影像還原到完美的標準色彩空間，而是將影像中「任意位置」的色彩與亮度畸變，校正到與「影像中心」完全一致的狀態。這達成了全視野範圍內極高的空間線性一致性，使得在進行大面積掃描與後續疊圖時，接縫處不會出現色彩斷層。
+
+\paragraph{5. 綜合四矩陣校正模型與愛因斯坦求和運算 (Comprehensive 4-Matrix Correction Model)}
+為了避免像素級的隨機雜訊被反轉換放大，生成的 4D 張量會先經過高斯濾波進行平滑處理（$\sigma=3$），最終儲存為 \texttt{unmix\_tensor.npy}。
+
+而在實際採集流程中，為將上述所有校正步驟整合為一個高效的運算架構，本系統採用了文獻中提出的四矩陣耦合校正模型。對於影像中的每一個像素與色彩通道，其最終的純淨螢光強度 $Pure_{ijp}$ 可由下式求得：
+\begin{equation}
+    Pure_{ijp} = \sum_{qr} U_{ijpq} Cx_{qr} Cb_{rr} LST_{ijr} Image_{ijr}
+\end{equation}
+其中，各項符號之物理意義與維度定義如下：
+\begin{itemize}
+    \item $Image_{ijr}$：原始輸入影像，$(i, j)$ 為像素座標（寬度 $W$ 與高度 $H$），$r \in \{R, G, B\}$ 為輸入通道。
+    \item $LST_{ijr}$：逐像素鏡頭遮蔽表（Lens Shading Table），為 $W \times H \times 3$ 的三維張量，用於補償光學系統的空間不均勻性（邊緣失光）。
+    \item $Cb_{rr}$：色彩平衡矩陣（Color Balance Matrix），為 $3 \times 3$ 的對角矩陣（或視為通道增益向量），用於調整各顏色通道的增益平衡。
+    \item $Cx_{qr}$：色彩串擾矩陣（Crosstalk Matrix），為 $3 \times 3$ 的矩陣，用於修正全域的顏色交叉污染（串擾）。
+    \item $U_{ijpq}$：空間變異解混張量（Spatially-varying Unmixing Tensor），為 $W \times H \times 3 \times 3$ 的四維張量，結合了空間位置 $(i, j)$ 與色彩通道映射（從 $q$ 到 $p$），用於實現最終的精密色彩解混。
+\end{itemize}
+在程式實作中，此一複雜的多維度張量收縮運算（Tensor Contraction）並非透過巢狀迴圈（Nested Loops）完成，而是利用 NumPy 函式庫中高度優化的愛因斯坦求和（Einstein Summation）函數 \texttt{np.einsum('ijkl,ijl->ijk', unmix\_tensor, im)} 來實作。這使得系統能在毫秒級的時間內完成整張百萬像素影像的空間變異色彩解混，滿足即時影像處理與預覽的需求，徹底解決了低成本相機模組在螢光成像中因物理缺陷導致的數據失真。
+
+\subsubsection{差分背景減除與自主螢光抑制 (Background Subtraction and Autofluorescence Suppression)}
+
+針對螢光影像中常見的背景干擾，系統實作了差分背景減除功能。使用者可預先擷取背景畫格，鎖定光路中的雜散光、感測器熱雜訊以及樣本本身的背景自主螢光（Autofluorescence）。在後續採集流程中，系統執行 $P_{corrected} = P_{raw} - P_{background}$ 之運算。此步驟對於抑制樣本自體產生的背景噪訊至關重要，能顯著提升影像的訊噪比（SNR），使微弱的目標螢光特徵在暗背景中更易於辨識與定量。
+
+
+\subsubsection{EV 補償與 16-to-8 Bit 動態映射 (EV Compensation and Rendering)}
+
+最後階段，為了讓高動態範圍的 16-bit 科學數據能在 8-bit 的網頁端介面即時顯示，系統實作了具備物理曝光補償（EV Compensation）的映射演算法。在視覺增益調整方面，系統透過 \texttt{ev\_comp} 參數，讓使用者能動態調整影像的視覺亮度，而此操作僅影響顯示層級，不會更動底層儲存的原始 16-bit 量測數據。在量化與格式轉換方面，系統利用 \texttt{np.clip} 將浮點運算後的數據限制在有效範圍內，隨後精確映射至 8-bit 空間並轉換為 \texttt{QImage} 格式輸出至串流模組。此設計兼顧了科學採集的嚴謹度與遠端操作的即時視覺反饋。
 
 \section{韌體開發與底層動力控制}
 
@@ -247,9 +392,9 @@ MJPEG 是一種基於 HTTP 伺服器推送（Server-Push）機制之多媒體傳
     當步數小於 1000 步時，系統自動將速度限制在 $800~\text{steps/s}$ 的低速區間，並配合極高的加速度設定（Acceleration Setting）。這確保了馬達在自動對焦尋峰時，能瞬間反應、精準制動，消除機械慣性導致的過衝（Overshoot）。在 Z 軸 2.0 mm 導程螺桿的帶動下，此機制使系統能穩定實現低至 $0.625 \mu m$ 的物理步距控制。
 \end{itemize}
 
-\section{影像處理與校正管線}
+\section{影像處理與校正流程}
 
-本系統針對影像感測器的底層物理瑕疵與光學系統的幾何偏差，開發了一套全自動的影像預處理管線。此管線旨在進入運算成像演算法前，將原始 RAW 數據轉化為具備高線性度與空間均勻性的高品質影像。
+本系統針對影像感測器的底層物理瑕疵與光學系統的幾何偏差，開發了一套全自動的影像預處理流程。此流程旨在進入運算成像演算法前，將原始 RAW 數據轉化為具備高線性度與空間均勻性的高品質影像。
 
 \subsection{空間變異張量色彩解混 (Tensor Color Unmixing)}
 
