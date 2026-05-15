@@ -1,0 +1,10 @@
+[run]
+# Measure all code in the package
+source = openflexure_colour_correction
+
+[report]
+# 2 decimal places in terminal reports
+precision = 2
+exclude_lines =
+    if __name__ == .__main__.:
+    pragma: no cover

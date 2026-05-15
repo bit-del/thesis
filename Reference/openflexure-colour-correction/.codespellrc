@@ -1,0 +1,14 @@
+[codespell]
+
+skip = node_modules,
+       *.git,
+       *.pyc,
+       __pycache__,
+       ./build,
+       ./dist,
+       ./htmlcov,
+       .venv,
+       *.egg-info,
+       report.xml
+
+regex = [a-zA-Z0-9\-'’]+

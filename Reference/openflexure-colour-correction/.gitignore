@@ -1,0 +1,29 @@
+openflexure_colour_correction/data/*
+
+*.egg-info
+*.pyc
+*.directory
+*.save
+dist/
+build/
+
+
+#KDE files
+*.kate-swp
+*.backup
+
+# VSC files
+.vscode/
+
+#virtual environments
+.venv
+
+#mypy
+
+.dmypy.json
+
+#tests
+.coverage
+htmlcov
+coverage.xml
+report.xml

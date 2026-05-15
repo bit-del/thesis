@@ -1,0 +1,74 @@
+# These templates do the following:
+# python.yml:
+# - creates a venv and installs dev dependencies
+# - configures git username and email for unit tests
+# - sets python jobs to only run when a .py file is edited
+
+include:
+  - project: 'openflexure/ci-templates'
+    file: '/python.yml'
+
+# Collects together common trigger rules for
+# reusability
+.rules_common:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - when: never
+  
+stages:
+  - analysis
+  - testing
+
+spelling:
+  stage: analysis
+  extends:
+    - .python
+    # Extending this job means that the rules section defined
+    # in .rules_common overwrites any rules defined in .python
+    - .rules_common
+  script:
+    - codespell .
+
+# Python static analysis and formatting with ruff
+ruff-checks:
+  stage: analysis
+  extends: .python
+  script:
+    - ruff check
+    - ruff format --check
+
+
+# Python type checking with Mypy
+mypy:
+  stage: analysis
+  extends: .python
+  script:
+    - mkdir -p mypy
+    - mypy --cobertura-xml-report mypy --no-error-summary > mypy-out.txt
+    - mypy-gitlab-code-quality < mypy-out.txt > codequality.json
+
+  artifacts:
+    reports:
+      codequality: codequality.json
+      coverage_report: 
+        coverage_format: cobertura
+        path: mypy/cobertura.xml
+
+pytest:
+  stage: testing
+  extends: .python
+  script:
+    - pytest
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
