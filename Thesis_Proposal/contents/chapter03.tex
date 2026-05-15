@@ -63,49 +63,8 @@
     \label{fig:optical_brightfield}
 \end{figure}
 
-除了明視野成像外，本系統亦支援落射式螢光成像。在落射式螢光成像模式中，本系統提供兩種不同的激發光源配置。第一種為 LED 激發光源配置（如圖 \ref{fig:optical_led} 所示），主要用來觀察寬場影像。此配置使用高功率藍光 LED（high-power blue LED, LZ4-40B208, LED Engin, Santa Clara, CA）作為光源，光線經由非球面聚光鏡（aspheric condenser, 15-194, Edmund Optics, Barrington, NJ）聚焦，並透過激發濾光片（Excitation Filter, 15-257, Edmund Optics）篩選出特定波長的激發光，最後經由雙色分光鏡（Dichroic Mirror, DMLP490, Thorlabs）反射至物鏡並照射樣本。樣本產生的螢光訊號則由物鏡收集，穿過雙色分光鏡並透過發射濾光片（Emission Filter, FGL495, Thorlabs）濾除雜散光，最後成像於相機感測器上。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/ch3/fig3_6_optical_led.png}
-    \caption{LED 激發光源配置示意圖，包含激發濾光片與聚光鏡。}
-    \label{fig:optical_led}
-\end{figure}
-
-第二種為 Laser 激發光源配置（如圖 \ref{fig:optical_laser} 所示），是用來進行 piFP 的硬體配置。在此配置中，我們將聚光鏡移除，並加入擴散片（Ground Glass Diffuser, 38-786, Edmund Optics）以破壞雷射的高相干性，進而產生隨機散斑，讓我們的重建演算法得以實現。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/ch3/fig3_7_optical_laser.png}
-    \caption{Laser 激發光源配置示意圖，移除聚光鏡並使用擴散片以產生隨機散斑圖案。}
-    \label{fig:optical_laser}
-\end{figure}
-
-值得注意的是，無論是明視野還是螢光激發光路，由於 LED 並非理想的點光源，而是具有一定尺寸的延伸光源（Extended Source），其輸出的光線無法達成絕對平行，而是會產生一定的發散角（Divergence Angle）。依據 Thorlabs 提供的計算方法 \cite{thorlabs_collimate_led}，發散角 $\Phi_e$ 的計算公式如下：
-\begin{equation}
-\Phi_e = 2 \tan^{-1}\left(\frac{d/2}{f}\right)
-\end{equation}
-其中 $d$ 為 LED 的發光面尺寸，$f$ 為聚光鏡的焦距。若以本系統使用的 Cree XQ-E LED 封裝尺寸 $d = 1.6\text{ mm}$ 以及 Thorlabs ACL12708U 聚光鏡焦距 $f = 8\text{ mm}$ 計算，其明視野光源的理論發散角約為 $11.42^\circ$。同理，若以螢光 LED 配置中使用的 LED Engin LZ4-40B208 發光面尺寸 $d \approx 5.6\text{ mm}$ 以及螢光聚光鏡焦距 $f = 20\text{ mm}$ 計算，其螢光激發光源的理論發散角約為 $15.94^\circ$。
-
-為了更直觀地呈現系統內部的精密光學配置，我們繪製了系統整體的光學路徑剖面圖（如圖 \ref{fig:optical_profile_front} 與圖 \ref{fig:optical_profile_45deg} 所示），分別從正面與 45 度角視角展示了各光學元件在有限共軛光路中的相對位置與幾何約束。
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{figures/ch3/fig3_8_Optical_Path_Cross_Section_Front.png}
-    \caption{系統整體光學路徑正面剖面圖}
-    \label{fig:optical_profile_front}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{figures/ch3/fig3_9_Optical_Path_Cross_Section_45Deg.png}
-    \caption{系統整體光學路徑 45 度角剖面圖}
-    \label{fig:optical_profile_45deg}
-\end{figure}
-
-\subsection{載台元件}
-動力驅動方面，採用 NEMA 17 步進馬達（17HS3401S, MotionKing, Changzhou, China）搭配 Arduino CNC Shield (Version 3.0, Protoneer, Wellington, New Zealand) 與 TMC2209 驅動晶片的 16 倍微步進（16x Microstepping）模式，結合導程 2.0 mm 的螺桿，Z 軸理論解析度高達 $0.625 \mu m/\text{step}$。其理論解析度之計算方式如式 \eqref{eq:resolution} 所示：
+除了明視野成像外，本系統亦支援落射式螢光成像。在落射式螢光成像模式中，本系統提供兩種不同的激發光源配置。第一種為 LED 激發光源配置（如圖 \ref{fig:optical_led} 所示），主要用來觀察寬場影像。此配置使用高功率藍光 LED（high-power blue LED, LZ4-40B208, LED Engin, Santa Clara, CA）作為光源，光線經由非球面聚光鏡（aspheric condenser, 15-194, Edmund Optics, Barrington, NJ）聚焦，並透過激發濾光片（Excitation Filter, 15-257, Edmund Optics）篩選出特定波長的激發光，最後經由雙色分光鏡（Dichroic Mirror, DMLP490, Thorlabs）反射至物鏡並照射樣本
+2209 驅動晶片的 16 倍微步進（16x Microstepping）模式，結合導程 2.0 mm 的螺桿，Z 軸理論解析度高達 $0.625 \mu m/\text{step}$。其理論解析度之計算方式如式 \eqref{eq:resolution} 所示：
 \begin{equation}
 \text{解析度} = \frac{\text{導程}}{\text{每圈步數} \times \text{微步數}} = \frac{2.0 \text{ mm}}{200 \times 16} = 0.625 \mu m/\text{step}
 \label{eq:resolution}
@@ -126,29 +85,107 @@
 \input{contents/ch3_01_03_3d_parts_1}
 \input{contents/ch3_01_03_3d_parts_2}
 
-\section{軟體與系統控制}
+\section{軟體與系統控制架構}
 
-本研究開發之顯微鏡控制軟體採用 Python 語言建構，並巧妙地結合了 PySide6 (Qt for Python) 框架的事件驅動能力與輕量級 HTTP 伺服器的網路可達性。為了支援高通量影像採集與即時複雜運算，同時避免傳統單執行緒設計在處理密集 I/O 或耗時運算時造成的介面凍結（UI Freezing），系統核心採用了非同步多執行緒（Asynchronous Multi-threading）的混和架構。這種設計允許使用者透過網頁瀏覽器進行跨平台的直覺操作，同時在背景由高效能的 Python 與 Qt 執行緒處理相機驅動、硬體通訊與即時影像增強。
+本研究開發之顯微鏡控制軟體採用 Python 語言為核心，並深度整合 PySide6 (Qt for Python) 框架的事件驅動能力，以及輕量級 HTTP 伺服器的網路通訊功能。為平衡高解析度影像採集的即時性與複雜演算法的運算負載，系統核心採用了高度解耦的「非同步多執行緒（Asynchronous Multi-threading）混和架構」。此架構確保了高畫質即時串流、硬體精準位移與背景影像增強處理得以並行運作，徹底解決了傳統單執行緒設計在面對密集運算時產生的使用者介面凍結（UI Freezing）問題。
 
-\subsection{非同步多執行緒架構與並發管理}
+\subsection{非同步多執行緒架構與內部狀態調度 (Asynchronous Multi-threading Architecture and Internal State Scheduling)}
+為確保系統在高解析度影像連續採集、即時硬體矩陣運算（如色彩解混與平場校正）以及多軸步進馬達控制時，仍能維持流暢且零延遲之使用者體驗，本研究開發之顯微鏡控制軟體屏棄了傳統單一執行緒同步輪詢（Synchronous Polling）之設計，轉而採用「非同步多執行緒混和架構（Asynchronous Multi-threading Hybrid Architecture）」。為落實此高度並發之設計，系統於軟體底層進行了嚴謹的職責分離（Separation of Concerns），將核心影像處理與系統調度邏輯進行了解耦。
 
-為確保系統在高解析度影像連續採集與處理時仍能保持介面的流暢度，軟體層面設計了嚴密的並發管理機制。系統採用 Qt 的「工作者—物件（Worker-Object）」設計模式，將耗時的運算與 I/O 任務從主執行緒中完全分離。
+在此架構中，系統最耗費中央處理器（CPU）資源之任務，全數委派予獨立之 \texttt{CameraWorker} 類別執行。為防止高負載運算導致主執行緒（Main Thread）之伺服器響應凍結，系統嚴格採納了 Qt 框架中推薦之「工作者—物件（Worker-Object）」模式。系統啟動時，中央調度樞紐 \texttt{CameraManager} 會先實例化一標準之 Qt 執行緒載體 \texttt{QThread}，繼而創建 \texttt{CameraWorker} 實例，並透過調用 \texttt{moveToThread()} 方法，將該物件之執行緒親和性（Thread Affinity）完整遷移至背景子執行緒中。
 
-核心的 \texttt{CameraWorker} 單元被封裝於獨立的 \texttt{QThread} 之中，負責維護 \texttt{Picamera2} 的影像擷取循環。我們並未透過繼承 \texttt{QThread} 的傳統做法，而是實作一個繼承自 \texttt{QObject} 的類別，並使用 \texttt{moveToThread()} 方法將其移動至專屬執行緒，這確保了所有訊號處理皆在正確的執行緒脈絡中進行，避免了競爭危害。此執行緒會建立一個持續性的請求循環，將感測器輸出的原始影像數據直接存入預配置的緩衝區。每當新的一幀影像產生並完成校正處理後，工作者會透過 Qt 的訊號與槽機制將影像陣列安全地傳遞至 UI 層進行編碼與顯示。
+此架構設計之最高指導原則在於確保嚴謹的執行緒安全性（Thread Safety）。當多個執行緒同時運行時，若未經同步鎖定（如 Mutex 或 Semaphore）約束而直接跨執行緒調用物件方法，將引發極度危險之競爭危害（Race Condition），導致記憶體區塊（如正在寫入之影像矩陣）損毀或引發核心分段錯誤（Segmentation Fault）。為徹底規避此風險，本系統深度運用了 Qt 框架核心之「訊號與槽（Signals and Slots）」機制。這是一種基於觀察者模式（Observer Pattern）之型別安全（Type-safe）通訊協定，允許不同執行緒間的物件進行非同步的狀態廣播與接收。例如，當 \texttt{CameraWorker} 完成單幀影像之擷取與處理後，會發射 \texttt{status\_updated} 或 \texttt{af\_status\_finished} 等訊號，而處於主執行緒之 \texttt{CameraManager} 則透過預先綁定之槽函數（Slots）被動接收更新，全程無須直接存取工作者內部之變數。
 
-除了相機主執行緒外，系統還利用 Python 的 \texttt{threading.Thread} 建立了專屬的 I/O 執行緒（IO Worker）與錄影執行緒（Record Worker）。影像存檔與視訊編碼往往涉及密集的磁碟寫入與運算，若在主循環中執行會造成嚴重的採集延遲。因此，系統利用 Python 的 \texttt{queue.Queue} 實作了生產者—消費者模型。當系統執行自動化 Z-Stack 收集時，採集執行緒作為生產者將高解析度影像推入隊列，而背景的 I/O 執行緒則在不間斷地取出數據並異步寫入磁碟，這使得主系統能在存檔進行的同時，同步移動馬達並進行下一幀採集，顯著提升了實驗效率。
+除了基於 Qt 的事件驅動執行緒外，系統對於不需頻繁指令互動的任務（如磁碟寫入與影像存檔），則採用原生的 Python「守護執行緒（Daemon Thread, \texttt{threading.Thread}）」以降低記憶體開銷並實現生產者—消費者模型。所謂「守護執行緒」，係指一種在背景運作且生命週期依附於主程式的特殊執行緒。在作業系統的多執行緒管理中，若尚有一般執行緒（Non-daemon Thread）在運行，程式便無法結束；而守護執行緒的特性在於，當系統中所有的一般執行緒（如主 GUI 執行緒）皆結束時，無論守護執行緒的工作是否完成，作業系統皆會強制將其終止並關閉程式。此一特性極其適合用於處理本系統中耗時的 I/O 存檔任務，能確保當使用者關閉操作介面時，程式不會因為背景佇列中仍有殘餘影像未寫入完成而發生「程式卡死、無法正常關閉」的現象。在此機制下，採集端作為生產者，將處理後的影像推入具備容量限制（\texttt{maxsize}）的先進先出佇列（Queue）中；後端的 I/O 守護執行緒則作為消費者，從佇列中取出資料執行非同步存檔。此處引入的「防爆機制（Frame Dropping）」確保了當硬碟寫入速率低於採集速率時，系統會主動拋棄過剩幀以防止記憶體溢出（OOM），顯著提升了系統的長效穩定性。
 
-與底層硬體的序列通訊同樣被設計為異步非阻塞模式。當軟體發出馬達位移指令後，系統並不會阻塞等待硬體回傳，而是允許其他事件繼續處理。為了補償樂高機械結構可能存在的微小彈性與慣性，軟體在發出指令後會根據位移距離預留物理慣性消散時間，確保系統在達到絕對靜止狀態後才觸發下一幀影像的擷取，從根本上避免了動態模糊。
+此外，當前端應用程式介面（\texttt{ApiHandler}）需要主動向下達控制指令（如啟動自動對焦、鎖定曝光暫存器參數等）給正處於背景無限循環擷取影像之 \texttt{CameraWorker} 時，系統絕對禁止使用傳統的直接函數呼叫（Direct Function Call）。取而代之的是，系統採用了 Qt 的元物件系統（Meta-Object System）進行跨執行緒之指令派發。以啟動自動對焦功能為例，系統精確使用了以下之指令敘述：
 
-\subsection{自動化採集狀態機 (Automation State Machine)}
+\begin{quote}
+\texttt{QMetaObject.invokeMethod(self.cam\_manager, "start\_autofocus", Qt.QueuedConnection)}
+\end{quote}
 
-為了實現全自動化與無人值守的實驗流程，軟體內部實作了一個精密的狀態機，負責協調相機參數調整、光源切換與馬達精準位移。
+而當需要傳遞夾帶複雜參數之設定值（如數位曝光參數控制字典）時，系統則會進一步結合 \texttt{Q\_ARG} 巨集進行變數之序列化傳遞：
 
-在自動對焦功能中，系統採用了三指標核心運算（Triple-Metric）策略。系統會同時計算影像的方差（Variance）、空間頻率（Spatial Frequency）以及高頻梯度（如 Tenengrad 或 Brenner 演算法）。在離焦較遠的大範圍搜索階段，系統優先參考對光強變化較不敏感的方差指標；而當接近焦平面時，則自動切換為高頻梯度指標，以捕捉影像中的細微邊緣資訊，實現微米級的精準鎖定。此外，系統會根據當前是明視野還是螢光模式，自動切換評價函數與搜尋步長，以應對螢光成像中雜訊較大的物理特性。
+\begin{quote}
+\texttt{QMetaObject.invokeMethod(cam\_worker, "set\_controls", Qt.QueuedConnection, Q\_ARG(str, json.dumps(controls)))}
+\end{quote}
 
-自動化 Z-Stack 採集與網格掃描（Tiling）是本系統實現高通量與三維成像的核心。在啟動採集協議前，系統會自動執行曝光鎖定與增益錨定，將相機參數從自動模式切換為固定手動數值，防止在不同空間位置或深度採集時因亮度波動影響後續的量化分析或運算成像演算法。狀態機會精確控制 Z 軸馬達以預設的微米級步距移動，並在每個位置觸發採集與異步存檔。對於大面積的網格掃描，系統會自動計算蛇形或柵格狀的 XY 座標路徑，並在每個節點自動執行對焦確認與影像採集。
+在上述指令中，\texttt{Qt.QueuedConnection} 參數扮演了至關重要的角色。該參數強制將此次的方法呼叫（Method Invocation）封裝為一獨立之非同步事件（Asynchronous Event），並將其安全地排入目標執行緒（即 \texttt{CameraWorker} 所在之 \texttt{QThread}）專屬的事件循環佇列（Event Loop Queue）中。當 \texttt{CameraWorker} 結束當前幀之矩陣運算週期後，方會依序從佇列中取出該事件並執行狀態更新。透過此一機制，本系統實現了指令流與資料流的絕對隔離，在維持最高硬體採集效能的同時，確保了記憶體操作之絕對安全。
 
-最後，為了應對長時程或大面積掃描過程中因溫度變化或機械應力釋放導致的焦面漂移，軟體內置了即時漂移監控機制。系統會在背景持續監控焦點評價分數的變化，一旦判定當前焦點偏離起始設定的閾值，狀態機會自動暫停當前的掃描任務，重新啟動自動對焦進行二次校正，待恢復最佳焦面後再繼續執行未完成的採集協議，確保了海量資料集中的每一張影像皆具備最高品質。
+\subsection{即時影像串流與 RESTful 控制通訊 (Real-time Video Streaming and RESTful Control Communication)}
+在確保了內部硬體控制與影像運算之執行緒安全後，本系統之前端通訊層旨在提供一個跨平台、低延遲且免安裝客戶端軟體之網頁圖形化使用者介面（Web GUI）。為達成此一目標，系統整合了高並發網路伺服器、伺服器推送串流技術，以及無狀態之應用程式介面設計。
+
+1. 高並發網路伺服器與 socketserver.ThreadingMixIn
+本系統之網路層基礎係由 Python 原生之 \texttt{http.server.HTTPServer} 所建構，然而標準之 HTTP 伺服器僅具備單執行緒之同步阻塞（Synchronous Blocking）處理能力。此意味著若伺服器正在向某一客戶端發送龐大之影像資料，其餘所有的控制指令（如停止馬達或調整曝光）皆會被拒絕或排隊等待，這在精密顯微操作中是絕對無法容忍的致命缺陷。
+
+為突破此一網路 I/O 瓶頸，本系統之 \texttt{StreamingServer} 類別採用了多重繼承之架構，巧妙地導入了 \texttt{socketserver.ThreadingMixIn} 混入類別（MixIn Class）。\texttt{ThreadingMixIn} 之運作原理係在底層覆寫了伺服器處理連線請求之生命週期；當網路 Socket 接收到任何新的 TCP 連線請求時，\texttt{ThreadingMixIn} 會自動呼叫 \texttt{threading.Thread} 為該筆連線動態生成一個獨立之原生守護執行緒（Daemon Thread）。此一平行化架構確保了「無限期佔用頻寬之影像串流連線」與「瞬態突發之控制指令連線」被徹底隔離於不同的 CPU 執行緒中。即使系統正在全速推送高畫質影像，使用者點擊網頁按鈕所發出之控制指令仍能享有最高之響應優先級，達成真正的「非阻塞（Non-blocking）」遠端控制體驗。
+
+2. MJPEG (Motion JPEG) 即時影像串流協定
+在顯微鏡之即時影像預覽方面，本系統並未採用複雜度較高、資源消耗極大且需維持雙向長連接之 WebSocket 協定，亦未採用需依賴前端 JavaScript Canvas 重繪之 Base64 編碼傳輸。系統選擇實作了經典且極度高效之 MJPEG (Motion JPEG) 串流技術。
+
+MJPEG 是一種基於 HTTP 伺服器推送（Server-Push）機制之多媒體傳輸協定。當前端網頁之 \texttt{<img>} 標籤對後端 \texttt{/stream.mjpg} 端點（Endpoint）發起 GET 請求時，後端之 \texttt{StreamingHandler} 會回傳一個特殊的 HTTP Content-Type 標頭：\texttt{multipart/x-mixed-replace; boundary=FRAME}。此標頭指示瀏覽器這並非一個單一的靜態檔案，而是一個由無數張 JPEG 圖片拼接而成之無窮資料流；而 \texttt{boundary=FRAME} 則定義了每一張新圖片之間的分隔符號。
+
+在後端之實作中，系統於 \texttt{StreamingOutput} 類別內利用了執行緒安全之條件變數（\texttt{threading.Condition}）進行訊號同步。每當 \texttt{CameraWorker} 擷取並壓縮完成一張全新之 JPEG 影像，便會透過 \texttt{self.condition.notify\_all()} 喚醒正在背景待命的串流執行緒，並將該二進位資料流（Binary Stream）夾帶於 \texttt{--FRAME} 邊界標籤中推送至網頁端。此架構之巨大優勢在於：它允許所有主流網頁瀏覽器直接調用底層之硬體圖形處理器（GPU）進行原生影像解碼與畫面刷新，大幅降低了終端設備（如平板電腦或筆記型電腦）之 CPU 負載，實現了在無線區域網路下仍能維持 30 FPS 以上之平滑顯微動態視覺反饋。
+
+3. RESTful 精神之非同步 API 控制通訊
+在軟體控制通訊層面，系統的前後端互動遵循了具備 RESTful（Representational State Transfer） 精神之無狀態（Stateless）應用程式介面設計。網頁前端之所有操作指令，皆透過 JavaScript 原生之 Fetch API 發送非同步之 HTTP GET 請求至後端之 \texttt{/control} 端點。
+
+與傳統緊耦合之控制程式不同，本系統將操作意圖參數化，封裝於統一資源定位符（URL）之查詢字串（Query String）中。例如，進行 piFP 資料擷取之指令被編碼為：
+\begin{quote}
+\texttt{fetch('/control?cmd=start\_protocol} \\
+\texttt{\&mode=reconstruction\&range\_um=100\&grid\_n=10')}
+\end{quote}當此請求抵達後端，專屬之 \texttt{ApiHandler} 類別會擔任請求路由器（Request Router）之角色，將 URL 中的參數字典進行解析，並精確派發至對應之硬體驅動模組。
+
+更重要的是，\texttt{ApiHandler} 在完成每一次的指令調度後，皆會封裝一份標準化之 JSON（JavaScript Object Notation）格式物件作為 HTTP 200 OK 之響應實體（Response Body）。該 JSON 封包不僅包含指令執行結果之字串（如 \texttt{"message": "Manual Exp Set."}），更同時夾帶了系統當前之關鍵物理狀態回饋（包含絕對類比增益值 \texttt{current\_gain}、以微秒計之精確曝光時間 \texttt{current\_exp\_us}，以及各項演算法模組之布林狀態如 \texttt{bg\_subtract\_enabled}）。這種基於 JSON 格式的雙向狀態同步機制，確保了「前端 UI 顯示」與「後端硬體暫存器」之間的絕對一致性，完美建構了一個高內聚、低耦合且具備高度容錯性之顯微鏡遠端控制生態系統。
+
+
+\subsection{機械誤差補償與物理慣性管理}
+
+為克服使用平價傳動機構（如樂高齒輪）帶來的物理侷限，本軟體在硬體控制層面實作了精密的補償邏輯：
+
+齒輪背隙補償（Backlash Compensation）： 齒輪換向時產生的空轉間隙是影響定位精度的關鍵。系統在 \texttt{MotorControl} 類別中動態紀錄各軸的移動方向。當馬達由正轉切換為反轉時，軟體會自動計算並疊加預設的補償步數（\texttt{BACKLASH\_X/Y}），提前抵銷齒輪間隙，確保了雙向定位的準確性。
+
+動態慣性消散時間（Settle Time）： 機構在急速停轉瞬間會產生肉眼難見的微震動。為此，狀態機在馬達位移後會觸發一個 200 毫秒的強制等待計時器（Timer），待機構慣性完全消散後才執行影像採集，有效消除了動態模糊（Motion Blur）。
+
+\subsection{多階段鋸齒狀自動對焦演算法 (N-Stage Zigzag AF)}
+為了解決大範圍搜尋與高精度鎖定之間的矛盾，本系統開發了一套基於有限狀態機（Finite State Machine, FSM）的閉環自動對焦演算法。該演算法結合了多指標切換策略（Coarse-to-Fine Strategy）與多重雜訊防護機制，其運作邏輯主要分為以下五個階段：
+
+\begin{enumerate}
+    \item 初始化與盲區防護（Starting Phase \& Wrong Way Defense）： 
+    系統自 IDLE 狀態接收到啟動指令後進行參數初始化。為防範初始移動方向錯誤，程式在第一步移動後會立即進行方向檢查。若首步移動導致聚焦分數下降（Metric Decay），系統會判定為走錯方向，此時會立即反轉馬達，並將步幅增加至 $1.5$ 倍，以快速逃離梯度平緩的低對比盲區。
+    
+    \item 多指標由粗至細搜尋（Climbing Phase with Multi-Metric）： 
+    在主搜尋循環中，系統採用了動態指標切換策略。在明場模式下，階段 1 與 2 採用對離焦大範圍敏感的影像方差（Variance）作為粗調指標；階段 3 切換為空間頻率（Spatial Frequency）；階段 4 以後則切換為對細節高度敏感的 Brenner 梯度指標進行精細搜尋（螢光模式下則切換為基於形態學開運算之專用螢光指標）。此策略有效兼顧了「大捕捉範圍」與「高對焦精度」的需求。
+    
+    \item 過頭判定與雜訊過濾（Peak Crossover Confirmation）： 
+    系統會持續紀錄歷史最高分（$M_{max}$）。為了避免光學隨機雜訊或震動引起誤判，系統設定了嚴格的越峰條件：必須滿足「連續兩次（或三次，依步幅而定）分數下降」或「當前分數已低於 $80\% M_{max}$」，系統才會確認已真正越過焦點山頂。
+    
+    \item 精準回溯與防震盪鎖定（Peak Recovery Phase）： 
+    確認過頭後，系統進入回溯階段，馬達反向移動以尋找最高點。為避免馬達在山頂最尖端處因微小雜訊而不斷來回震盪（Hunting），系統採用閉環控制，只要對焦分數重新回到 $98\% M_{max}$ 的區間，即視為達到最清晰對焦點並停止。
+    
+    \item 安全機制與完成（Finalization \& Timeout）： 
+    若系統在回溯階段因雜訊干擾連續移動超過 $20$ 步仍未找到目標，將會觸發超時保護機制（Timeout）強制停止，確保硬體安全。鎖定後，系統更新最終的 Z 軸座標並回到 IDLE 狀態。
+\end{enumerate}
+
+\clearpage
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/ch3/autofocus_algorithm.png}
+    \caption{自動對焦演算法流程圖}
+    \label{fig:autofocus_algorithm_flowchart_ch3}
+\end{figure}
+\clearpage
+
+
+\subsection{智慧影像處理管線（Image Processing Pipeline）}
+
+本系統的核心競爭力在於其背景執行的影像處理管線，能將感測器輸出的 Bayer Raw 資料轉換為具備科學定量的 16-bit 影像。處理流程包含：
+
+基礎校正： 扣除感測器黑電平（Sensor Black Level）與固定背景（Fixed Background Subtraction），大幅降低熱雜訊干擾。
+
+平場校正（Flat-Field）： 透過預先計算的增益映射圖（Gain Maps）修正光學系統的照明不均與暗角現象。
+
+色彩解混（Color Unmixing）： 針對螢光光譜串擾問題，系統匯入預訓練之張量矩陣（\texttt{unmix\_tensor.npy}），利用 \texttt{np.einsum} 進行高效能的張量運算，即時剝離不同螢光通道間的偽訊號，還原樣本真實的生物分佈資訊。
 
 \section{韌體開發與底層動力控制}
 
@@ -159,9 +196,9 @@
 韌體實作了一個高效的字串解析器，採用類似工業 G-code 的輕量化格式。當 Raspberry Pi 5（Raspberry Pi Ltd, Cambridge, UK）透過 USB 序列埠發送指令時，韌體的處理邏輯如下：
 
 \begin{itemize}
-    \item \textbf{指令結構}：採用「軸識別碼 + 數值」格式（例如 \texttt{X500}、\texttt{Z-20}）。韌體透過 \texttt{Serial.readStringUntil('\textbackslash n')} 讀取完整的緩衝區指令。
-    \item \textbf{即時解析邏輯}：系統利用索引掃描技術，自動分離出指令首字的軸標籤與後續的整數步進值。這使得通訊開銷極低，且易於擴展新的控制指令（如快門控制或 LED 強度調整）。
-    \item \textbf{阻塞型同步機制 (Handshake)}：為了確保硬體動作與軟體影像採集具備毫秒級的同步性，韌體採用了「運動同步反饋機制」。當馬達正在執行位移時，Arduino 會暫停讀取新的指令，直至 \texttt{distanceToGo() == 0} 且運動完全停止後，才回傳一個 \texttt{OK} 標記給上位機。這種雙向握手協議徹底消除了指令堆積導致的時序錯亂問題。
+    \item 指令結構：採用「軸識別碼 + 數值」格式（例如 \texttt{X500}、\texttt{Z-20}）。韌體透過 \texttt{Serial.readStringUntil('\textbackslash n')} 讀取完整的緩衝區指令。
+    \item 即時解析邏輯：系統利用索引掃描技術，自動分離出指令首字的軸標籤與後續的整數步進值。這使得通訊開銷極低，且易於擴展新的控制指令（如快門控制或 LED 強度調整）。
+    \item 阻塞型同步機制 (Handshake)：為了確保硬體動作與軟體影像採集具備毫秒級的同步性，韌體採用了「運動同步反饋機制」。當馬達正在執行位移時，Arduino 會暫停讀取新的指令，直至 \texttt{distanceToGo() == 0} 且運動完全停止後，才回傳一個 \texttt{OK} 標記給上位機。這種雙向握手協議徹底消除了指令堆積導致的時序錯亂問題。
 \end{itemize}
 
 \subsection{二階動力學之梯形速度曲線 (Trapezoidal Speed Curve)}
@@ -185,8 +222,8 @@
 \end{equation}
 
 \begin{itemize}
-    \item \textbf{步時計算 (Step Timing)}：\texttt{AccelStepper} 函式庫在韌體中每秒進行數萬次運算，根據當前速度動態計算下一個脈衝的延遲時間（Interval）。
-    \item \textbf{機構保護與穩定性}：此機制有效抑制了馬達啟停時的瞬時衝擊（Jerk）。對於由樂高科技系列組成的精密機構而言，緩慢的加減速能有效減少齒輪間的背隙（Backlash）影響，對於維持光路穩定與 Z 軸對焦精度至關重要。
+    \item 步時計算 (Step Timing)：\texttt{AccelStepper} 函式庫在韌體中每秒進行數萬次運算，根據當前速度動態計算下一個脈衝的延遲時間（Interval）。
+    \item 機構保護與穩定性：此機制有效抑制了馬達啟停時的瞬時衝擊（Jerk）。對於由樂高科技系列組成的精密機構而言，緩慢的加減速能有效減少齒輪間的背隙（Backlash）影響，對於維持光路穩定與 Z 軸對焦精度至關重要。
 \end{itemize}
 
 \subsection{長程高速巡航與短程精密尋峰之雙速切換機制}
@@ -194,10 +231,10 @@
 為了解決大範圍掃描效率與微米級對焦精度之間的矛盾，韌體中實作了一套動態速度切換邏輯。系統會即時判斷單次位移量 $\Delta S$ 的大小來動態決定運動參數：
 
 \begin{itemize}
-    \item \textbf{高速巡航模式 (High-speed Cruise)}：
+    \item 高速巡航模式 (High-speed Cruise)：
     當單次指令位移量 $|\Delta S| > 1000$ 步（約 2 mm 以上）時，韌體會將馬達最大速度設定為 $16,000~\text{steps/s}$。此模式利用了馬達的高頻共振區，極大地縮短了實驗中大面積網格掃描（Tiling）時各取樣點間的移動耗時。
     
-    \item \textbf{精密尋峰模式 (Precision Focus)}：
+    \item 精密尋峰模式 (Precision Focus)：
     當步數小於 1000 步時，系統自動將速度限制在 $800~\text{steps/s}$ 的低速區間，並配合極高的加速度設定（Acceleration Setting）。這確保了馬達在自動對焦尋峰時，能瞬間反應、精準制動，消除機械慣性導致的過衝（Overshoot）。在 Z 軸 2.0 mm 導程螺桿的帶動下，此機制使系統能穩定實現低至 $0.625 \mu m$ 的物理步距控制。
 \end{itemize}
 
@@ -210,9 +247,9 @@
 在螢光成像模式下，不同波長的螢光分子訊號往往會相互重疊，且由於鏡頭的主光線角（CRA）失配，感測器邊緣會出現嚴重的色彩偏移與串擾。
 
 \begin{itemize}
-    \item \textbf{傳統 CCM 之侷限}：傳統的全域色彩校正矩陣（Color Correction Matrix, CCM）假設全畫面的色彩回應是均勻的，這在微距螢光成像下會導致邊緣色彩失真。
-    \item \textbf{空間變異張量模型}：本研究採用的「空間變異」校正機制。我們預先對感測器每個座標點計算出專屬的 $3 \times 3$ 解混矩陣。最終形成一個 4D 校正張量 $U \in \mathbb{R}^{H \times W \times 3 \times 3}$。
-    \item \textbf{向量化運算優化}：為了在 Python 環境下克服像素迭代的巨大開銷，我們利用愛因斯坦求和約定（Einstein Summation Convention）將校正過程轉化為高度並行的矩陣運算：
+    \item 傳統 CCM 之侷限：傳統的全域色彩校正矩陣（Color Correction Matrix, CCM）假設全畫面的色彩回應是均勻的，這在微距螢光成像下會導致邊緣色彩失真。
+    \item 空間變異張量模型：本研究採用的「空間變異」校正機制。我們預先對感測器每個座標點計算出專屬的 $3 \times 3$ 解混矩陣。最終形成一個 4D 校正張量 $U \in \mathbb{R}^{H \times W \times 3 \times 3}$。
+    \item 向量化運算優化：為了在 Python 環境下克服像素迭代的巨大開銷，我們利用愛因斯坦求和約定（Einstein Summation Convention）將校正過程轉化為高度並行的矩陣運算：
     \begin{equation}
         I_{unmixed}(h, w, i) = \sum_{j} U(h, w, i, j) \cdot I_{flat}(h, w, j)
     \end{equation}
@@ -224,9 +261,9 @@
 光學系統的暗角（Vignetting）與感測器的固定圖案雜訊（FPN）會導致影像背景不均勻，嚴重干擾後續 piFP 的頻譜合併。
 
 \begin{itemize}
-    \item \textbf{增益矩陣生成}：系統啟動前會先採集一幀無樣本的平場影像 $I_{white}$，並透過高斯模糊取出其低頻背景分量，計算出標準化的增益圖：$G(h, w) = \text{mean}(I_{white}) / I_{white}(h, w)$。
-    \item \textbf{解析度與 ROI 自動縮放}：針對使用者在實驗中切換不同的採集解析度或感興趣區域（ROI），軟體內置了自動適配邏輯。系統會利用雙線性插值（Bilinear Interpolation）動態縮放 $G$ 矩陣，確保無論是在低解析度全景掃描還是高解析度區域採集下，影像皆能維持高度的平整度。
-    \item \textbf{線性度保證}：所有的校正皆在影像去伽瑪（De-gamma）後的線性空間執行，確保強度數據能真實反映樣本的光子數分佈。
+    \item 增益矩陣生成：系統啟動前會先採集一幀無樣本的平場影像 $I_{white}$，並透過高斯模糊取出其低頻背景分量，計算出標準化的增益圖：$G(h, w) = \text{mean}(I_{white}) / I_{white}(h, w)$。
+    \item 解析度與 ROI 自動縮放：針對使用者在實驗中切換不同的採集解析度或感興趣區域（ROI），軟體內置了自動適配邏輯。系統會利用雙線性插值（Bilinear Interpolation）動態縮放 $G$ 矩陣，確保無論是在低解析度全景掃描還是高解析度區域採集下，影像皆能維持高度的平整度。
+    \item 線性度保證：所有的校正皆在影像去伽瑪（De-gamma）後的線性空間執行，確保強度數據能真實反映樣本的光子數分佈。
 \end{itemize}
 
 \section{運算成像演算法}
@@ -240,22 +277,22 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
 \subsubsection{正向成像模型 (Forward Model)}
 
 \begin{enumerate}
-    \item \textbf{物空間之場耦合}：結構光 $S_n(r)$ 與樣本 $O(r)$ 在空間域呈現相乘關係：
+    \item 物空間之場耦合：結構光 $S_n(r)$ 與樣本 $O(r)$ 在空間域呈現相乘關係：
     \begin{equation}
         \psi_n(r) = O(r) \cdot S_n(r)
     \end{equation}
     
-    \item \textbf{頻譜之卷積特徵}：根據卷積定理，頻域中兩者呈現卷積關係，這解釋了頻譜搬移的物理基礎：
+    \item 頻譜之卷積特徵：根據卷積定理，頻域中兩者呈現卷積關係，這解釋了頻譜搬移的物理基礎：
     \begin{equation}
         \tilde{\psi}_n(k) = \tilde{O}(k) \otimes \tilde{S}_n(k)
     \end{equation}
     
-    \item \textbf{物鏡低通濾波}：物鏡孔徑限制了可通過的頻譜 $H(k)$（瞳函數）：
+    \item 物鏡低通濾波：物鏡孔徑限制了可通過的頻譜 $H(k)$（瞳函數）：
     \begin{equation}
         \Psi_n(k) = \tilde{\psi}_n(k) \cdot H(k)
     \end{equation}
     
-    \item \textbf{感測器採集強度}：相機僅偵測光場強度，損失了相位：
+    \item 感測器採集強度：相機僅偵測光場強度，損失了相位：
     \begin{equation}
         I_n(r) = | \mathcal{F}^{-1} \{ \Psi_n(k) \} |^2
     \end{equation}
@@ -267,27 +304,27 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
 
 \begin{enumerate}
     \setcounter{enumi}{4}
-    \item \textbf{估計場之生成}：利用當前估計的物體與圖案產生估計場：
+    \item 估計場之生成：利用當前估計的物體與圖案產生估計場：
     \begin{equation}
         \psi_{est,n}(r) = O_{est}(r) \cdot S_{est,n}(r)
     \end{equation}
     
-    \item \textbf{頻域振幅修正}：將估計場轉換至頻域，並以實測強度 $\sqrt{I_n}$ 替換其振幅，保留原始相位：
+    \item 頻域振幅修正：將估計場轉換至頻域，並以實測強度 $\sqrt{I_n}$ 替換其振幅，保留原始相位：
     \begin{equation}
         \Psi'_{n}(k) = \mathcal{F} \left\{ \sqrt{I_n} \cdot \frac{\psi_{est,n}(r)}{|\psi_{est,n}(r)|} \right\}
     \end{equation}
     
-    \item \textbf{殘差場計算}：計算修正後與修正前在空間域的差異：
+    \item 殘差場計算：計算修正後與修正前在空間域的差異：
     \begin{equation}
         \Delta\psi_n(r) = \mathcal{F}^{-1} \{ \Psi'_n(k) \} - \psi_{est,n}(r)
     \end{equation}
     
-    \item \textbf{物體函數更新}：利用步長 $\alpha$進行更新：
+    \item 物體函數更新：利用步長 $\alpha$進行更新：
     \begin{equation}
         O_{new}(r) = O_{old}(r) + \alpha \frac{S_n^*(r)}{|S_n(r)|^2_{max}} \Delta\psi_n(r)
     \end{equation}
     
-    \item \textbf{照明圖案更新}：同步執行盲去卷積修正圖案估計值：
+    \item 照明圖案更新：同步執行盲去卷積修正圖案估計值：
     \begin{equation}
         S_{new}(r) = S_{old}(r) + \beta \frac{O^*(r)}{|O(r)|^2_{max}} \Delta\psi_n(r)
     \end{equation}
@@ -302,12 +339,12 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
 由於擴散片在機械平移過程中存在機械背隙與微小的位移隨機偏差，重建前的「亞像素級」對齊對於恢復高頻相位至關重要。
 
 \begin{itemize}
-    \item \textbf{雜訊抑制預處理}：針對散斑圖案（Speckle Pattern）訊噪比低且具備週期性特徵的挑戰，我們在進行頻域對齊前，對影像引入了大規模核心（$41 \times 41$）的形態學開運算。此步驟能有效濾除感測器的高頻噪點，保留散斑的結構特徵。
-    \item \textbf{交互功率譜運算}：對齊核心利用基準影像 $R$ 與待對準影像 $T$ 的交互功率譜來提取相位差：
+    \item 雜訊抑制預處理：針對散斑圖案（Speckle Pattern）訊噪比低且具備週期性特徵的挑戰，我們在進行頻域對齊前，對影像引入了大規模核心（$41 \times 41$）的形態學開運算。此步驟能有效濾除感測器的高頻噪點，保留散斑的結構特徵。
+    \item 交互功率譜運算：對齊核心利用基準影像 $R$ 與待對準影像 $T$ 的交互功率譜來提取相位差：
     \begin{equation}
         C(u, v) = \frac{\mathcal{F}(R) \cdot \mathcal{F}(T)^*}{\left| \mathcal{F}(R) \cdot \mathcal{F}(T)^* \right|}
     \end{equation}
-    \item \textbf{亞像素峰值定位}：
+    \item 亞像素峰值定位：
     系統對 $C(u, v)$ 進行逆傅立葉變換得到脈衝響應函數。為了達成超越像素邊界（Sub-pixel）的精度，我們並非簡單尋找最大值座標，而是對峰值周圍 $3 \times 3$ 的區域進行「二次曲面擬合（Quadric Surface Fitting）」。透過解析擬合曲面的頂點座標，系統能達成高達 $0.1$ 像素等級的位移偵測，確保了頻譜搬移在頻域空間的絕對準確性。
 \end{itemize}
 
@@ -316,13 +353,13 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
 演算法實作於 Python 運算核心中，負責在空間域與頻域之間反覆執行複數場運算。
 
 \begin{itemize}
-    \item \textbf{複數場表示}：物體函數 $O(r)$ 與照明圖案 $S(r)$ 採用 \texttt{complex128} 雙倍精度複數格式存儲，以避免在多次疊代後的相位累積誤差。
-    \item \textbf{物理約束更新邏輯}：
+    \item 複數場表示：物體函數 $O(r)$ 與照明圖案 $S(r)$ 採用 \texttt{complex128} 雙倍精度複數格式存儲，以避免在多次疊代後的相位累積誤差。
+    \item 物理約束更新邏輯：
     在每一輪迭代中，針對第 $n$ 張採集影像，系統依據實測強度的振幅 $\sqrt{I_{meas,n}}$ 修正估計場。為了提高收斂速度，我們引入了「動態步長更新規則」，在迭代初期採用較大的 $\alpha, \beta$ 步長加速頻譜填充，隨後逐漸衰減以細化邊緣細節。
     \begin{equation}
         F'_{Itn} = F_{Itn} + \text{OTF} \cdot (F_{meas,n} - F_{Itn} \cdot \text{OTF})
     \end{equation}
-    \item \textbf{盲去卷積 (Blind Deconvolution)}：演算法同步更新物體估計與照明圖案估計。這意味著系統具備自我校準能力，即使初始散斑圖案不精確，也能在迭代過程中自動修正物理模型。
+    \item 盲去卷積 (Blind Deconvolution)：演算法同步更新物體估計與照明圖案估計。這意味著系統具備自我校準能力，即使初始散斑圖案不精確，也能在迭代過程中自動修正物理模型。
 \end{itemize}
 
 \subsubsection{動態收斂狀態機與防過擬合機制}
@@ -330,18 +367,18 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
 為了避免無效的運算消耗並防止過度迭代導致的震盪偽影，本系統實作了一套「動態收斂監控機制」。
 
 \begin{itemize}
-    \item \textbf{相對殘差監控}：系統即時監控每一輪迭代後的相對變化率 $\epsilon = ||O_{new} - O_{old}|| / ||O_{old}||$。
-    \item \textbf{MSE 改善率判斷}：系統會記錄均方誤差（MSE）的變化曲線。當 MSE 的改善率低於 $0.2\%$ 且維持超過 3 次迭代時，狀態機將自動判斷為「收斂完成」。
-    \item \textbf{效能表現}：此機制使重建時間平均縮短了 40\%。在保持同等重建品質的前提下，對於 40 張影像的典型樣本，重建過程可從原先的 5 分鐘縮短至 3 分鐘內，極大提升了實驗效率。
+    \item 相對殘差監控：系統即時監控每一輪迭代後的相對變化率 $\epsilon = ||O_{new} - O_{old}|| / ||O_{old}||$。
+    \item MSE 改善率判斷：系統會記錄均方誤差（MSE）的變化曲線。當 MSE 的改善率低於 $0.2\%$ 且維持超過 3 次迭代時，狀態機將自動判斷為「收斂完成」。
+    \item 效能表現：此機制使重建時間平均縮短了 40\%。在保持同等重建品質的前提下，對於 40 張影像的典型樣本，重建過程可從原先的 5 分鐘縮短至 3 分鐘內，極大提升了實驗效率。
 \end{itemize}
 
 \section{樣本製作}
 
 為了量化評估系統在明視野與螢光條件下的效能，本研究採用了以下幾種標準樣本進行基準測試：
 \begin{itemize}
-    \item \textbf{NBS 1952 標準解析度測試卡（NIST, Gaithersburg, MD）}：作為評估系統基礎光學極限與平場校正演算法效能的基準。
-    \item \textbf{$15 \mu m$ 黃綠色螢光微球（FluoSpheres, Thermo Fisher Scientific, Waltham, MA）}：具有極高色彩純度，用於檢驗張量解混演算法修復色彩串擾與空間不均勻性的能力。
-    \item \textbf{植物細胞切片與血塗片}：提供具有複雜背景與多樣化形態特徵的真實生物樣本，用以測試自動對焦狀態機在複雜場景下的尋峰穩定度與收斂速度。
+    \item NBS 1952 標準解析度測試卡（NIST, Gaithersburg, MD）：作為評估系統基礎光學極限與平場校正演算法效能的基準。
+    \item $15 \mu m$ 黃綠色螢光微球（FluoSpheres, Thermo Fisher Scientific, Waltham, MA）：具有極高色彩純度，用於檢驗張量解混演算法修復色彩串擾與空間不均勻性的能力。
+    \item 植物細胞切片與血塗片：提供具有複雜背景與多樣化形態特徵的真實生物樣本，用以測試自動對焦狀態機在複雜場景下的尋峰穩定度與收斂速度。
 \end{itemize}
 
 \section{系統物料清單 (BOM)}
@@ -354,7 +391,7 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
     \label{tab:bom_optics}
     \begin{tabular}{llcc}
         \toprule
-        \textbf{項目} & \textbf{規格 / 型號} & \textbf{數量} & \textbf{單價 (NT\$)} \\
+        項目 & 規格 / 型號 & 數量 & 單價 (NT\$) \\
         \midrule
         明視野聚光鏡 & ACL12708U & 1 & 678 \\
         螢光聚光鏡 & 25mm Dia. $\times$ 20mm FL, MgF$_2$ Coated Aspheric & 1 & 1,391 \\
@@ -373,7 +410,7 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
     \label{tab:bom_stage}
     \begin{tabular}{llcc}
         \toprule
-        \textbf{項目} & \textbf{規格 / 型號} & \textbf{數量} & \textbf{單價 (NT\$)} \\
+        項目 & 規格 / 型號 & 數量 & 單價 (NT\$) \\
         \midrule
         線性滑軌 & MGN12 微型線性滑軌 (245mm) & 1 & 470 \\
         線性滑軌 & MGN12 微型線性滑軌 (195mm) & 2 & 440 \\
@@ -401,7 +438,7 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
     \label{tab:bom_lego}
     \begin{tabular}{llcc}
         \toprule
-        \textbf{零件編號} & \textbf{名稱 / 規格} & \textbf{數量} & \textbf{單價 (NT\$)} \\
+        零件編號 & 名稱 / 規格 & 數量 & 單價 (NT\$) \\
         \midrule
         2465 & Brick 1 $\times$ 16 & 10 & 50 \\
         3004 & Brick 1 $\times$ 2 & 58 & 4 \\
@@ -421,7 +458,7 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
     \label{tab:bom_electronic}
     \begin{tabular}{llcc}
         \toprule
-        \textbf{項目} & \textbf{規格 / 型號} & \textbf{數量} & \textbf{單價 (NT\$)} \\
+        項目 & 規格 / 型號 & 數量 & 單價 (NT\$) \\
         \midrule
         主控電腦 & Raspberry Pi 5 16GB (單機版可替換為 4GB) & 1 & 4,080 \\
         相機模組 & Raspberry Pi Camera Module v2 & 1 & 510 \\
@@ -447,7 +484,7 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
     \label{tab:bom_samples}
     \begin{tabular}{llcc}
         \toprule
-        \textbf{項目} & \textbf{規格 / 描述} & \textbf{數量} & \textbf{單價 (NT\$)} \\
+        項目 & 規格 / 描述 & 數量 & 單價 (NT\$) \\
         \midrule
         螢光微球 & FMG-1.3, 1-5$\mu$m (Green Fluorescent, 500mg) & 1 & 138.7 \\
         \bottomrule
