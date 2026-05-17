@@ -41,10 +41,12 @@
 \contentsline {figure}{\numberline {3.25}{\ignorespaces 螢光聚光鏡之三點約束（Three-Point Constraint）支撐設計}}{42}{figure.caption.46}%
 \contentsline {figure}{\numberline {3.26}{\ignorespaces 顯微鏡系統之非同步多執行緒與通訊架構圖}}{43}{figure.caption.47}%
 \contentsline {figure}{\numberline {3.27}{\ignorespaces 自動對焦演算法流程圖}}{56}{figure.caption.48}%
-\contentsline {figure}{\numberline {3.28}{\ignorespaces 步進馬達之梯形速度加減速曲線示意圖}}{65}{figure.caption.54}%
+\contentsline {figure}{\numberline {3.28}{\ignorespaces 步進馬達之梯形速度加減速曲線示意圖}}{59}{figure.caption.50}%
+\contentsline {figure}{\numberline {3.29}{\ignorespaces 智慧影像處理邏輯流程與運算架構}}{62}{figure.caption.51}%
+\contentsline {figure}{\numberline {3.30}{\ignorespaces 光學繞射極限與繞射角物理截斷示意圖。左側精細結構（高空間頻率）產生的繞射光散開角度較大，超越了物鏡的最大集光角 $\theta _{\text {max}}$，因而被孔徑邊緣物理截斷，無法參與成像；右側粗糙結構（低空間頻率）產生的繞射光散開角度較小，能順利被物鏡收集，在相機感測器上成像。}}{71}{figure.caption.52}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比}}{80}{figure.caption.60}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖}}{81}{figure.caption.61}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces 明視野與螢光環境下，不同評價函數對脫焦距離的響應曲線對比}}{88}{figure.caption.57}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces 形態學抗噪處理流程及其對 Top 0.1\% 能量分數的增益效果分析圖}}{89}{figure.caption.58}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

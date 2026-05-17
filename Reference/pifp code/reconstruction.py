@@ -102,6 +102,14 @@ class PatternIlluminatedFP:
                 Pn_updated = Pn + beta * diff_spatial
                 Pn_updated = np.maximum(Pn_updated, 0)
                 
+                # --- 新增：將散斑圖案限制在光學系統的頻率支持範圍內 ---
+                F_Pn_updated = fft2(Pn_updated)
+                # 利用原有的 self.otf 作為二值化遮罩，濾除超越系統頻寬的雜訊
+                OTF_mask = (self.otf > 1e-6).astype(np.float32) 
+                Pn_updated = np.real(ifft2(F_Pn_updated * OTF_mask))
+                Pn_updated = np.maximum(Pn_updated, 0) # 再次確保非負性
+                # --------------------------------------------------------
+                
                 # 更新全域照明 P
                 P = self._shift_pattern(Pn_updated, (-shift[0], -shift[1]))
 
@@ -154,15 +162,15 @@ def main():
         # 1640x1232 解析度為 2x2 Binning 模式 -> 2.24um
         "sensor_pixel_size_um": 1.12*4,
 
-        "alignment_upscale": 1.0,
-        "magnification": 20,         # 物鏡放大倍率
-        "na": 0.46,                    # 物鏡數值孔徑
+        "alignment_upscale": 2.0,
+        "magnification": 10,         # 物鏡放大倍率
+        "na": 0.25,                    # 物鏡數值孔徑
         "wavelength_um": 0.525         # 發射波長 (例如 GFP=0.525)
     }
 
     # 3. 演算法重建參數
     config_algo = {
-        "max_iterations": 10,          # 最大迭代次數
+        "max_iterations": 15,          # 最大迭代次數
         "tolerance": 1e-4,             # 相對變化量容許值
         "patience": 3,                 # 耐心次數 (連續 N 次沒進步才停)
         "min_improvement": 0.002       # 最小進步率 (0.2%)
@@ -238,7 +246,7 @@ def main():
     )
     
     # =========================================================================
-    #                                視覺化結果 (已更新)
+    #                                視覺化結果
     # =========================================================================
     
     # 找出中間索引 (基準面)
@@ -263,7 +271,6 @@ def main():
     # 3. 顯示 PIFP 重建結果
     plt.subplot(1, 4, 3)
     plt.title("PIFP Reconstructed")
-    # 可選：若想增強對比度，可以加上 vmax=np.percentile(recon_obj, 99.5)
     plt.imshow(recon_obj, cmap='gray') 
     plt.axis('off')
     

@@ -87,7 +87,7 @@
 
 \section{軟體與系統控制架構}
 
-本研究開發之顯微鏡控制軟體採用 Python 語言為核心，並深度整合 PySide6 (Qt for Python) 框架的事件驅動能力，以及輕量級 HTTP 伺服器的網路通訊功能。為平衡高解析度影像採集的即時性與複雜演算法的運算負載，系統核心採用了高度解耦的「非同步多執行緒（Asynchronous Multi-threading）混和架構」。此架構確保了高畫質即時串流、硬體精準位移與背景影像增強處理得以並行運作，徹底解決了傳統單執行緒設計在面對密集運算時產生的使用者介面凍結（UI Freezing）問題。
+本研究開發之顯微鏡控制軟體以 Python 為核心開發語言，深度整合 PySide6 (Qt for Python) 框架之高效率事件驅動（Event-driven）機制，並搭配輕量化 HTTP 伺服器建構模組化且低延遲的網路通訊服務。為在實時高解析度影像擷取與高負載影像演算法（如逐像素色彩解混與平場校正）之間取得最佳效能平衡，本系統架構屏棄了傳統的阻斷式單執行緒設計，導入高度解耦之「非同步多執行緒混合控制架構（Asynchronous Multi-threading Hybrid Architecture）」。在此異步並發模型下，高頻寬之即時視訊串流（Real-time Video Streaming）、高精度硬體軸向定位指令與多維度矩陣影像增強運算，皆能於底層獨立之工作執行緒中並行（Parallel Processing）運作。這不僅保障了控制指令的時序精準度，更徹底消除了傳統單執行緒模型在處理密集運算時常伴隨的使用者介面凍結（UI Freezing）與系統阻塞缺陷，顯著提升了顯微鏡系統在高通量（High-throughput）自動化檢測環境下的系統穩定性與實時交互反應速率。
 
 \subsection{非同步多執行緒架構與內部狀態調度 (Asynchronous Multi-threading Architecture and Internal State Scheduling)}
 為確保系統在高解析度影像連續採集、即時硬體矩陣運算（如色彩解混與平場校正）以及多軸步進馬達控制時，仍能維持流暢且零延遲之使用者體驗，本研究開發之顯微鏡控制軟體屏棄了傳統單一執行緒同步輪詢（Synchronous Polling）之設計，轉而採用「非同步多執行緒混和架構（Asynchronous Multi-threading Hybrid Architecture）」。為落實此高度並發之設計，系統於軟體底層進行了嚴謹的職責分離（Separation of Concerns），將核心影像處理與系統調度邏輯進行了解耦。系統之完整軟體架構與執行緒分配如圖 \ref{fig:software_architecture} 所示。
@@ -249,115 +249,40 @@ MJPEG 是一種基於 HTTP 伺服器推送（Server-Push）機制之多媒體傳
 \clearpage
 
 
-\subsection{智慧影像處理流程 (Intelligent Image Processing Workflow and Signal Enhancement)}
 
-在精密顯微成像中，為了維持光學訊號的線性度並獲得高品質的科學數據，本系統開發了一套基於軟體定義的 16-bit 智慧影像處理流程。該流程直接處理感測器輸出的 Bayer 原始數據，並透過逐像素校正矩陣與空間變異解混技術，消除光學系統的非均勻性與光譜重疊問題。影像處理之邏輯流程與運算架構如圖 \ref{fig:image_processing_pipeline} 所示。
-
-\subsubsection{原始通道擷取與底層數據解碼 (Raw Data Extraction)}
-
-系統處理流程始於對感測器 SBGGR16 格式原始數據的攔截。為了解構此交錯的原始數據，系統首先透過 \texttt{get\_raw\_channels} 函數，依據感測器排列規律將像素點分離為四個獨立的二維矩陣（R, Gr, Gb, B）。隨後，系統會進行 $2 \times 2$ 的像素合併（Binning）與重組：具體而言，系統將分離出的兩個綠色通道（Gr, Gb）相加除以 2，並與原本的紅、藍通道重新組合成標準的 RGB 影像。此操作使得後續運算中的影像解析度長寬皆變為原本的二分之一，但在解析度減半的同時，完整保留了每個 $2 \times 2$ 區塊原本就擁有的 R、G、B 完整色彩資訊，且能有效提升訊噪比並加速運算。為了確保後續校正的計算精度，系統全程採用 \texttt{float32} 浮點數進行運算，這能有效避免在多重矩陣變換過程中產生的捨入誤差，保留微弱螢光訊號的完整性。
-
-\subsubsection{逐像素鏡頭遮蔽表校正與多通道均勻化 (Lens Shading Table Correction)}
-
-顯微鏡光路系統常因物鏡邊緣失光（Vignetting）或光源照明不均，導致影像中心與邊緣存在顯著的亮度梯度。本系統實作了精密之逐像素「鏡頭遮蔽表（Lens Shading Table, LST）」校正機制，針對 R、G、B 三通道進行獨立的空間增益補償：
-
-\begin{itemize}
-    \item \textbf{三通道獨立增益圖計算}：系統會針對各通道分別擷取空白背景（Flat Field）影像。演算法會計算各通道「中心區域的平均亮度（$CenterMean_r$）」，並根據每個像素位置 $(i, j)$ 的局部強度，計算出對應 R、G、B 三通道的逐像素鏡頭遮蔽表（Lens Shading Table, $LST_{ijr}$）：
-    \begin{equation}
-        LST_{ijr} = \frac{CenterMean_r}{FlatField_{ijr}}
-    \end{equation}
-    其中，$LST_{ijr}$ 為像素 $(i, j)$ 處通道 $r$（$r \in \{R, G, B\}$）的校正增益值，$CenterMean_r$ 為該通道影像中央 $1/9$ 區域的平均強度，而 $FlatField_{ijr}$ 為空白背景影像在該像素與通道的強度。此設計不僅精確補償了光學透鏡固有的邊緣亮度跌落（Lens Shading），更同時消除了因相機感測器（CMOS Sensor）對不同光譜波長接收靈敏度差異所導致的空間色彩偏差。
-
-    \item \textbf{即時逐像素補償應用}：在實時處理過程中，系統會將擷取的原始通道影像與對應的增益圖進行逐點相乘：
-    \begin{equation}
-        Image'_{ijr} = Image_{ijr} \times LST_{ijr}
-    \end{equation}
-    其中，$Image'_{ijr}$ 為校正後的像素強度，$Image_{ijr}$ 為原始擷取的像素強度。透過此種針對不同顏色通道獨立定義的校正表，系統能精確補償光學系統中複雜的空間非均勻性，確保全視野範圍內的螢光量測結果具備高度的線性一致性與空間亮度均勻性。
-\end{itemize}
-
-\subsubsection{智慧型空間變異色彩解混 (Spatially-varying Fluorescence Unmixing)}
-
-本處理流程最核心的技術建立於解決螢光串擾（Crosstalk）與空間不均勻性問題之智慧型空間變異色彩解混模組。本系統之方法完整導入了 OpenFlexure 顯微鏡專案的開源技術（\url{https://gitlab.com/openflexure/openflexure-colour-correction.git}）與其核心論文《Flat-field and colour correction for the Raspberry Pi camera module》（Knapper et al., 2021）。
-
-為了讓讀者與後續開發者能如閱讀「使用手冊」般深入理解，以下詳細拆解本系統如何透過採集五張未校正影像，推導出最終的 4D 空間變異張量（\texttt{unmix\_tensor.npy}）之運算邏輯：
-
-\paragraph{1. 採集五張基礎未校正影像 (Acquisition of Five Base Uncorrected Images)}
-在校正階段，系統需在無樣本狀態下，分別在五種不同的照明條件下採集全解析度的原始（Raw）影像。這五張影像各自對應不同的物理校正目的：
-\begin{itemize}
-    \item \textbf{全暗影像 ($I_K$)}：在完全無光條件下採集，用於記錄相機感測器的暗電流（Dark Current）與零點偏移（Zero Offset）。
-    \item \textbf{白光影像 ($I_W$)}：在全白光均勻照射下採集，用於記錄光學系統的全域光強分佈、鏡頭暗角與感測器的平場特徵。
-    \item \textbf{紅、綠、藍光影像 ($I_R, I_G, I_B$)}：分別在純紅、純綠、純藍單色光照射下採集，用於記錄感測器各像素點在不同色彩通道間的串擾（Crosstalk）程度。
-\end{itemize}
-
-\paragraph{2. 底層數據預處理與黑電平扣除 (Pre-processing and Black Level Subtraction)}
-在載入上述影像資料後，系統首先會將所有影像的 RGB 數據減去全暗影像 $I_K$ 的對應數值（或固定的黑電平偏移量），以確保後續運算的線性度與光學物理意義之準確性。
-
-\paragraph{3. 建立空間變異之色彩串擾矩陣 (Construction of Crosstalk Matrix)}
-在此流程中，針對 3 種照明光源與 3 個顏色通道，系統共會生成 $3 \times 3 = 9$ 張解析度為 $W \times H$ 的空間響應圖（例如紅光在綠通道的響應）。若將這 9 張子影像在空間中依據光源與通道的排列進行拼接，會形成一個維度為 $3W \times 3H$ 的巨觀矩陣。
-而在實際逐像素處理時，對於影像中的任意微觀座標 $(i, j)$（其中 $0 \leq i < W, 0 \leq j < H$），系統會從這 9 張子影像中相同位置 $(i, j)$ 處各取一個數值，依據通道與光源的對應關係，填入一個 $3 \times 3$ 的色彩串擾矩陣 $C_{qr}(i, j)$ 中（其中 $q, r$ 為通道索引）。透過此種從 $3W \times 3H$ 空間數據到逐點 $3 \times 3$ 矩陣的重組，實現了空間變異的色彩校正。
-為了同時消除空間光場的不均勻性（平場校正），演算法會將該矩陣的每一列除以白光影像在該點對應通道的強度：
-\begin{equation}
-    C_{qr}(i, j) = \frac{Image'_{r, q}(i, j)}{Image'_{W, r}(i, j)}
-\end{equation}
-其中，$Image'_{r, q}(i, j)$ 代表在光源 $q$ 照射下，感測器通道 $r$ 在像素 $(i, j)$ 處的線性強度（經黑電平扣除與 LST 校正後），而 $Image'_{W, r}(i, j)$ 代表在白光照射下，感測器通道 $r$ 在像素 $(i, j)$ 處的線性強度。$C_{qr}(i, j)$ 即為對應 4-matrix 公式中的微觀串擾矩陣元素。
-
-\paragraph{4. 矩陣反轉換與中心對齊目標 (Matrix Inversion and Centre Target Alignment)}
-為了「解混」被串擾的色彩，我們需要求得串擾矩陣的逆矩陣（Inverse Matrix）：
-\begin{equation}
-    M_{raw, 3 \times 3}(x, y) = C_{3 \times 3}(x, y)^{-1}
-\end{equation}
-其中，$M_{raw, 3 \times 3}(x, y)$ 為像素 $(x, y)$ 處未經中心對齊的原始色彩解混逆矩陣。
-直接應用此逆矩陣會將影像還原至理論上絕對的光譜分離狀態，但往往會導致影像邊緣的雜訊被過度放大。為此，文獻中提出並實作了「中心對齊（Centre Target）」策略：
-系統會先計算影像中央的 $1/9$ 區域（即長與寬各取中央的 $1/3$ 部分）的平均串擾矩陣 $C_{center, 3 \times 3}$。最終儲存於 \texttt{unmix\_tensor.npy} 的解混張量 $M_{3 \times 3}(x, y)$ 則由逆矩陣與中心響應矩陣相乘所得：
-\begin{equation}
-    M_{3 \times 3}(x, y) = C_{3 \times 3}(x, y)^{-1} \times C_{center, 3 \times 3}
-\end{equation}
-其中，$M_{3 \times 3}(x, y)$ 為最終儲存於 \texttt{unmix\_tensor.npy} 的空間變異解混矩陣，而 $C_{center, 3 \times 3}$ 為影像中心區域的平均串擾矩陣。
-\textbf{原理}：此一反轉換的物理意義在於，它並非將影像還原到完美的標準色彩空間，而是將影像中「任意位置」的色彩與亮度畸變，校正到與「影像中心」完全一致的狀態。這達成了全視野範圍內極高的空間線性一致性，使得在進行大面積掃描與後續疊圖時，接縫處不會出現色彩斷層。
-
-\paragraph{5. 綜合四矩陣校正模型與愛因斯坦求和運算 (Comprehensive 4-Matrix Correction Model)}
-為了避免像素級的隨機雜訊被反轉換放大，生成的 4D 張量會先經過高斯濾波進行平滑處理（$\sigma=3$），最終儲存為 \texttt{unmix\_tensor.npy}。
-
-而在實際採集流程中，為將上述所有校正步驟整合為一個高效的運算架構，本系統採用了文獻中提出的四矩陣耦合校正模型。對於影像中的每一個像素與色彩通道，其最終的純淨螢光強度 $Pure_{ijp}$ 可由下式求得：
-\begin{equation}
-    Pure_{ijp} = \sum_{qr} U_{ijpq} Cx_{qr} Cb_{rr} LST_{ijr} Image_{ijr}
-\end{equation}
-其中，各項符號之物理意義與維度定義如下：
-\begin{itemize}
-    \item $Image_{ijr}$：原始輸入影像，$(i, j)$ 為像素座標（寬度 $W$ 與高度 $H$），$r \in \{R, G, B\}$ 為輸入通道。
-    \item $LST_{ijr}$：逐像素鏡頭遮蔽表（Lens Shading Table），為 $W \times H \times 3$ 的三維張量，用於補償光學系統的空間不均勻性（邊緣失光）。
-    \item $Cb_{rr}$：色彩平衡矩陣（Color Balance Matrix），為 $3 \times 3$ 的對角矩陣（或視為通道增益向量），用於調整各顏色通道的增益平衡。
-    \item $Cx_{qr}$：色彩串擾矩陣（Crosstalk Matrix），為 $3 \times 3$ 的矩陣，用於修正全域的顏色交叉污染（串擾）。
-    \item $U_{ijpq}$：空間變異解混張量（Spatially-varying Unmixing Tensor），為 $W \times H \times 3 \times 3$ 的四維張量，結合了空間位置 $(i, j)$ 與色彩通道映射（從 $q$ 到 $p$），用於實現最終的精密色彩解混。
-\end{itemize}
-在程式實作中，此一複雜的多維度張量收縮運算（Tensor Contraction）並非透過巢狀迴圈（Nested Loops）完成，而是利用 NumPy 函式庫中高度優化的愛因斯坦求和（Einstein Summation）函數 \texttt{np.einsum('ijkl,ijl->ijk', unmix\_tensor, im)} 來實作。這使得系統能在毫秒級的時間內完成整張百萬像素影像的空間變異色彩解混，滿足即時影像處理與預覽的需求，徹底解決了低成本相機模組在螢光成像中因物理缺陷導致的數據失真。
-
-\subsubsection{差分背景減除與自主螢光抑制 (Background Subtraction and Autofluorescence Suppression)}
-
-針對螢光影像中常見的背景干擾，系統實作了差分背景減除功能。使用者可預先擷取背景畫格，鎖定光路中的雜散光、感測器熱雜訊以及樣本本身的背景自主螢光（Autofluorescence）。在後續採集流程中，系統執行 $P_{corrected} = P_{raw} - P_{background}$ 之運算。此步驟對於抑制樣本自體產生的背景噪訊至關重要，能顯著提升影像的訊噪比（SNR），使微弱的目標螢光特徵在暗背景中更易於辨識與定量。
-
-
-\subsubsection{EV 補償與 16-to-8 Bit 動態映射 (EV Compensation and Rendering)}
-
-最後階段，為了讓高動態範圍的 16-bit 科學數據能在 8-bit 的網頁端介面即時顯示，系統實作了具備物理曝光補償（EV Compensation）的映射演算法。在視覺增益調整方面，系統透過 \texttt{ev\_comp} 參數，讓使用者能動態調整影像的視覺亮度，而此操作僅影響顯示層級，不會更動底層儲存的原始 16-bit 量測數據。在量化與格式轉換方面，系統利用 \texttt{np.clip} 將浮點運算後的數據限制在有效範圍內，隨後精確映射至 8-bit 空間並轉換為 \texttt{QImage} 格式輸出至串流模組。此設計兼顧了科學採集的嚴謹度與遠端操作的即時視覺反饋。
 
 \section{韌體開發與底層動力控制}
 
-位於系統底層的韌體（Firmware）負責將軟體發出的抽象邏輯指令轉化為精確的物理運動。本研究基於 Arduino 控制平台，結合 \texttt{AccelStepper} 函式庫開發了一套具備動態加減速與即時指令解析能力的韌體系統。
+位於系統底層的韌體（Firmware）扮演著軟體高層邏輯指令與物理運動實體之間的橋樑。本系統基於 Arduino 控制平台與 CNC Shield 擴充板，搭配 TMC2209 靜音步進馬達驅動晶片，並深度結合 \texttt{AccelStepper} 函式庫，開發了一套具備多軸動態加減速控制、動態雙速自適應切換與阻斷式硬體握手協議的控制韌體。系統硬體接腳配置與相位控制方向如表 \ref{tab:motor_pinout} 所示。
 
-\subsection{指令解析器與序列通訊協定}
+\begin{table}[H]
+    \centering
+    \caption{步進馬達驅動引腳與硬體相位反轉配置表}
+    \label{tab:motor_pinout}
+    \begin{tabular}{ccccc}
+        \toprule
+        \textbf{運動軸向} & \textbf{功能類型} & \textbf{Step 引腳 (Pulse)} & \textbf{Dir 引腳 (Direction)} & \textbf{相位反轉 (Invert)} \\
+        \midrule
+        X 軸 (樣本水平移動) & \texttt{stepperX} & 2 & 5 & \texttt{false} \\
+        Y 軸 (樣本垂直移動) & \texttt{stepperY} & 3 & 6 & \texttt{true} \\
+        Z 軸 (光學垂直對焦) & \texttt{stepperZ} & 4 & 7 & \texttt{true} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-韌體實作了一個高效的字串解析器，採用類似工業 G-code 的輕量化格式。當 Raspberry Pi 5（Raspberry Pi Ltd, Cambridge, UK）透過 USB 序列埠發送指令時，韌體的處理邏輯如下：
+\subsection{即時指令解析器與序列握手通訊協定}
 
-\begin{itemize}
-    \item 指令結構：採用「軸識別碼 + 數值」格式（例如 \texttt{X500}、\texttt{Z-20}）。韌體透過 \texttt{Serial.readStringUntil('\textbackslash n')} 讀取完整的緩衝區指令。
-    \item 即時解析邏輯：系統利用索引掃描技術，自動分離出指令首字的軸標籤與後續的整數步進值。這使得通訊開銷極低，且易於擴展新的控制指令（如快門控制或 LED 強度調整）。
-    \item 阻塞型同步機制 (Handshake)：為了確保硬體動作與軟體影像採集具備毫秒級的同步性，韌體採用了「運動同步反饋機制」。當馬達正在執行位移時，Arduino 會暫停讀取新的指令，直至 \texttt{distanceToGo() == 0} 且運動完全停止後，才回傳一個 \texttt{OK} 標記給上位機。這種雙向握手協議徹底消除了指令堆積導致的時序錯亂問題。
-\end{itemize}
+為建立高效且穩健的通訊通道，韌體透過硬體序列埠（Baud Rate: 9600 bps）實作了一套類似 G-code 的輕量化 ASCII 指令解析器。當 Raspberry Pi 5 透過 USB 序列埠發送控制字串時，下位機之解析與執行邏輯如下：
 
-\subsection{二階動力學之梯形速度曲線 (Trapezoidal Speed Curve)}
+\begin{enumerate}
+    \item \textbf{非阻塞緩衝讀取}：韌體利用 \texttt{Serial.readStringUntil('\textbackslash n')} 讀取整行命令，並使用 \texttt{trim()} 移除首尾空白字元。指令格式設計為緊湊之「[軸識別碼][步數絕對值/帶正負號的相對步數]」（例如：\texttt{x50} 代表 X 軸相對移動 50 步，\texttt{y-100} 代表 Y 軸相對反向移動 100 步，\texttt{Z20} 代表 Z 軸相對移動 20 步）。
+    \item \textbf{即時詞法分析}：系統藉由字元索引掃描（Lexical Scanning）提取首字（不區分大小寫），判定目標控制軸，隨後將其餘子字串轉換為長整型（Long Python/C++ Integer）相對步數 $\Delta S$。若位移步數為 0，則直接回傳確認信號而不進行物理驅動。
+    \item \textbf{阻斷式物理握手同步 (Blocking Handshake)}：為避免高頻影像擷取與步進馬達物理移動在時間軸上產生時序錯亂，韌體在指令執行階段採用了**嚴格的阻斷型同步設計**。在解析出步數後，韌體會將馬達相對目標位置寫入，並呼叫 \texttt{AccelStepper} 的 \texttt{runToPosition()} 函數。該函數會在主循環中維持控制權，以高頻脈衝驅動馬達運轉，直到馬達完全抵達目標物理位置（即實時剩餘距離 \texttt{distanceToGo() == 0}）後才釋放阻塞。運動終止時，Arduino 會透過序列埠向 Raspberry Pi 5 回傳一組 \texttt{"OK\textbackslash r\textbackslash n"} 字串作為確認。此一物理雙向握手協定確保了上位機影像採集線程能精確知悉硬體位移狀態，徹底杜絕了在馬達尚未停止時即啟動曝光所導致的動態模糊與科學數據污染。
+\end{enumerate}
 
-傳統的步進馬達驅動方式若直接以目標頻率發射脈衝，會因轉子與機構慣性造成震動甚至失步。本研究韌體核心採用了二階運動模型，使馬達運動符合梯形速度曲線（如圖 \ref{fig:trapezoidal_velocity} 所示）：
+\subsection{基於 AccelStepper 之二階動力學加減速模型}
+
+在精密微觀成像下，若直接對步進馬達施加高頻率的恆定脈衝，會因轉子自重與樂高機械結構的瞬間靜摩擦力及慣性，導致步進馬達「失步（Slip）」或在起停瞬間產生劇烈晃動。為此，本韌體全面導入了基於 \texttt{AccelStepper} 函式庫的二階運動模型，使馬達速度在時間軸上呈現高平滑性的梯形加減速速度曲線，如圖 \ref{fig:trapezoidal_velocity} 所示。
 
 \begin{figure}[H]
     \centering
@@ -366,178 +291,356 @@ MJPEG 是一種基於 HTTP 伺服器推送（Server-Push）機制之多媒體傳
     \label{fig:trapezoidal_velocity}
 \end{figure}
 
+其一維運動的速度-時間關係 $v(t)$ 可嚴格描述為：
 \begin{equation}
     v(t) = 
     \begin{cases} 
-    at & 0 \leq t < t_{acc} \\
-    V_{max} & t_{acc} \leq t < t_{dec} \\
-    V_{max} - a(t - t_{dec}) & t_{dec} \leq t < t_{total}
+    a \cdot t & 0 \leq t < t_{acc} \\
+    V_{cruise} & t_{acc} \leq t < t_{dec} \\
+    V_{cruise} - a \cdot (t - t_{dec}) & t_{dec} \leq t < t_{total}
     \end{cases}
 \end{equation}
+其中，$a$ 為系統設定之恆定步加速度；$V_{cruise}$ 為該次運動所設定的最大巡航速度（根據移動距離自適應決定）；$t_{acc}$ 與 $t_{dec}$ 分別為加速結束與減速開始的時間點。
 
-\begin{itemize}
-    \item 步時計算 (Step Timing)：\texttt{AccelStepper} 函式庫在韌體中每秒進行數萬次運算，根據當前速度動態計算下一個脈衝的延遲時間（Interval）。
-    \item 機構保護與穩定性：此機制有效抑制了馬達啟停時的瞬時衝擊（Jerk）。對於由樂高科技系列組成的精密機構而言，緩慢的加減速能有效減少齒輪間的背隙（Backlash）影響，對於維持光路穩定與 Z 軸對焦精度至關重要。
-\end{itemize}
+在具體實作中，韌體將脈衝角加速度設為極高的物理上限值 $a = 160,000~\text{steps/s}^2$。值得特別論述的是，此加速度設定的物理初衷，旨在 \texttt{AccelStepper} 函式庫底層排程機制下，**使速度響應曲線最大程度地「陡峭化」，使其在本質上逼近「方波（Square Wave）」式的階躍響應（Step Response）**。對於微米級的短程尋峰位移，極陡峭的加減速使得馬達幾乎能在起動與制動瞬間「瞬時」達到或歸零至目標速度，從而最大程度地壓縮了傳統梯形加減速中冗長的時間成本（Ramp Overhead）。在硬體層面上，受益於 TMC2209 驅動晶片先進的靜音細分（StealthChop/SpreadCycle）調製與恆流控制，系統無須依賴長時序的物理斜坡防震，即可在這種近乎階躍的方波指令下，依然保證馬達的剛性鎖定與無失步精準定位，達成了高動態響應與微米級制動的完美結合。
 
-\subsection{長程高速巡航與短程精密尋峰之雙速切換機制}
+\subsection{自適應雙速切換機制：長程高速巡航與短程精密對焦}
 
-為了解決大範圍掃描效率與微米級對焦精度之間的矛盾，韌體中實作了一套動態速度切換邏輯。系統會即時判斷單次位移量 $\Delta S$ 的大小來動態決定運動參數：
+微觀成像系統往往需要在「大範圍全景拼圖掃描的動態效率」與「微米級自動對焦精準尋峰」這兩個矛盾的物理需求間取得妥協。為此，本系統於韌體層實作了一套**自適應雙速動態切換機制**。系統在接收到指令後，會先對目標相對步數 $\Delta S$ 進行絕對值判定，動態重構馬達運動參數：
 
-\begin{itemize}
-    \item 高速巡航模式 (High-speed Cruise)：
-    當單次指令位移量 $|\Delta S| > 1000$ 步（約 2 mm 以上）時，韌體會將馬達最大速度設定為 $16,000~\text{steps/s}$。此模式利用了馬達的高頻共振區，極大地縮短了實驗中大面積網格掃描（Tiling）時各取樣點間的移動耗時。
+\begin{enumerate}
+    \item \textbf{長程高速巡航模式 (High-speed Cruise Mode, $|\Delta S| > 1000$ 步)}：
+    當單次移動距離超過 $1000$ 步（以本系統 Z 軸 $0.625~\mu m/\text{step}$ 之光學精度換算，相當於大於 $0.625\text{ mm}$ 的大範圍物理位移）時，韌體判定當前任務為大範圍多視野拼圖（Tiling）或大範圍尋焦。此時，韌體調用 \texttt{stepper.setMaxSpeed(16000.0)}，將最大速度動態提升至 $16,000~\text{steps/s}$。其對應的物理線速度 $V_{line}$ 可由以下算式推導求得：
+    \begin{equation}
+        V_{line} = f_{pulse} \times \Delta d_{step} = f_{pulse} \times \frac{L}{N_{steps} \times M_{micro}}
+        \label{eq:v_line_derivation}
+    \end{equation}
+    其中，$f_{pulse} = 16,000~\text{steps/s}$ 為脈衝頻率；$L = 2.0~\text{mm}$ 為螺桿導程（Lead）；$N_{steps} = 200$ 為馬達固有步數；$M_{micro} = 16$ 為細分微步數。代入參數計算：
+    \begin{equation}
+        V_{line} = 16,000~\text{steps/s} \times \frac{2.0\text{ mm}}{200 \times 16} = 16,000 \times 0.000625\text{ mm/step} = 10\text{ mm/s}
+        \label{eq:v_line_calc}
+    \end{equation}
+    此高速巡航速度（約 $10\text{ mm/s}$）能充分釋放步進馬達在高頻驅動下的轉矩潛能，使系統快速跨越空間空白區，極大地縮短多孔盤或大面積掃描的總耗時。
     
-    \item 精密尋峰模式 (Precision Focus)：
-    當步數小於 1000 步時，系統自動將速度限制在 $800~\text{steps/s}$ 的低速區間，並配合極高的加速度設定（Acceleration Setting）。這確保了馬達在自動對焦尋峰時，能瞬間反應、精準制動，消除機械慣性導致的過衝（Overshoot）。在 Z 軸 2.0 mm 導程螺桿的帶動下，此機制使系統能穩定實現低至 $0.625 \mu m$ 的物理步距控制。
-\end{itemize}
+    \item \textbf{短程精密尋峰模式 (Precision Focus Mode, $|\Delta S| \leq 1000$ 步)}：
+    當單次移動步數小於或等於 $1000$ 步（如自動對焦演算法在焦點附近的極小步長尋峰）時，為避免馬達高頻共振影響光學穩定度，並確保步進馬達的啟停物理過衝（Overshoot）趨近於零，韌體會將最大速度限制在常規速度 \texttt{stepper.setMaxSpeed(800.0)}（即 $800~\text{steps/s}$，線速度約 $0.5\text{ mm/s}$）。配合 $160,000~\text{steps/s}^2$ 的高加速度，馬達能在數微秒內完成起停反應，實現無物理慣性滑行的微米級微步精準制動，完美配合高靈敏度自動對焦演算法的尋峰運算。
+\end{enumerate}
 
 \section{影像處理與校正流程}
 
-本系統針對影像感測器的底層物理瑕疵與光學系統的幾何偏差，開發了一套全自動的影像預處理流程。此流程旨在進入運算成像演算法前，將原始 RAW 數據轉化為具備高線性度與空間均勻性的高品質影像。
+在精密顯微成像中，為了維持光學訊號的線性度並獲得高品質的科學數據，本系統開發了一套基於軟體定義的 16-bit 智慧影像處理流程。該流程直接處理感測器輸出的 Bayer 原始數據，並透過逐像素校正矩陣與空間變異解混技術，消除光學系統的非均勻性與光譜重疊問題。影像處理之邏輯流程與運算架構如圖 \ref{fig:image_processing_pipeline} 所示。
 
-\subsection{空間變異張量色彩解混 (Tensor Color Unmixing)}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/ch3/fig3_image_processing_flow.png}
+    \caption{智慧影像處理邏輯流程與運算架構}
+    \label{fig:image_processing_pipeline}
+\end{figure}
 
-在螢光成像模式下，不同波長的螢光分子訊號往往會相互重疊，且由於鏡頭的主光線角（CRA）失配，感測器邊緣會出現嚴重的色彩偏移與串擾。
+\subsection{原始通道擷取與底層數據解碼 (Raw Data Extraction)}
 
-\begin{itemize}
-    \item 傳統 CCM 之侷限：傳統的全域色彩校正矩陣（Color Correction Matrix, CCM）假設全畫面的色彩回應是均勻的，這在微距螢光成像下會導致邊緣色彩失真。
-    \item 空間變異張量模型：本研究採用的「空間變異」校正機制。我們預先對感測器每個座標點計算出專屬的 $3 \times 3$ 解混矩陣。最終形成一個 4D 校正張量 $U \in \mathbb{R}^{H \times W \times 3 \times 3}$。
-    \item 向量化運算優化：為了在 Python 環境下克服像素迭代的巨大開銷，我們利用愛因斯坦求和約定（Einstein Summation Convention）將校正過程轉化為高度並行的矩陣運算：
-    \begin{equation}
-        I_{unmixed}(h, w, i) = \sum_{j} U(h, w, i, j) \cdot I_{flat}(h, w, j)
-    \end{equation}
-    在實作上，透過指令 \texttt{np.einsum('hwij,hwj -> hwi', U, I\_flat)}進行運算，完全調用底層 C 語言編寫的矩陣運算庫加速，使百萬像素影像的色彩還原延遲從數秒降至 100ms 以下。
-\end{itemize}
+系統處理流程始於對感測器 SBGGR16 格式原始數據的攔截。為了解構此交錯的原始數據，系統首先透過 \texttt{get\_raw\_channels} 函數，依據感測器排列規律將像素點分離為四個獨立的二維矩陣（R, Gr, Gb, B）。隨後，系統會進行 $2 \times 2$ 的像素合併（Binning）與重組：具體而言，系統將分離出的兩個綠色通道（Gr, Gb）相加除以 2，並與原本的紅、藍通道重新組合成標準的 RGB 影像。此操作使得後續運算中的影像解析度長寬皆變為原本的二分之一，但在解析度減半的同時，完整保留了每個 $2 \times 2$ 區塊原本就擁有的 R、G、B 完整色彩資訊，且能有效提升訊噪比並加速運算。為了確保後續校正的計算精度，系統全程採用 \texttt{float32} 浮點數進行運算，這能有效避免在多重矩陣變換過程中產生的捨入誤差，保留微弱螢光訊號的完整性。
 
-\subsection{動態適配之平場校正 (Adaptive Gain Map Correction)}
+\subsection{逐像素鏡頭遮蔽表校正與多通道均勻化 (Lens Shading Table Correction)}
 
-光學系統的暗角（Vignetting）與感測器的固定圖案雜訊（FPN）會導致影像背景不均勻，嚴重干擾後續 piFP 的頻譜合併。
+顯微鏡光路系統常因物鏡邊緣失光（Vignetting）或光源照明不均，導致影像中心與邊緣存在顯著的亮度梯度。本系統實作了精密之逐像素「鏡頭遮蔽表（Lens Shading Table, LST）」校正機制，針對 R、G、B 三通道進行獨立的空間增益補償：
 
-\begin{itemize}
-    \item 增益矩陣生成：系統啟動前會先採集一幀無樣本的平場影像 $I_{white}$，並透過高斯模糊取出其低頻背景分量，計算出標準化的增益圖：$G(h, w) = \text{mean}(I_{white}) / I_{white}(h, w)$。
-    \item 解析度與 ROI 自動縮放：針對使用者在實驗中切換不同的採集解析度或感興趣區域（ROI），軟體內置了自動適配邏輯。系統會利用雙線性插值（Bilinear Interpolation）動態縮放 $G$ 矩陣，確保無論是在低解析度全景掃描還是高解析度區域採集下，影像皆能維持高度的平整度。
-    \item 線性度保證：所有的校正皆在影像去伽瑪（De-gamma）後的線性空間執行，確保強度數據能真實反映樣本的光子數分佈。
-\end{itemize}
+在具體實作上，分為三通道獨立增益圖計算與即時逐像素補償應用兩個階段。首先，系統會針對各通道分別擷取空白背景（Flat Field）影像。演算法會計算各通道中心區域的平均亮度（$CenterMean_c$），並根據每個像素位置 $(i, j)$ 的局部強度，計算出對應 R、G、B 三通道的逐像素鏡頭遮蔽表（Lens Shading Table, $LST_{ijc}$）：
+\begin{equation}
+    LST_{ijc} = \frac{CenterMean_c}{FlatField_{ijc}}
+\end{equation}
+其中，$LST_{ijc}$ 為像素 $(i, j)$ 處通道 $c$ 的校正增益值（下標 $c \in \{R, G, B\}$ 代表感測器原始的紅、綠、藍三種顏色通道），$CenterMean_c$ 為該通道影像中央 $1/9$ 區域的平均強度，而 $FlatField_{ijc}$ 為空白背景影像在該像素與通道的強度。此設計不僅精確補償了光學透鏡固有的邊緣亮度跌落（Lens Shading），更同時消除了因相機感測器（CMOS Sensor）對不同光譜波長接收靈敏度差異所導致的空間色彩偏差。舉例而言，假設在綠光通道（$c=G$），影像中心的平均亮度為 $200$，但因為物鏡邊緣失光，某個角落像素 $(i, j)$ 在空白背景影像中的亮度僅為 $100$。則該點的 $LST_{ij, G} = 200 / 100 = 2.0$。這代表該角落像素的綠光訊號在後續實時處理時，會自動被放大兩倍，以補償光學衰減。
+
+接著，在實時處理過程中，系統會將擷取的原始通道影像與對應的增益圖進行逐點相乘：
+\begin{equation}
+    Image'_{ijc} = Image_{ijc} \times LST_{ijc}
+\end{equation}
+其中，$Image'_{ijc}$ 為校正後的像素強度，$Image_{ijc}$ 為原始擷取的像素強度。透過此種針對不同顏色通道獨立定義的校正表，系統能精確補償光學系統中複雜的空間非均勻性，確保全視野範圍內的螢光量測結果具備高度的線性一致性與空間亮度均勻性。
+
+\subsection{空間變異色彩解混 (Spatially-varying Fluorescence Unmixing)}
+
+本處理流程最核心的技術建立於解決螢光串擾（Crosstalk）與空間不均勻性問題之智慧型空間變異色彩解混模組。本系統之方法完整導入了 OpenFlexure 顯微鏡專案的開源技術（\url{https://gitlab.com/openflexure/openflexure-colour-correction.git}）與其核心論文《Flat-field and colour correction for the Raspberry Pi camera module》（Knapper et al., 2021）。
+
+本系統直接載入該專案預先透過校正流程生成之 4D 空間變異張量（\texttt{unmix\_tensor.npy}）進行後續實時運算。然而，為了讓讀者與後續開發者能如閱讀「使用手冊」般深入理解該張量背後的底層光學意義，以下詳細拆解原著文獻中是如何透過採集五張未校正影像，推導出此解混張量之運算邏輯：
+
+\subsubsection*{1. 採集五張基礎未校正影像 (Acquisition of Five Base Uncorrected Images)}
+在原著文獻的校正階段，需在無樣本狀態下，分別在五種不同的照明條件下採集全解析度的原始（Raw）影像。這五張影像各自對應不同的物理校正目的。首先是全暗影像（$I_K$），在完全無光條件下採集，用於記錄相機感測器的暗電流（Dark Current）與零點偏移（Zero Offset）；其次為白光影像（$I_W$），在全白光均勻照射下採集，用於記錄光學系統的全域光強分佈、鏡頭暗角與感測器的平場特徵；最後則是紅、綠、藍光影像（$I_R, I_G, I_B$），分別在純紅、純綠、純藍單色光照射下採集，用於記錄感測器各像素點在不同色彩通道間的串擾（Crosstalk）程度。
+
+\subsubsection*{2. 底層數據預處理與黑電平扣除 (Pre-processing and Black Level Subtraction)}
+在載入上述影像資料後，演算法首先會將所有影像的 RGB 數據減去全暗影像 $I_K$ 的對應數值（或固定的黑電平偏移量），以確保後續運算的線性度與光學物理意義之準確性。
+
+\subsubsection*{3. 建立空間變異之色彩串擾矩陣 (Construction of Crosstalk Matrix)}
+在此流程中，針對 3 種單色照明光源與 3 個感測器顏色通道，演算法共會生成 9 張解析度為 $W \times H$ 的空間響應圖（例如紅光在綠通道的響應）。在程式實作中，會將這 9 張空間響應圖沿著新的維度堆疊（Stacking），形成一個維度為 $W \times H \times 3 \times 3$ 的四維張量 $C_{4D}$。
+而在逐像素處理時，對於影像中的任意微觀座標 $(i, j)$（其中 $0 \leq i < W, 0 \leq j < H$），這代表著一個 $3 \times 3$ 的色彩串擾矩陣 $C_{qc}(i, j)$（其中 $q \in \{R, G, B\}$ 為照明光源的顏色索引，$c \in \{R, G, B\}$ 為感測器的原始通道索引）。為了將純粹的「色彩串擾」與光學系統的「空間亮度不均（邊緣失光）」解耦，演算法會將該矩陣的元素除以白光影像在該點對應通道的強度：
+\begin{equation}
+    C_{qc}(i, j) = \frac{Image'_{c, q}(i, j)}{Image'_{W, c}(i, j)}
+\end{equation}
+其中，$Image'_{c, q}(i, j)$ 代表在光源 $q$ 照射下，感測器通道 $c$ 在像素 $(i, j)$ 處的線性強度（僅經黑電平扣除），而 $Image'_{W, c}(i, j)$ 代表在白光照射下的對應強度。
+就物理意義而言，單色校正影像與白光影像在擷取時皆經歷了相同的光學路徑，因此兩者帶有完全相同的空間亮度衰減（Vignetting）。透過此除法運算，空間強度的非均勻性會在數學上被完全抵消，使得求得的 $C_{qc}(i, j)$ 成為一個只描述光譜交叉污染的純粹色彩串擾矩陣，本身並不包含平場（Flat-field）校正的作用。這也是為何在本系統的四矩陣耦合模型中，色彩解混與空間平場校正（$LST_{ijc}$）在物理意義與運算上是相互獨立的。以實際數值為例，假設在某像素 $(i, j)$ 處，在紅光（$q=R$）照射下，感測器的綠色通道（$c=G$）仍錯誤接收到了數值為 $30$ 的洩漏雜訊，而白光在該點的綠色通道總強度為 $150$。則該點的串擾係數 $C_{R, G}(i, j) = 30 / 150 = 0.2$。透過這樣逐通道、逐像素的計算，演算法能完美量化每一種光譜在畫面上每一處的洩漏比例。
+
+\subsubsection*{4. 矩陣反轉換與中心對齊目標 (Matrix Inversion and Centre Target Alignment)}
+為了「解混」被串擾的色彩，我們需要求得串擾矩陣的逆矩陣（Inverse Matrix）：
+\begin{equation}
+    M_{raw, 3 \times 3}(i, j) = C_{qc}(i, j)^{-1}
+\end{equation}
+其中，$M_{raw, 3 \times 3}(i, j)$ 為像素 $(i, j)$ 處未經中心對齊的原始色彩解混逆矩陣。
+直接應用此逆矩陣會將影像還原至理論上絕對的光譜分離狀態，但往往會導致影像邊緣的雜訊被過度放大。為此，文獻中提出並實作了「中心對齊（Centre Target）」策略：
+演算法會先計算影像中央的 $1/9$ 區域（即長與寬各取中央的 $1/3$ 部分）的平均串擾矩陣 $C_{center, 3 \times 3}$。最終空間變異的解混矩陣 $M_{3 \times 3}(i, j)$ 則由逆矩陣與中心響應矩陣相乘所得：
+\begin{equation}
+    M_{3 \times 3}(i, j) = C_{qc}(i, j)^{-1} \times C_{center, 3 \times 3}
+\end{equation}
+其中，$M_{3 \times 3}(i, j)$ 為像素 $(i, j)$ 處修正後的解混矩陣。當系統為整張影像的所有像素 $(i, j)$ 皆求得此 $3 \times 3$ 矩陣後，便會組合成一個完整的 $W \times H \times 3 \times 3$ 四維張量。
+此一反轉換的物理意義在於，它並非將影像還原到完美的標準色彩空間，而是將影像中任意位置的色彩與亮度畸變，校正到與影像中心完全一致的狀態。這達成了全視野範圍內極高的空間線性一致性，使得在進行大面積掃描與後續疊圖時，接縫處不會出現色彩斷層。以數值運算為例，若某邊緣像素的串擾特別嚴重，其單純的反矩陣 $C_{qc}(i, j)^{-1}$ 為了徹底歸零串擾，可能會在非對角線元素產生極大的負值（例如 $-0.5$），這會在解混時劇烈放大相機暗雜訊。而乘上中心平均響應矩陣 $C_{center, 3 \times 3}$ 後，相當於對解混力度踩了煞車，使該修正係數收斂為更溫和的數值（例如 $-0.2$），在消除串擾與抑制雜訊放大之間取得最佳平衡。
+
+\subsubsection*{5. 綜合四矩陣校正模型與愛因斯坦求和運算 (Comprehensive 4-Matrix Correction Model)}
+為了避免像素級的隨機雜訊被反轉換放大，上述生成的 $W \times H \times 3 \times 3$ 四維張量會先經過高斯濾波進行平滑處理（$\sigma=3$），最後將這個龐大的四維張量檔案儲存為 \texttt{unmix\_tensor.npy}，供系統實時載入使用。
+
+而在實際採集流程中，為將上述所有校正步驟整合為一個高效的運算架構，本系統採用了文獻中提出的四矩陣耦合校正模型。對於影像中的每一個像素與色彩通道，其最終的純淨螢光強度 $Pure_{ijp}$ 可由下式求得：
+\begin{equation}
+    Pure_{ijp} = \sum_{qc} U_{ijpq} Cx_{qc} Cb_{cc} LST_{ijc} Image_{ijc}
+\end{equation}
+其中，$Image_{ijc}$ 為原始輸入影像，$(i, j)$ 為空間像素座標（寬度 $W$ 與高度 $H$），下標 $c \in \{R, G, B\}$ 為感測器最原始的輸入顏色通道（Channel）；$LST_{ijc}$ 為逐像素鏡頭遮蔽表（Lens Shading Table），為 $W \times H \times 3$ 的三維張量，用於補償對應 $c$ 通道在空間上的邊緣失光；$Cb_{cc}$ 為色彩平衡矩陣（Color Balance Matrix），為 $3 \times 3$ 的對角矩陣（或視為通道增益向量），用於調整各顏色通道的增益平衡；$Cx_{qc}$ 為色彩串擾矩陣（Crosstalk Matrix），為 $3 \times 3$ 的全域矩陣，用於修正顏色交叉污染；而 $U_{ijpq}$ 為空間變異解混張量（Spatially-varying Unmixing Tensor），亦即前述預先載入的 \texttt{unmix\_tensor.npy} 檔案。它是一個維度為 $W \times H \times 3 \times 3$ 的四維張量，結合了空間位置 $(i, j)$ 與色彩通道映射（從輸入的光源通道 $q$ 映射到最終輸出的純淨通道 $p$），用於實現最高精度的色彩解混。以萃取純淨的綠色螢光（$p=G$）為例，演算法會針對畫面上的每一個像素 $(i, j)$，先將相機拍到的 R、G、B 原始亮度（$Image_{ijc}$）分別乘上 $LST_{ijc}$ 補償空間失光；接著，透過預載的張量 $U_{ij, q, G}$ 給定動態權重，把漏進綠色通道的紅色與藍色雜訊精準扣除。這一切複雜的 $3 \times 3$ 空間動態補償，皆被巧妙地壓縮在單一算式中。
+在程式實作中，此一複雜的多維度張量收縮運算（Tensor Contraction）並非透過巢狀迴圈（Nested Loops）完成，而是利用 NumPy 函式庫中高度優化的愛因斯坦求和（Einstein Summation）函數 \texttt{np.einsum('ijkl,ijl->ijk', unmix\_tensor, im)} 來實作。這使得系統能在毫秒級的時間內完成整張百萬像素影像的空間變異色彩解混，滿足即時影像處理與預覽的需求，徹底解決了低成本相機模組在螢光成像中因物理缺陷導致的數據失真。
+
+\subsection{差分背景減除與自主螢光抑制 (Background Subtraction and Autofluorescence Suppression)}
+
+針對螢光影像中常見的背景干擾，系統實作了差分背景減除功能。使用者可預先擷取背景畫格，鎖定光路中的雜散光、感測器熱雜訊以及樣本本身的背景自主螢光（Autofluorescence）。在後續採集流程中，系統將執行以下差分運算：
+\begin{equation}
+    P_{corrected} = P_{raw} - P_{background}
+    \label{eq:background_subtraction}
+\end{equation}
+其中，$P_{corrected}$ 代表扣除背景干擾後之純淨像素強度；$P_{raw}$ 為前述經過色彩解混與平場校正後之輸入像素強度；$P_{background}$ 則為系統預先擷取並鎖定之背景像素強度。此步驟對於抑制樣本自體產生的背景噪訊至關重要，能顯著提升影像的訊噪比（SNR），使微弱的目標螢光特徵在暗背景中更易於辨識與定量。
+
+
+\subsection{EV 補償與 16-to-8 Bit 動態映射 (EV Compensation and Rendering)}
+
+最後階段，為了讓高動態範圍的 16-bit 科學數據能在 8-bit 的網頁端介面即時顯示，系統實作了具備物理曝光補償（EV Compensation）的映射演算法。在視覺增益調整方面，系統透過 \texttt{ev\_comp} 參數，讓使用者能動態調整影像的視覺亮度，而此操作僅影響顯示層級，不會更動底層儲存的原始 16-bit 量測數據。在量化與格式轉換方面，系統利用 \texttt{np.clip} 將浮點運算後的數據限制在有效範圍內，隨後精確映射至 8-bit 空間並轉換為 \texttt{QImage} 格式輸出至串流模組。此設計兼顧了科學採集的嚴謹度與遠端操作的即時視覺反饋。
+
+
 
 \section{運算成像演算法}
 
-為了進一步突破光學硬體的物理極限，本研究實作了圖案化照明傅立葉疊層成像（piFP）技術。本章節首先引用 Diederich et al. (2020) 提出之九個核心數學公式來建立物理模型，隨後再說明本研究針對該模型所做的實作改良。
+為了進一步突破光學硬體的物理極限，本研究實作了圖案化照明傅立葉疊層成像（Pattern-Illuminated Fourier Ptychography, piFP）技術。本章節首先探討光學繞射極限與超解析成像的物理必然性，並藉由繞射角與空間頻率的關係說明高頻資訊的傳播特性，隨後闡述 piFP 的物理成像原理與正向數學模型，再詳細拆解散斑影像的亞像素級配準預處理流程，最後完整推導基於雙非負約束之 ePIE 迭代重建引擎。
 
-\subsection{piFP 物理模型與九個核心數學式}
+\subsection{繞射極限與超解析成像之物理必然性}
 
-piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從而將高頻資訊編碼進低頻通道。其物理模型可歸納為以下九個公式：
+傳統光學顯微鏡的空間解析度受到物理繞射極限（Diffraction Limit）的嚴格限制。根據波動光學，當物體表面的發光點經過具有有限孔徑的顯微物鏡時，由於光波在孔徑邊緣產生的繞射現象，該點源在像平面上無法聚焦成一個無限小的幾何點，而是形成一個具有特定直徑的繞射光斑，即艾里斑（Airy Disk），其三維光強分佈即為系統的點擴散函數（Point Spread Function, PSF）。這使得傳統顯微系統在頻域中本質上是一個二維低通濾波器，其可收集的最大空間頻率被截斷在物鏡截止頻率 $k_0 = 2\text{NA}/\lambda$ 內。
 
-\subsubsection{正向成像模型 (Forward Model)}
-
+為了深入理解超解析成像（Super-resolution Imaging）的物理原理，必須探討樣品細微結構（即高空間頻率資訊）與光波繞射角（Diffraction Angle）之間的內在關聯。假設樣本表面包含週期為 $T$ 的微細幾何結構（對應空間頻率 $f = 1/T$），當激發光照射其上時，這些微細結構可被視為微型透射光柵。根據光柵繞射方程，入射光與樣本交互作用後，其繞射光波會以特定角度 $\theta$向外散開：
+\begin{equation}
+    \sin\theta = m \frac{\lambda}{T} = m \lambda f
+\end{equation}
+其中，$m$ 為繞射階數（$m = 0, \pm 1, \pm 2, \dots$），$\lambda$ 為激發或發射光波長。由該物理公式可得出以下關鍵物理結論：
 \begin{enumerate}
-    \item 物空間之場耦合：結構光 $S_n(r)$ 與樣本 $O(r)$ 在空間域呈現相乘關係：
+    \item \textbf{樣品結構越粗糙（低空間頻率）：} 對應的空間週期 $T$ 較大，其繞射角 $\theta$ 較小（光波散開的角度小，緊貼光軸傳播）。
+    \item \textbf{樣品結構越精細（高空間頻率）：} 對應的空間週期 $T$ 極小，其繞射角 $\theta$ 會顯著增大（光波散開的角度極大，遠離光軸傳播）。
+\end{enumerate}
+因此，\textbf{樣品的高頻細節（超解析資訊）本質上是被編碼在以極大角度擴散/繞射的高角光波中}。
+
+然而，顯微物鏡的物理孔徑限制了其最大集光角 $\theta_{\text{max}}$，其數值孔徑定義為 $\text{NA} = n \sin\theta_{\text{max}}$（$n$ 為介質折射率）。當樣品結構細微至繞射角 $\theta > \theta_{\text{max}}$ 時（即空間頻率 $f > \text{NA}/(n\lambda)$），如圖~\ref{fig:fig3_40_diffraction} 所示，\textbf{這些攜帶樣品高頻精細細節的大角度繞射光波將完全散開至物鏡物理孔徑之外}。由於無法被物鏡收集，這些光波在光學傳輸過程中被永久截斷與丟失，相機感測器僅能接收到在較小角度傳播的低頻背景光，因而限制了最終的影像解析度。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/ch3/fig3_40_diffraction.png}
+    \caption{光學繞射極限與繞射角物理截斷示意圖。左側精細結構（高空間頻率）產生的繞射光散開角度較大，超越了物鏡的最大集光角 $\theta_{\text{max}}$，因而被孔徑邊緣物理截斷，無法參與成像；右側粗糙結構（低空間頻率）產生的繞射光散開角度較小，能順利被物鏡收集，在相機感測器上成像。}
+    \label{fig:fig3_40_diffraction}
+\end{figure}
+
+為了突破此光學繞射屏障，超解析成像技術（如本研究所實作之 piFP）的運作機制是在空間域中使用一個高頻調製圖案（如未知隨機散斑）$P_n(r)$ 與樣品物體 $I_{\text{obj}}(r)$ 相乘。根據傅立葉變換之卷積定理，空間域的相乘等同於頻域中的卷積：$\mathcal{F}\{I_{\text{obj}} \cdot P_n\} = \mathcal{F}\{I_{\text{obj}}\} \otimes \mathcal{F}\{P_n\}$。
+此頻率混疊（Frequency Mixing / Heterodyning）過程在物理上\textbf{將那些原本以超大角度散開、無法被物鏡收集的高頻繞射光波，折射/調製至較小的角度範圍內（$\theta \le \theta_{\text{max}}$）}\/，使其得以順利穿過物鏡並在相機感測器上被捕捉。最終，ePIE 迭代重建算法通過計算解調，將這些被「下變頻」到低通頻寬內的成分重新還原並精確投影回其原始的高頻頻譜位置，從而實現超越物鏡物理數值孔徑限制的超解析度成像。
+
+
+\subsection{piFP 物理成像原理與正向數學模型}
+
+在明視野或相干光學成像中，系統通常以光場的複數振幅（Complex Amplitude）進行線性疊加與傳播。然而，在螢光顯微成像中，由於樣品發射的螢光在空間上是互不相干的（Spatially Incoherent），因此螢光成像系統本質上是一個對於「光強度（Light Intensity）」呈線性的不相干光學系統。此物理特性意味著所有相關的物理量——包括樣品發射強度、照明散斑強度以及相機量測影像，皆為實數且非負的物理量（即 $I \in \mathbb{R}^+$）。
+
+在二維平面空間座標 $r = (x, y)$ 下，假設高解析度螢光樣本的自體發光強度分佈為 $I_{\text{obj}}(r)$。當我們使用第 $n$ 張具有空間位移 $s_n = (dx_n, dy_n)$ 的未知隨機散斑強度圖案 $P_n(r) = P(r - s_n)$ 照射樣本時，在空間物域中，樣本的螢光發射強度會與散斑強度呈現逐點相乘關係。經物鏡收集並在感測器上成像的低解析度觀測強度影像 $I_n(r)$，可描述為該調製強度與光學系統不相干點擴散函數（Point Spread Function, $PSF(r)$）的卷積結果：
+\begin{equation}
+    I_n(r) = \left[ I_{\text{obj}}(r) \cdot P_n(r) \right] \otimes PSF(r)
+\end{equation}
+其中，$\otimes$ 表示二維空間卷積運算。
+
+根據卷積定理，我們將上述物理成像過程轉換至頻域。對空間域強度影像進行二維傅立葉變換 $\mathcal{F}\{\cdot\}$，可得到對應的頻域正向成像模型：
+\begin{equation}
+    \mathcal{F}\{I_n\}(k) = \text{OTF}(k) \cdot \mathcal{F}\left\{ I_{\text{obj}} \cdot P_n \right\}(k)
+\end{equation}
+其中，$k = (k_x, k_y)$ 為二維空間頻率座標，而不相干光學轉換函數（Optical Transfer Function, $\text{OTF}(k)$）為點擴散函數的傅立葉變換（即 $\text{OTF}(k) = \mathcal{F}\{PSF(r)\}$）。它在物理上描述了顯微物鏡對不同空間頻率成分的二維低通濾波特性。
+
+對於一個孔徑無像差的繞射極限（Diffraction-limited）光學系統，不相干 OTF 具有明確的二維解析幾何結構，其徑向對稱分佈可由下式給出：
+\begin{equation}
+    \text{OTF}(\rho) = 
+    \begin{cases}
+        \frac{2}{\pi} \left[ \arccos\left(\frac{\rho}{k_0}\right) - \frac{\rho}{k_0} \sqrt{1 - \left(\frac{\rho}{k_0}\right)^2} \right], & \text{if } \rho \leq k_0 \\
+        0, & \text{if } \rho > k_0
+    \end{cases}
+\end{equation}
+其中，$\rho = \sqrt{k_x^2 + k_y^2}$ 為徑向空間頻率，而 $k_0$ 為不相干截止頻率（Cutoff Frequency），其值由物鏡數值孔徑（Numerical Aperture, $\text{NA}$）與發射螢光中心波長 $\lambda$ 共同決定：
+\begin{equation}
+    k_0 = \frac{2\text{NA}}{\lambda}
+\end{equation}
+在此模型下，不相干 $\text{OTF}$ 在零頻處進行正規化，即 $\text{OTF}(0) = 1$。此正向成像模型表明，頻域中樣本的高頻成分在乘上高頻散斑後，被向內搬移到了物鏡截止頻率 $k_0$ 的物理限制之內，從而得以被相機記錄下來。piFP 的重建任務即是從一系列包含頻譜搬移資訊的觀測圖 $I_n(r)$ 中，迭代求解出高頻發射強度 $I_{\text{obj}}(r)$。
+
+\subsection{散斑影像之亞像素級配準與預處理流程}
+
+由於散斑圖案的空間平移是透過二維精密機械載台（XY Stage）移動樣本或照明擴散片來實現的，在實際物理系統中，步進馬達不可避免地存在機械背隙（Backlash）、步長隨機抖動以及物理微小過衝。這些誤差會導致標稱移動座標與實際物理位移 $s_n$ 產生偏離。若直接將標稱座標用於傅立葉重構，會引發頻域相位對準錯誤，導致重建結果出現劇烈震盪偽影與解析度跌落。因此，在進入迭代引擎前，必須對所有低解析度影像進行精密之「亞像素級（Sub-pixel）」配準，以高精度反向恢復出實際物理位移量。
+
+本研究開發了一套高度穩健的亞像素散斑配準與圖像對齊預處理管線，包含四階段特徵增強濾波、頻域相位相關法以及雙線性/雙三次仿射配準：
+
+\textbf{1. 四階段特徵增強預處理}
+為了使配準演算法專注於散斑圖案的宏觀幾何結構（散斑斑點座標），並抑制背景螢光雜訊與相機像素雜訊，每張輸入影像 $I_n(r)$ 需依序經過以下處理：
+\begin{itemize}
+    \item \textbf{高斯初級濾波：} 使用 $3 \times 3$ 高斯卷積核進行輕微模糊，以柔化相機感測器的高頻像素雜訊：
     \begin{equation}
-        \psi_n(r) = O(r) \cdot S_n(r)
+        I'_n(r) = I_n(r) * G_{3\times 3}(r)
     \end{equation}
-    
-    \item 頻譜之卷積特徵：根據卷積定理，頻域中兩者呈現卷積關係，這解釋了頻譜搬移的物理基礎：
+    \item \textbf{大尺度橢圓形態學開運算（Morphological Opening）：} 為濾除微小細胞碎屑或隨機灰塵引起的局部高頻干擾，演算法採用尺度為 $41 \times 41$ 像素的橢圓形結構元素（Structuring Element, $SE_{\text{ellipse}}$）對影像進行形態學開運算。此運算能完全消除小於結構元素的孤立亮點，僅保留大面積的散斑特徵：
     \begin{equation}
-        \tilde{\psi}_n(k) = \tilde{O}(k) \otimes \tilde{S}_n(k)
+        I''_n(r) = (I'_n \circ SE_{\text{ellipse}})(r) = \left[ (I'_n \ominus SE_{\text{ellipse}}) \oplus SE_{\text{ellipse}} \right] (r)
     \end{equation}
-    
-    \item 物鏡低通濾波：物鏡孔徑限制了可通過的頻譜 $H(k)$（瞳函數）：
+    其中，$\ominus$ 與 $\oplus$ 分別代表形態學侵蝕（Erosion）與膨脹（Dilation）運算。
+    \item \textbf{對比度正規化：} 將數據類型轉換為 \texttt{float32} 浮點數，並進行動態範圍歸一化，以消除不同幀之間的光源功率微小波動，使影像能量均勻分佈在 $[0.0, 1.0]$ 區間：
     \begin{equation}
-        \Psi_n(k) = \tilde{\psi}_n(k) \cdot H(k)
+        I'''_n(r) = \frac{I''_n(r) - \min(I''_n)}{\max(I''_n) - \min(I''_n)}
     \end{equation}
-    
-    \item 感測器採集強度：相機僅偵測光場強度，損失了相位：
+    \item \textbf{高斯次級平滑：} 再次使用 $5 \times 5$ 高斯卷積核進行模糊，這在數學上能使後續相位相關法在頻域交叉功率譜中產生的互相關峰值更加平滑穩定，避免局部位移突變：
     \begin{equation}
-        I_n(r) = | \mathcal{F}^{-1} \{ \Psi_n(k) \} |^2
+        I^{\text{final}}_n(r) = I'''_n(r) * G_{5\times 5}(r)
+    \end{equation}
+\end{itemize}
+
+\textbf{2. 頻域相位相關法 (Phase Correlation)}
+以採集序列中正中間的那張影像作為基準參考畫格（Reference Frame, $I^{\text{final}}_{\text{ref}}(r)$）。針對其餘任意目標畫格 $I^{\text{final}}_n(r)$，首先套用二維漢寧窗（Hanning Window, $w(r)$）以消除影像邊緣的不連續性，隨後在頻域計算兩者的交互功率譜（Cross-power Spectrum, $C(u, v)$）：
+\begin{equation}
+    C(u, v) = \frac{\mathcal{F}\left\{ w \cdot I^{\text{final}}_{\text{ref}} \right\} \cdot \mathcal{F}\left\{ w \cdot I^{\text{final}}_n \right\}^*}{\left| \mathcal{F}\left\{ w \cdot I^{\text{final}}_{\text{ref}} \right\} \cdot \mathcal{F}\left\{ w \cdot I^{\text{final}}_n \right\}^* \right|}
+\end{equation}
+其中，$*$ 代表複數共軛。接著，對交互功率譜進行逆傅立葉變換，得到空間域的互相關脈衝響應函數 $c(x, y) = \mathcal{F}^{-1}\{C(u, v)\}$。
+在連續域中，$c(x, y)$ 會在對應兩張影像相對位移 $(dx_n, dy_n)$ 的座標處產生一個尖銳的狄拉克 $\delta$ 峰值。在離散像素網格下，為獲取超越單個像素邊界的亞像素精度，演算法對離散互相關矩陣最大值周圍的 $3 \times 3$ 像素區域進行二次曲面擬合（Quadric Surface Fitting），解析求得擬合曲面之解析頂點座標，從而將位移檢測精度大幅提升至 $0.1$ 像素等級。
+
+\textbf{3. 圖像放大仿射配準 (Upscaled Registration)}
+在求得每張觀測圖相對於基準面的高精度亞像素位移 $(dx_n, dy_n)$ 後，為防止在像素對齊時因空間插值導致高頻散斑資訊在數值上被磨平，本研究引入了網格增強因子 $s = 2.0$。我們在比原始網格大兩倍的二維網格中進行空間變換，透過建立包含尺度放大與平移的仿射變換矩陣 $M_n$，並採用高品質的雙三次插值（Bicubic Interpolation）執行仿射配準，輸出對齊後的影像 $I_n^{\text{aligned}}(r)$：
+\begin{equation}
+    M_n = \begin{bmatrix} s & 0 & -dx_n \cdot s \\ 0 & s & -dy_n \cdot s \end{bmatrix}
+\end{equation}
+\begin{equation}
+    I_n^{\text{aligned}}(r) = \text{WarpAffine}\left( I_n(r), M_n, s\cdot W, s\cdot H, \text{flags}=\text{INTER\_CUBIC} \right)
+\end{equation}
+此配準步驟將所有採集到的螢光低解析度圖像精確配準於同一個高解析度重構網格中，所得的對齊位移向量集 $s_n^{\text{scaled}} = (-dy_n \cdot s, -dx_n \cdot s)$ 將作為先驗幾何參數輸入後續迭代重構引擎。
+
+\subsection{基於雙非負約束之 ePIE 迭代重建引擎}
+
+在實作中，發光樣本 $I_{\text{obj}}(r)$ 與隨機散斑圖案 $P(r)$ 皆為未知數。這是一個標準的非線性雙線性盲反問題（Blind Bilinear Inverse Problem）。為此，本研究開發了一套基於強物理約束的不相干強度版擴展標籤疊代引擎（extended Ptychographical Iterative Engine, ePIE）。該演算法交替地在空間域施加強度物理約束，在頻域施加光學系統物鏡的不相干 OTF 支持域約束，在無需先驗知道照明散斑形貌的情況下，同時高保真度地重建出樣本和散斑的精細結構。
+
+具體的重構算法步驟如下：
+
+\textbf{步驟一：全局初始化}
+\begin{itemize}
+    \item 螢光樣本強度初值 $I_{\text{obj}}^{(0)}(r)$ 設為所有已對齊低解析度觀測影像的平均值（即標準明視野寬場影像）：
+    \begin{equation}
+        I_{\text{obj}}^{(0)}(r) = \frac{1}{N} \sum_{n=1}^N I_n^{\text{aligned}}(r)
+    \end{equation}
+    \item 未知照明散斑強度初值 $P^{(0)}(r)$ 初始化為均勻光強分佈：
+    \begin{equation}
+        P^{(0)}(r) = \text{mean}(I_n^{\text{aligned}}) \cdot \mathbf{1}_{s\cdot W \times s\cdot H}
+    \end{equation}
+\end{itemize}
+
+\textbf{步驟二：雙線性交替迭代 (ePIE Loop)}
+在第 $k$ 輪迭代中（共執行 $M$ 輪），演算法針對每一個對齊後的觀測畫格 $n \in \{1, 2, \dots, N\}$ 及其對應的亞像素位移 $s_n^{\text{scaled}} = (\Delta y_n, \Delta x_n)$，依序執行下列更新：
+\begin{enumerate}
+    \item \textbf{頻域子像素平移照明圖案：}
+    將當前估計的全局散斑 $P^{(k)}(r)$ 變換至頻域，乘上線性相位移因子，以在不損失空間解析度的前提下實現高精度的子像素位移，進而獲得第 $n$ 個平移位置的局域散斑估計值 $P_n^{(k)}(r)$：
+    \begin{equation}
+        \mathcal{F}\left\{ P_n^{(k)} \right\}(u, v) = \mathcal{F}\left\{ P^{(k)} \right\}(u, v) \cdot \exp\left[ -i 2\pi \left( u \cdot \Delta x_n + v \cdot \Delta y_n \right) \right]
+    \end{equation}
+    \begin{equation}
+        P_n^{(k)}(r) = \left| \mathcal{F}^{-1}\left\{ \mathcal{F}\left\{ P_n^{(k)} \right\}(u, v) \right\} \right|
+    \end{equation}
+    \item \textbf{生成前向估計強度：}
+    在空間域將樣本估計強度與散斑估計強度相乘，得到目標調製強度 $I_{tn}^{(k)}(r)$：
+    \begin{equation}
+        I_{tn}^{(k)}(r) = I_{\text{obj}}^{(k)}(r) \cdot P_n^{(k)}(r)
+    \end{equation}
+    \item \textbf{頻域不相干 OTF 修正：}
+    將目標強度變換至頻域得到 $\mathcal{F}\{I_{tn}^{(k)}\}$，使用系統的不相干光學轉換函數 $\text{OTF}(u, v)$ 作為濾波支持約束，計算與觀測實測頻譜 $\mathcal{F}\{I_n^{\text{aligned}}\}$ 的殘差，並執行頻譜增強更新：
+    \begin{equation}
+        \mathcal{F}\left\{ I_{tn}^{(k)} \right\}^{\text{updated}}(u, v) = \mathcal{F}\left\{ I_{tn}^{(k)} \right\}(u, v) + \text{OTF}(u, v) \cdot \left[ \mathcal{F}\left\{ I_n^{\text{aligned}} \right\}(u, v) - \mathcal{F}\left\{ I_{tn}^{(k)} \right\}(u, v) \cdot \text{OTF}(u, v) \right]
+    \end{equation}
+    隨後，將更新後的頻譜反變換回空間物域，提取其實部作為更新後的物域目標強度：
+    \begin{equation}
+        I_{tn}^{(k), \text{updated}}(r) = \text{Re}\left\{ \mathcal{F}^{-1}\left\{ \mathcal{F}\left\{ I_{tn}^{(k)} \right\}^{\text{updated}}(u, v) \right\} \right\}
+    \end{equation}
+    \item \textbf{高解析度樣本強度更新（空間域 ePIE 步長更新）：}
+    計算修正前與修正後目標強度的空間域殘差：$\Delta I_{tn}^{(k)}(r) = I_{tn}^{(k), \text{updated}}(r) - I_{\text{obj}}^{(k)}(r) \cdot P_n^{(k)}(r)$。
+    演算法以局部散斑的能量大小作為動態加權因子，更新樣本強度估計值，以加快收斂速度：
+    \begin{equation}
+        I_{\text{obj}}^{(k)}(r) \leftarrow I_{\text{obj}}^{(k)}(r) + \alpha^{(k)}(r) \cdot \Delta I_{tn}^{(k)}(r)
+    \end{equation}
+    其中，動態物體更新權重 $\alpha^{(k)}(r)$ 為：
+    \begin{equation}
+        \alpha^{(k)}(r) = \frac{P_n^{(k)}(r)}{\max\left(P_n^{(k)}\right)^2 + 10^{-8}}
+    \end{equation}
+    \textbf{實體非負約束（Non-negativity Constraint）：} 由於螢光強度在物理上不可能為負值，演算法在每次更新後立即強制執行下限截斷，以剔除因高頻數值運算引起的隨機負值噪訊，這能極大增強背景的對比度與暗區的穩定性：
+    \begin{equation}
+        I_{\text{obj}}^{(k)}(r) \leftarrow \max\left( I_{\text{obj}}^{(k)}(r), 0 \right)
+    \end{equation}
+    \item \textbf{照明散斑強度盲更新（空間域 ePIE 步長更新）：}
+    以當前樣本的強度分佈作為動態步長，同步修正局部散斑強度：
+    \begin{equation}
+        P_n^{(k), \text{updated}}(r) = P_n^{(k)}(r) + \beta^{(k)}(r) \cdot \Delta I_{tn}^{(k)}(r)
+    \end{equation}
+    其中，動態散斑更新權重 $\beta^{(k)}(r)$ 為：
+    \begin{equation}
+        \beta^{(k)}(r) = \frac{I_{\text{obj}}^{(k)}(r)}{\max\left(I_{\text{obj}}^{(k)}\right)^2 + 10^{-8}}
+    \end{equation}
+    同樣，對散斑施加非負物理約束：$P_n^{(k), \text{updated}}(r) \leftarrow \max(P_n^{(k), \text{updated}}(r), 0)$。
+    \item \textbf{散斑之光學頻域物理孔徑限制約束（Joint Support Constraint）：}
+    由於照明散斑是由顯微物鏡投影至樣本平面上的，其空間頻率不可能超越該光學物鏡本身的物理截止頻寬。為此，演算法在頻域對更新後的局域散斑進行低通濾波，強制濾除超出物鏡孔徑之外的高頻數值雜訊。這構成了系統物理特性的聯合支持約束（Joint Support）：
+    \begin{equation}
+        \mathcal{F}\left\{ P_n^{(k), \text{filtered}} \right\}(u, v) = \mathcal{F}\left\{ P_n^{(k), \text{updated}} \right\}(u, v) \cdot \text{Mask}_{\text{OTF}}(u, v)
+    \end{equation}
+    其中，二值化光學孔徑遮罩 $\text{Mask}_{\text{OTF}}(u, v)$ 定義為：
+    \begin{equation}
+        \text{Mask}_{\text{OTF}}(u, v) = 
+        \begin{cases}
+            1.0, & \text{if } \text{OTF}(u, v) > 10^{-6} \\
+            0.0, & \text{if } \text{OTF}(u, v) \leq 10^{-6}
+        \end{cases}
+    \end{equation}
+    我們將受約束的頻域散斑反投影回空間物域，提取其實部並再次施加非負限制，得到物理一致的局域散斑強度 $P_n^{(k), \text{constrained}}(r)$：
+    \begin{equation}
+        P_n^{(k), \text{constrained}}(r) = \max\left( \text{Re}\left\{ \mathcal{F}^{-1}\left\{ \mathcal{F}\left\{ P_n^{(k), \text{filtered}} \right\}(u, v) \right\} \right\}, 0 \right)
+    \end{equation}
+    \item \textbf{更新與投影回全局散斑：}
+    最後，將修正後的局域散斑估計值反向平移 $-s_n^{\text{scaled}}$，更新全局照明散斑強度 $P^{(k+1)}(r)$：
+    \begin{equation}
+        P^{(k+1)}(r) = \text{shift\_pattern}\left( P_n^{(k), \text{constrained}}(r), -s_n^{\text{scaled}} \right)
     \end{equation}
 \end{enumerate}
 
-\subsubsection{逆向重建疊代引擎 (ePIE Algorithm)}
-
-為了從損失相位的強度圖中還原 $O(r)$，系統採用擴展標籤疊代引擎（ePIE）：
-
-\begin{enumerate}
-    \setcounter{enumi}{4}
-    \item 估計場之生成：利用當前估計的物體與圖案產生估計場：
-    \begin{equation}
-        \psi_{est,n}(r) = O_{est}(r) \cdot S_{est,n}(r)
-    \end{equation}
-    
-    \item 頻域振幅修正：將估計場轉換至頻域，並以實測強度 $\sqrt{I_n}$ 替換其振幅，保留原始相位：
-    \begin{equation}
-        \Psi'_{n}(k) = \mathcal{F} \left\{ \sqrt{I_n} \cdot \frac{\psi_{est,n}(r)}{|\psi_{est,n}(r)|} \right\}
-    \end{equation}
-    
-    \item 殘差場計算：計算修正後與修正前在空間域的差異：
-    \begin{equation}
-        \Delta\psi_n(r) = \mathcal{F}^{-1} \{ \Psi'_n(k) \} - \psi_{est,n}(r)
-    \end{equation}
-    
-    \item 物體函數更新：利用步長 $\alpha$進行更新：
-    \begin{equation}
-        O_{new}(r) = O_{old}(r) + \alpha \frac{S_n^*(r)}{|S_n(r)|^2_{max}} \Delta\psi_n(r)
-    \end{equation}
-    
-    \item 照明圖案更新：同步執行盲去卷積修正圖案估計值：
-    \begin{equation}
-        S_{new}(r) = S_{old}(r) + \beta \frac{O^*(r)}{|O(r)|^2_{max}} \Delta\psi_n(r)
-    \end{equation}
-\end{enumerate}
-
-\subsection{本研究之改良演算法實作}
-
-在上述理論框架基礎上，本研究針對實際硬體誤差與嵌入式運算資源的限制，開發了具備高度穩定性的實作管線。
-
-\subsubsection{基於相位相關法之亞像素對齊 (Sub-pixel Alignment)}
-
-由於擴散片在機械平移過程中存在機械背隙與微小的位移隨機偏差，重建前的「亞像素級」對齊對於恢復高頻相位至關重要。
-
-\begin{itemize}
-    \item 雜訊抑制預處理：針對散斑圖案（Speckle Pattern）訊噪比低且具備週期性特徵的挑戰，我們在進行頻域對齊前，對影像引入了大規模核心（$41 \times 41$）的形態學開運算。此步驟能有效濾除感測器的高頻噪點，保留散斑的結構特徵。
-    \item 交互功率譜運算：對齊核心利用基準影像 $R$ 與待對準影像 $T$ 的交互功率譜來提取相位差：
-    \begin{equation}
-        C(u, v) = \frac{\mathcal{F}(R) \cdot \mathcal{F}(T)^*}{\left| \mathcal{F}(R) \cdot \mathcal{F}(T)^* \right|}
-    \end{equation}
-    \item 亞像素峰值定位：
-    系統對 $C(u, v)$ 進行逆傅立葉變換得到脈衝響應函數。為了達成超越像素邊界（Sub-pixel）的精度，我們並非簡單尋找最大值座標，而是對峰值周圍 $3 \times 3$ 的區域進行「二次曲面擬合（Quadric Surface Fitting）」。透過解析擬合曲面的頂點座標，系統能達成高達 $0.1$ 像素等級的位移偵測，確保了頻譜搬移在頻域空間的絕對準確性。
-\end{itemize}
-
-\subsubsection{ePIE 迭代重建引擎與記憶體管理}
-
-演算法實作於 Python 運算核心中，負責在空間域與頻域之間反覆執行複數場運算。
-
-\begin{itemize}
-    \item 複數場表示：物體函數 $O(r)$ 與照明圖案 $S(r)$ 採用 \texttt{complex128} 雙倍精度複數格式存儲，以避免在多次疊代後的相位累積誤差。
-    \item 物理約束更新邏輯：
-    在每一輪迭代中，針對第 $n$ 張採集影像，系統依據實測強度的振幅 $\sqrt{I_{meas,n}}$ 修正估計場。為了提高收斂速度，我們引入了「動態步長更新規則」，在迭代初期採用較大的 $\alpha, \beta$ 步長加速頻譜填充，隨後逐漸衰減以細化邊緣細節。
-    \begin{equation}
-        F'_{Itn} = F_{Itn} + \text{OTF} \cdot (F_{meas,n} - F_{Itn} \cdot \text{OTF})
-    \end{equation}
-    \item 盲去卷積 (Blind Deconvolution)：演算法同步更新物體估計與照明圖案估計。這意味著系統具備自我校準能力，即使初始散斑圖案不精確，也能在迭代過程中自動修正物理模型。
-\end{itemize}
-
-\subsubsection{動態收斂狀態機與防過擬合機制}
-
-為了避免無效的運算消耗並防止過度迭代導致的震盪偽影，本系統實作了一套「動態收斂監控機制」。
-
-\begin{itemize}
-    \item 相對殘差監控：系統即時監控每一輪迭代後的相對變化率 $\epsilon = ||O_{new} - O_{old}|| / ||O_{old}||$。
-    \item MSE 改善率判斷：系統會記錄均方誤差（MSE）的變化曲線。當 MSE 的改善率低於 $0.2\%$ 且維持超過 3 次迭代時，狀態機將自動判斷為「收斂完成」。
-    \item 效能表現：此機制使重建時間平均縮短了 40\%。在保持同等重建品質的前提下，對於 40 張影像的典型樣本，重建過程可從原先的 5 分鐘縮短至 3 分鐘內，極大提升了實驗效率。
-\end{itemize}
+\textbf{步驟三：收斂狀態監控與板塊終止機制}
+為防止過多迭代導致影像噪訊放大（過擬合）並降低運算成本，演算法即時監控兩次相鄰迭代之間高解析度樣本估計量的相對變化率 $\epsilon_k$：
+\begin{equation}
+    \epsilon_k = \frac{\left\| I_{\text{obj}}^{(k)} - I_{\text{obj}}^{(k-1)} \right\|_F}{\left\| I_{\text{obj}}^{(k-1)} \right\|_F + 10^{-9}}
+\end{equation}
+where $\|\cdot\|_F$ 代表 Frobenius 矩陣範數。若相對變化率低於預設容差限制（$\epsilon_k < 10^{-4}$），則判定為完全收斂並退出迭代。
+此外，演算法對均方誤差（MSE）的變化曲線引入了「板塊檢測（Plateau Detection）與耐心值（Patience）機制」：若相對 MSE 改善率在連續 3 次迭代中均低於 $0.2\%$（$\text{min\_improvement} = 0.002$），則演算法提前終止，以在影像重建品質與計算開銷之間取得最佳平衡。
 
 \section{樣本製作}
 
-為了量化評估系統在明視野與螢光條件下的效能，本研究採用了以下幾種標準樣本進行基準測試：
+為了量化評估系統在明視野與螢光條件下的效能，本研究採用了以下幾種標準樣本進行基準測試，並制定了嚴格的樣本製備流程：
 \begin{itemize}
     \item NBS 1952 標準解析度測試卡（NIST, Gaithersburg, MD）：作為評估系統基礎光學極限與平場校正演算法效能的基準。
-    \item $15 \mu m$ 黃綠色螢光微球（FluoSpheres, Thermo Fisher Scientific, Waltham, MA）：具有極高色彩純度，用於檢驗張量解混演算法修復色彩串擾與空間不均勻性的能力。
+    \item 黃綠色螢光微球基準樣本（包含 $15\,\mu\text{m}$ 與 $10\,\mu\text{m}$ FluoSpheres, Thermo Fisher Scientific, Waltham, MA）：作為本研究螢光顯微成像與圖案化照明超解析重建（piFP）實驗的主要螢光影像來源與測試樣本。
     \item 植物細胞切片與血塗片：提供具有複雜背景與多樣化形態特徵的真實生物樣本，用以測試自動對焦狀態機在複雜場景下的尋峰穩定度與收斂速度。
 \end{itemize}
 
+為了確保螢光微球在載玻片上的分佈均勻性，避免微球因重力沉降而在局部產生嚴重的聚集與堆疊現象，本研究實作了如下標準化製備流程：
+對於 $15\,\mu\text{m}$ 與 $10\,\mu\text{m}$ 的黃綠色螢光微球懸浮液，本研究均採用**無稀釋之原液**進行製備，以確保在感測視野內維持足夠的微球數量密度。在滴片前，將裝有螢光微球原液的微量離心管置於**渦旋震盪器（Vortex Mixer）**上進行高速外部震盪。藉由高頻震盪在試管內部產生旋轉的三維渦流，強烈剪切微球間的分子間作用力，使沉降在管底的微球在液體介質中獲得完全重懸與均勻分散。震盪混勻完成後，立即使用微量吸管吸取均勻重懸的液體，迅速滴加於乾淨的載玻片中央，隨後進行蓋玻片覆蓋與封片保存。此製備方法能保證微球在載玻片平面上呈單層且高度均勻分散，為後續高精度自動對焦、PSF 標定以及超解析 piFP 重建演算法提供無失真的標準點源特徵。
+
+
 \section{系統物料清單 (BOM)}
 
-為了落實科學研究之開源精神與可重複性（Reproducibility），本節鉅細靡遺地列出本系統原型開發所使用之所有光學元件、機電零件、載台材料與測試樣本。系統之完整物料清單與參考採購成本（新台幣）如表 \ref{tab:bom_optics} 至表 \ref{tab:bom_samples} 所示。特別說明，本表在主控端電子元件中列出 Raspberry Pi 5 16GB 版本，然而在一般單機版應用場景下，亦可使用 4GB 版本作為替代方案，以進一步控制開發成本，且不影響核心影像擷取與步進馬達之控制。
+為了落實科學研究之開源精神與可重複性（Reproducibility），本節鉅細靡遺地列出本系統原型開發所使用之所有光學、機電與結構元件。系統之組裝物料清單與參考採購成本（新台幣）如表 \ref{tab:bom_optics} 至表 \ref{tab:bom_electronic} 所示。本系統四大核心硬體組件之累計總成本為 NT\$ 41,914（其中光學元件合計為 NT\$ 28,125，支架與平移台機構合計為 NT\$ 3,800，積木外殼結構合計為 NT\$ 1,896，電子與控制元件合計為 NT\$ 8,093）。相較於動輒數十萬至百萬新台幣的商用螢光顯微鏡系統，本顯微系統展現了極高的成本優勢與可普及性，大幅降低了開源生物醫學光學成像的准入門檻。特別說明，本表在主控端電子元件中列出 Raspberry Pi 5 16GB 版本，然而在一般單機版應用場景下，亦可使用 4GB 版本作為替代方案，以進一步控制開發成本，且不影響核心影像擷取與步進馬達之控制。
 
 \begin{table}[H]
     \centering
@@ -628,19 +731,6 @@ piFP 的核心思想是透過隨機結構光 $S(r)$ 來調製樣本 $O(r)$，從
         繼電器模組 & JQC-3FF 5V & 1 & 25 \\
         雷射二極體 & Sharp 80mW 5.6mm Laser Diode (450nm) & 1 & 463 \\
         雷射模組外殼 & 方殼 33$\times$50 適配 5.6mm 二極體 & 1 & 571 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \caption{系統物料清單：螢光測試樣本}
-    \label{tab:bom_samples}
-    \begin{tabular}{llcc}
-        \toprule
-        項目 & 規格 / 描述 & 數量 & 單價 (NT\$) \\
-        \midrule
-        螢光微球 & FMG-1.3, 1-5$\mu$m (Green Fluorescent, 500mg) & 1 & 138.7 \\
         \bottomrule
     \end{tabular}
 \end{table}

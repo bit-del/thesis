@@ -53,11 +53,11 @@ def get_shift_phase_correlation(ref_img, target_img):
 
 def main():
     # ================= 參數設定 =================
-    input_folder = r"C:\Users\chen0\Documents\fluorescence\pifp_algorithm\database\pifp_data_0405_20x_1-5um"
+    input_folder = r"C:\Users\chen0\Documents\fluorescence\pifp_algorithm\database\pifp_data_0507_10x_A549_2"
     output_folder = r"C:\Users\chen0\Documents\fluorescence\pifp_algorithm\alignment"
     check_folder = r"C:\Users\chen0\Documents\fluorescence\pifp_algorithm\diff"
     save_shifts_file = "pattern_shifts.npy"
-    upscale_factor = 1.0
+    upscale_factor = 2.0
     # ===========================================
 
     # 執行前先清空輸出資料夾，避免舊檔案殘留
